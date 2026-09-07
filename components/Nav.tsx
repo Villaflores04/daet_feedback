@@ -1,17 +1,6 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 export function Nav() {
-  const [officer, setOfficer] = useState(false);
-  useEffect(() => {
-    fetch("/api/admin/session", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j) => setOfficer(Boolean(j.admin)))
-      .catch(() => setOfficer(false));
-  }, []);
-
   return (
     <header className="sticky top-0 z-40 border-b border-white/5 bg-[#07131c]/75 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
@@ -22,11 +11,6 @@ export function Nav() {
         <nav className="flex items-center gap-2 text-sm">
           <Link href="/spots" className="rounded-full px-4 py-2 text-sand/80 hover:bg-white/5 hover:text-sand">Spots</Link>
           <Link href="/dashboard" className="rounded-full bg-gold px-4 py-2 font-semibold text-ink hover:bg-[#f0d48a]">Live pulse</Link>
-          {officer && (
-            <Link href="/admin" className="rounded-full border border-gold/40 px-4 py-2 font-semibold text-gold hover:bg-gold/10">
-              Back to desk
-            </Link>
-          )}
         </nav>
       </div>
     </header>
@@ -38,7 +22,7 @@ export function Footer() {
     <footer className="mt-20 border-t border-white/5">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-10 text-sm text-sand/50 sm:flex-row sm:items-center sm:justify-between">
         <p>Tourist sentiment desk · Camarines Norte</p>
-        <p>Visitors never sign in. Officers use the <a href="/admin" className="text-gold/70 hover:text-gold">tourism desk</a>.</p>
+        <p>Visitors never sign in.</p>
       </div>
     </footer>
   );
