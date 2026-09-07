@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import type { Analytics } from "@/lib/types";
 import { AnalyticsView } from "./AnalyticsView";
 
-export function LivePulse({ initial }: { initial: Analytics }) {
+export function LivePulse({ initial, endpoint = "/api/analytics" }: { initial: Analytics; endpoint?: string }) {
   const [data, setData] = useState(initial);
   useEffect(() => {
     let on = true;
-    fetch("/api/analytics", { cache: "no-store" })
+    fetch(endpoint, { cache: "no-store" })
       .then((r) => r.json())
       .then((json) => {
         if (on && json && typeof json.totalReviews === "number") setData(json);
@@ -17,6 +17,6 @@ export function LivePulse({ initial }: { initial: Analytics }) {
     return () => {
       on = false;
     };
-  }, []);
+  }, [endpoint]);
   return <AnalyticsView data={data} />;
 }
