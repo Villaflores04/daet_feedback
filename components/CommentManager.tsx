@@ -1,23 +1,51 @@
 "use client";
+
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Feedback } from "@/lib/types";
+import type { Feedback, Spot } from "@/lib/types";
 
-export function CommentManager({ initial }: { initial: Feedback[] }) {
+export function CommentManager({ initial, spots = [] }: { initial: Feedback[]; spots?: Spot[] }) {
   const [rows, setRows] = useState(initial);
   const [editing, setEditing] = useState<Record<string, string>>({});
   const [q, setQ] = useState("");
+  const [spotId, setSpotId] = useState("all");
   const [sentiment, setSentiment] = useState("all");
   const router = useRouter();
 
+  const locations = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; count: number }>();
+    for (const s of spots) map.set(s.id, { id: s.id, name: s.name, count: 0 });
+    for (const f of rows) {
+      const id = f.spot_id;
+      const name = f.spots?.name || "Unknown spot";
+      const cur = map.get(id) || { id, name, count: 0 };
+      cur.count += 1;
+      cur.name = name;
+      map.set(id, cur);
+    }
+    return [...map.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }, [rows, spots]);
+
   const filtered = useMemo(() => {
     return rows.filter((f) => {
+      if (spotId !== "all" && f.spot_id !== spotId) return false;
       if (sentiment !== "all" && f.sentiment !== sentiment) return false;
       if (!q.trim()) return true;
       const hay = `${f.display_name} ${f.comment} ${f.spots?.name || ""}`.toLowerCase();
       return hay.includes(q.trim().toLowerCase());
     });
-  }, [rows, q, sentiment]);
+  }, [rows, q, sentiment, spotId]);
+
+  const grouped = useMemo(() => {
+    const g = new Map<string, { name: string; items: Feedback[] }>();
+    for (const f of filtered) {
+      const key = f.spot_id || "unknown";
+      const name = f.spots?.name || "Unknown spot";
+      if (!g.has(key)) g.set(key, { name, items: [] });
+      g.get(key)!.items.push(f);
+    }
+    return [...g.entries()].sort((a, b) => a[1].name.localeCompare(b[1].name));
+  }, [filtered]);
 
   async function save(id: string) {
     const comment = editing[id];
@@ -44,59 +72,56 @@ export function CommentManager({ initial }: { initial: Feedback[] }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search name, spot, or words"
-          className="min-w-[220px] flex-1 rounded-full border border-white/10 bg-ink/40 px-4 py-2 text-sm outline-none"
-        />
-        <select
-          value={sentiment}
-          onChange={(e) => setSentiment(e.target.value)}
-          className="rounded-full border border-white/10 bg-ink/40 px-4 py-2 text-sm"
-        >
+        <button type="button" onClick={() => setSpotId("all")} className={`rounded-full px-4 py-2 text-sm ${spotId === "all" ? "bg-gold font-semibold text-ink" : "border border-white/10 text-sand/70"}`}>
+          All locations · {rows.length}
+        </button>
+        {locations.map((l) => (
+          <button key={l.id} type="button" onClick={() => setSpotId(l.id)} className={`rounded-full px-4 py-2 text-sm ${spotId === l.id ? "bg-gold font-semibold text-ink" : "border border-white/10 text-sand/70"}`}>
+            {l.name} · {l.count}
+          </button>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or words" className="min-w-[220px] flex-1 rounded-full border border-white/10 bg-ink/40 px-4 py-2 text-sm outline-none" />
+        <select value={sentiment} onChange={(e) => setSentiment(e.target.value)} className="rounded-full border border-white/10 bg-ink/40 px-4 py-2 text-sm">
           <option value="all">All moods</option>
           <option value="positive">Positive</option>
           <option value="mixed">Mixed</option>
           <option value="negative">Negative</option>
         </select>
       </div>
-      {filtered.length === 0 && <p className="text-sand/50">No comments match.</p>}
-      {filtered.map((f) => (
-        <article key={f.id} className="glass rounded-2xl p-5">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-sm">
-              <span className="text-gold">{f.display_name}</span>
-              <span className="text-sand/40"> · {f.spots?.name}</span>
-              <span className="text-sand/40">
-                {" "}
-                · {f.rating}/5 {f.emoji}
-              </span>
-            </p>
-            <button type="button" onClick={() => remove(f.id)} className="text-sm text-coral">
-              Delete
-            </button>
-          </div>
-          {editing[f.id] !== undefined ? (
-            <div className="mt-3">
-              <textarea
-                value={editing[f.id]}
-                onChange={(e) => setEditing({ ...editing, [f.id]: e.target.value })}
-                rows={3}
-                className="w-full rounded-2xl border border-white/10 bg-ink/40 px-3 py-2 text-sm"
-              />
-              <button type="button" onClick={() => save(f.id)} className="mt-2 rounded-full bg-gold px-4 py-1 text-sm font-semibold text-ink">
-                Save
-              </button>
+      {filtered.length === 0 && <p className="text-sand/50">No comments for this location.</p>}
+      {grouped.map(([id, group]) => (
+        <section key={id} className="space-y-3">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-gold">Location</p>
+              <h2 className="font-display text-3xl">{group.name}</h2>
             </div>
-          ) : (
-            <p className="mt-2 cursor-pointer text-sand/80" onClick={() => setEditing({ ...editing, [f.id]: f.comment })} title="Click to edit">
-              {f.comment}
-            </p>
-          )}
-        </article>
+            <p className="text-sm text-sand/45">{group.items.length} pulse{group.items.length === 1 ? "" : "s"}</p>
+          </div>
+          {group.items.map((f) => (
+            <article key={f.id} className="glass rounded-2xl p-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm">
+                  <span className="text-gold">{f.display_name}</span>
+                  <span className="text-sand/40"> · {f.rating}/5 {f.emoji} · {f.sentiment}</span>
+                </p>
+                <button type="button" onClick={() => remove(f.id)} className="text-sm text-coral">Delete</button>
+              </div>
+              {editing[f.id] !== undefined ? (
+                <div className="mt-3">
+                  <textarea value={editing[f.id]} onChange={(e) => setEditing({ ...editing, [f.id]: e.target.value })} rows={3} className="w-full rounded-2xl border border-white/10 bg-ink/40 px-3 py-2 text-sm" />
+                  <button type="button" onClick={() => save(f.id)} className="mt-2 rounded-full bg-gold px-4 py-1 text-sm font-semibold text-ink">Save</button>
+                </div>
+              ) : (
+                <p className="mt-2 cursor-pointer text-sand/80" onClick={() => setEditing({ ...editing, [f.id]: f.comment })} title="Click to edit">{f.comment}</p>
+              )}
+            </article>
+          ))}
+        </section>
       ))}
     </div>
   );
