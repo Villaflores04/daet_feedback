@@ -32,12 +32,12 @@ export function AdminNav() {
               </Link>
             );
           })}
-          <Link href="/dashboard" className="rounded-full border border-white/15 px-4 py-2 text-sand/70 hover:bg-white/5">
-            Public pulse
-          </Link>
-          <Link href="/" className="rounded-full border border-white/15 px-4 py-2 text-sand/70 hover:bg-white/5">
-            Public site
-          </Link>
+          <a href="/dashboard" target="_blank" rel="noreferrer" className="rounded-full border border-white/15 px-4 py-2 text-sand/70 hover:bg-white/5">
+            Public pulse ↗
+          </a>
+          <a href="/" target="_blank" rel="noreferrer" className="rounded-full border border-white/15 px-4 py-2 text-sand/70 hover:bg-white/5">
+            Public site ↗
+          </a>
           <LogoutButton />
         </nav>
       </div>
