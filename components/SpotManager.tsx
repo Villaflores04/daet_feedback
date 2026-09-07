@@ -82,38 +82,91 @@ export function SpotManager({ initial }: { initial: Spot[] }) {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[.9fr_1.1fr]">
-      <form onSubmit={save} className="glass rounded-3xl p-6">
-        <h2 className="font-display text-2xl">{editId ? "Edit spot" : "Insert spot"}</h2>
+    <div className="grid gap-3 lg:grid-cols-[.92fr_1.08fr]">
+      <form onSubmit={save} className="card h-fit p-3.5">
+        <h2>{editId ? "Edit place" : "Insert place"}</h2>
         <Field label="Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-        <Field label="Category" value={form.category} onChange={(v) => setForm({ ...form, category: v })} />
+        <label className="lbl">Category</label>
+        <select
+          value={form.category}
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
+          className="w-full px-3 py-2 text-sm outline-none"
+        >
+          {["Coast", "Heritage", "Island", "Civic", "Park"].map((c) => (
+            <option key={c}>{c}</option>
+          ))}
+        </select>
         <Field label="Barangay / area" value={form.barangay} onChange={(v) => setForm({ ...form, barangay: v })} />
-        <label className="mt-4 block text-xs uppercase tracking-[0.16em] text-sand/45">Description</label>
-        <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="mt-2 w-full rounded-2xl border border-white/10 bg-ink/40 px-4 py-3 text-sm outline-none" />
-        <label className="mt-4 block text-xs uppercase tracking-[0.16em] text-sand/45">Cover photo</label>
-        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="mt-2 block w-full text-sm text-sand/70 file:mr-3 file:rounded-full file:border-0 file:bg-gold file:px-4 file:py-2 file:font-semibold file:text-ink" onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadFile(file); }} />
+        <label className="lbl">Description</label>
+        <textarea
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          rows={3}
+          className="w-full px-3 py-2 text-sm outline-none"
+        />
+        <label className="lbl">Cover photo</label>
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="mt-1 block w-full text-xs text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-gold file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) void uploadFile(file);
+          }}
+        />
         {uploading && <p className="mt-2 text-xs text-gold">Uploading…</p>}
-        {form.cover_url && <div className="mt-3 h-32 overflow-hidden rounded-2xl bg-cover bg-center" style={{ backgroundImage: `url(${form.cover_url})` }} />}
-        <label className="mt-4 flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} /> Featured on home
+        {form.cover_url && (
+          <div className="mt-2 h-20 overflow-hidden rounded-[10px] bg-cover bg-center" style={{ backgroundImage: `url(${form.cover_url})` }} />
+        )}
+        <label className="mt-3 flex items-center gap-2 text-[13px]">
+          <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} />
+          Featured on home
         </label>
-        {error && <p className="mt-3 text-sm text-coral">{error}</p>}
-        <div className="mt-5 flex gap-2">
-          <button disabled={busy || uploading} className="flex-1 rounded-full bg-gold py-3 font-semibold text-ink">{busy ? "Saving…" : editId ? "Save changes" : "Add tourism spot"}</button>
-          {editId && <button type="button" onClick={() => { setEditId(null); setForm(empty); }} className="rounded-full border border-white/15 px-4 py-3 text-sm">Cancel</button>}
+        {error && <p className="mt-2 text-sm text-coral">{error}</p>}
+        <div className="mt-3 flex gap-2">
+          <button disabled={busy || uploading} className="btn-gold flex-1 min-h-9">
+            {busy ? "Saving…" : editId ? "Save changes" : "Add place"}
+          </button>
+          {editId && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditId(null);
+                setForm(empty);
+              }}
+              className="btn-ghost"
+            >
+              Cancel
+            </button>
+          )}
         </div>
       </form>
-      <div className="space-y-3">
+      <div className="space-y-2">
         {initial.map((s) => (
-          <article key={s.id} className="glass rounded-2xl p-5">
-            {s.cover_url && <div className="mb-3 h-28 overflow-hidden rounded-xl bg-cover bg-center" style={{ backgroundImage: `url(${s.cover_url})` }} />}
-            <p className="text-xs uppercase tracking-[0.16em] text-gold/70">{s.category}{s.featured ? " · featured" : ""}</p>
-            <h3 className="font-display text-2xl">{s.name}</h3>
-            <p className="mt-1 text-sm text-sand/55">{s.description}</p>
-            <div className="mt-4 flex flex-wrap gap-2 text-sm">
-              <button type="button" onClick={() => startEdit(s)} className="rounded-full border border-white/10 px-3 py-1">Edit</button>
-              <button type="button" onClick={() => toggleFeatured(s)} className="rounded-full border border-white/10 px-3 py-1">{s.featured ? "Unfeature" : "Feature"}</button>
-              <button type="button" onClick={() => remove(s.id)} className="rounded-full px-3 py-1 text-coral">Delete</button>
+          <article key={s.id} className="card flex overflow-hidden">
+            {s.cover_url ? (
+              <div className="h-[92px] w-[92px] shrink-0 bg-cover bg-center" style={{ backgroundImage: `url(${s.cover_url})` }} />
+            ) : (
+              <div className="h-[92px] w-[92px] shrink-0 bg-tide-mist" />
+            )}
+            <div className="min-w-0 flex-1 p-2.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-tide">
+                {s.category}
+                {s.featured ? " · featured" : ""}
+              </p>
+              <h3 className="truncate text-[1.05rem] leading-tight">{s.name}</h3>
+              <p className="mt-0.5 line-clamp-1 text-[11px] text-ink-soft">{s.description}</p>
+              <div className="mt-1.5 flex flex-wrap gap-1">
+                <button type="button" onClick={() => startEdit(s)} className="btn-ghost">
+                  Edit
+                </button>
+                <button type="button" onClick={() => toggleFeatured(s)} className="btn-ghost">
+                  {s.featured ? "Unfeature" : "Feature"}
+                </button>
+                <button type="button" onClick={() => remove(s.id)} className="btn-ghost text-coral">
+                  Delete
+                </button>
+              </div>
             </div>
           </article>
         ))}
@@ -124,9 +177,13 @@ export function SpotManager({ initial }: { initial: Spot[] }) {
 
 function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <label className="mt-4 block">
-      <span className="text-xs uppercase tracking-[0.16em] text-sand/45">{label}</span>
-      <input value={value} onChange={(e) => onChange(e.target.value)} className="mt-2 w-full rounded-2xl border border-white/10 bg-ink/40 px-4 py-3 text-sm outline-none" />
+    <label className="block">
+      <span className="lbl">{label}</span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full px-3 py-2 text-sm outline-none"
+      />
     </label>
   );
 }

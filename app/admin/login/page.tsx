@@ -29,18 +29,22 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <p className="text-xs uppercase tracking-[0.22em] text-gold">Restricted</p>
-      <h1 className="mt-2 font-display text-5xl">Tourism desk</h1>
-      <p className="mt-3 text-sand/60">
-        Officers only. Visitors never see a login. Set{" "}
-        <code className="text-gold">ADMIN_PASSWORD</code> on the server.
-      </p>
-      <form onSubmit={submit} className="glass mt-8 rounded-3xl p-6">
-        <label className="text-xs uppercase tracking-[0.16em] text-sand/45">Desk password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-2 w-full rounded-2xl border border-white/10 bg-ink/50 px-4 py-3 outline-none focus:ring-2 focus:ring-gold/40" />
-        {error && <p className="mt-3 text-sm text-coral">{error}</p>}
-        <button disabled={busy} className="mt-5 w-full rounded-full bg-gold py-3 font-semibold text-ink">{busy ? "Checking..." : "Enter desk"}</button>
+    <div className="mx-auto max-w-sm">
+      <p className="eyebrow">Officer desk</p>
+      <h1 className="mt-1">Sign in</h1>
+      <p className="mt-1.5 text-[13px] text-ink-soft">Officers only. Visitors never see a login.</p>
+      <form onSubmit={submit} className="card mt-4 p-4">
+        <label className="lbl">Desk password</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-3 py-2 text-sm outline-none"
+        />
+        {error && <p className="mt-2 text-sm text-coral">{error}</p>}
+        <button disabled={busy} className="btn-gold mt-3 w-full min-h-9">
+          {busy ? "Checking…" : "Enter desk"}
+        </button>
       </form>
     </div>
   );

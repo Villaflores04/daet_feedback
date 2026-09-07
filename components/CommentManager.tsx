@@ -72,52 +72,89 @@ export function CommentManager({ initial, spots = [] }: { initial: Feedback[]; s
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={() => setSpotId("all")} className={`rounded-full px-4 py-2 text-sm ${spotId === "all" ? "bg-gold font-semibold text-ink" : "border border-white/10 text-sand/70"}`}>
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-1.5">
+        <button
+          type="button"
+          onClick={() => setSpotId("all")}
+          className={spotId === "all" ? "btn-gold" : "btn-ghost"}
+        >
           All locations · {rows.length}
         </button>
         {locations.map((l) => (
-          <button key={l.id} type="button" onClick={() => setSpotId(l.id)} className={`rounded-full px-4 py-2 text-sm ${spotId === l.id ? "bg-gold font-semibold text-ink" : "border border-white/10 text-sand/70"}`}>
+          <button
+            key={l.id}
+            type="button"
+            onClick={() => setSpotId(l.id)}
+            className={spotId === l.id ? "btn-gold" : "btn-ghost"}
+          >
             {l.name} · {l.count}
           </button>
         ))}
       </div>
+
       <div className="flex flex-wrap gap-2">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or words" className="min-w-[220px] flex-1 rounded-full border border-white/10 bg-ink/40 px-4 py-2 text-sm outline-none" />
-        <select value={sentiment} onChange={(e) => setSentiment(e.target.value)} className="rounded-full border border-white/10 bg-ink/40 px-4 py-2 text-sm">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search name or words"
+          className="min-w-[180px] flex-1 px-3 py-2 text-sm outline-none"
+        />
+        <select value={sentiment} onChange={(e) => setSentiment(e.target.value)} className="px-3 py-2 text-sm">
           <option value="all">All moods</option>
           <option value="positive">Positive</option>
           <option value="mixed">Mixed</option>
           <option value="negative">Negative</option>
         </select>
       </div>
-      {filtered.length === 0 && <p className="text-sand/50">No comments for this location.</p>}
+
+      {filtered.length === 0 && <p className="text-[13px] text-ink-soft">No comments for this location.</p>}
+
       {grouped.map(([id, group]) => (
-        <section key={id} className="space-y-3">
+        <section key={id} className="space-y-2">
           <div className="flex items-end justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-gold">Location</p>
-              <h2 className="font-display text-3xl">{group.name}</h2>
+              <p className="eyebrow">Location</p>
+              <h2 className="mt-0.5">{group.name}</h2>
             </div>
-            <p className="text-sm text-sand/45">{group.items.length} pulse{group.items.length === 1 ? "" : "s"}</p>
+            <p className="text-[11px] text-ink-soft">
+              {group.items.length} pulse{group.items.length === 1 ? "" : "s"}
+            </p>
           </div>
           {group.items.map((f) => (
-            <article key={f.id} className="glass rounded-2xl p-5">
+            <article key={f.id} className="card p-3">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm">
-                  <span className="text-gold">{f.display_name}</span>
-                  <span className="text-sand/40"> · {f.rating}/5 {f.emoji} · {f.sentiment}</span>
+                <p className="text-[13px]">
+                  <span className="font-medium">{f.display_name}</span>
+                  <span className="text-ink-soft">
+                    {" "}
+                    · {f.rating}/5 {f.emoji} · {f.sentiment}
+                  </span>
                 </p>
-                <button type="button" onClick={() => remove(f.id)} className="text-sm text-coral">Delete</button>
+                <button type="button" onClick={() => remove(f.id)} className="btn-ghost text-coral">
+                  Delete
+                </button>
               </div>
               {editing[f.id] !== undefined ? (
-                <div className="mt-3">
-                  <textarea value={editing[f.id]} onChange={(e) => setEditing({ ...editing, [f.id]: e.target.value })} rows={3} className="w-full rounded-2xl border border-white/10 bg-ink/40 px-3 py-2 text-sm" />
-                  <button type="button" onClick={() => save(f.id)} className="mt-2 rounded-full bg-gold px-4 py-1 text-sm font-semibold text-ink">Save</button>
+                <div className="mt-2">
+                  <textarea
+                    value={editing[f.id]}
+                    onChange={(e) => setEditing({ ...editing, [f.id]: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 text-sm"
+                  />
+                  <button type="button" onClick={() => save(f.id)} className="btn-gold mt-2">
+                    Save
+                  </button>
                 </div>
               ) : (
-                <p className="mt-2 cursor-pointer text-sand/80" onClick={() => setEditing({ ...editing, [f.id]: f.comment })} title="Click to edit">{f.comment}</p>
+                <p
+                  className="mt-1.5 cursor-pointer text-[13px] text-ink-soft"
+                  onClick={() => setEditing({ ...editing, [f.id]: f.comment })}
+                  title="Click to edit"
+                >
+                  {f.comment}
+                </p>
               )}
             </article>
           ))}

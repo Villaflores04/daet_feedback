@@ -5,24 +5,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        shell: "#F5F1E6",
-        paper: "#FFFFFF",
-        ink: "#14303A",
-        "ink-soft": "#3F5C64",
-        tide: "#1F6F6B",
-        "tide-mist": "#DCEEEB",
-        gold: "#C89B3C",
-        "gold-mist": "#F3E4BE",
-        coral: "#D65F45",
-        "coral-mist": "#F6E1DA",
-        sand: "#3F5C64",
-        foam: "#1F6F6B"
+        shell: "#F3EDE0",
+        paper: "#FFFEF8",
+        ink: "#163037",
+        "ink-soft": "#5B7176",
+        tide: "#1A6A6E",
+        "tide-mist": "#E4F1EF",
+        gold: "#C18426",
+        "gold-mist": "#F8EED8",
+        coral: "#C45B54",
+        "coral-mist": "#F6E3DF",
+        sand: "#5B7176",
+        foam: "#1A6A6E"
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],
         sans: ["var(--font-sans)", "system-ui", "sans-serif"]
       },
-      boxShadow: { glow: "0 12px 32px rgba(20,48,58,.08)" }
+      boxShadow: {
+        glow: "0 10px 28px rgba(22,48,55,.06)"
+      }
     }
   },
   plugins: []

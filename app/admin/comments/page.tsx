@@ -13,10 +13,10 @@ export default async function AdminCommentsPage() {
     : [[], []];
   return (
     <div>
-      <p className="text-xs uppercase tracking-[0.22em] text-gold">Moderate</p>
-      <h1 className="mt-2 font-display text-5xl">Comments by location</h1>
-      <p className="mt-3 text-sand/60">Filter by tourism spot first, then mood. Click a comment to edit.</p>
-      <div className="mt-8">
+      <p className="eyebrow">Moderate</p>
+      <h1 className="mt-0.5">Comments</h1>
+      <p className="mt-1 text-[13px] text-ink-soft">Filter by tourism spot first, then mood.</p>
+      <div className="mt-3">
         <CommentManager initial={rows} spots={spots} />
       </div>
     </div>

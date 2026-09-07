@@ -20,39 +20,31 @@ export function SpotPulse({
   );
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
-      <div>
-        <div className="flex gap-6">
-          <div>
-            <p className="text-xs text-sand/45">Average</p>
-            <p className="font-display text-4xl">{avg ? avg.toFixed(2) : "—"}</p>
-          </div>
-          <div>
-            <p className="text-xs text-sand/45">Pulses</p>
-            <p className="font-display text-4xl">{reviews.length}</p>
-          </div>
-        </div>
-        <div className="mt-10 space-y-3">
-          {reviews.length === 0 && <p className="text-sand/50">No pulses yet. Be the first on the right.</p>}
-          {reviews.map((f) => (
-            <article key={f.id} className="glass rounded-2xl p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-gold">{f.display_name}</p>
-                <span>{f.emoji}</span>
-              </div>
-              <p className="mt-2 text-sand/80">{f.comment}</p>
-              <p className="mt-2 text-xs text-sand/40">
-                {f.rating}/5 · {f.created_at ? new Date(f.created_at).toLocaleString() : "just now"}
-              </p>
-            </article>
-          ))}
-        </div>
-      </div>
+    <div>
       <FeedbackForm
         spotId={spotId}
         spotName={spotName}
         onPosted={(row) => setReviews((cur) => [row, ...cur.filter((x) => x.id !== row.id)])}
       />
+      <div className="mt-3 flex items-end justify-between px-0.5">
+        <p className="text-[11px] text-ink-soft">{reviews.length} pulses on this place</p>
+        <p className="text-right text-[11px] text-ink-soft">
+          <span className="font-display block text-lg leading-none text-ink">{avg ? avg.toFixed(1) : "—"}</span>
+          optional avg
+        </p>
+      </div>
+      <div className="mt-2 space-y-1.5">
+        {reviews.length === 0 && <p className="text-[13px] text-ink-soft">No pulses yet. Be the first visitor to share how this place felt.</p>}
+        {reviews.map((f) => (
+          <article key={f.id} className="card px-3 py-2.5">
+            <div className="flex items-center justify-between">
+              <p className="text-[13px] font-medium">{f.display_name}</p>
+              <span>{f.emoji}</span>
+            </div>
+            <p className="mt-0.5 text-[13px] text-ink-soft">{f.comment}</p>
+          </article>
+        ))}
+      </div>
     </div>
   );
 }

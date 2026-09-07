@@ -3,13 +3,14 @@ import { fetchAnalytics, fetchSpots } from "@/lib/data";
 import { hasPublicEnv } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function SpotsPage() {
   if (!hasPublicEnv()) {
     return (
       <div>
-        <h1 className="font-display text-5xl">Tourism spots</h1>
-        <p className="mt-3 text-sand/60">Connect Supabase to load spots.</p>
+        <h1>Places</h1>
+        <p className="mt-1 text-[13px] text-ink-soft">Connect Supabase to load spots.</p>
       </div>
     );
   }
@@ -17,20 +18,26 @@ export default async function SpotsPage() {
   const stats = Object.fromEntries(analytics.bySpot.map((s) => [s.id, s]));
   return (
     <div>
-      <p className="text-xs uppercase tracking-[0.22em] text-gold">Inventory</p>
-      <h1 className="mt-2 font-display text-5xl">Tourism spots</h1>
-      <p className="mt-3 max-w-2xl text-sand/60">Pick a place. Set your name once. Rate and comment without creating an account.</p>
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <p className="eyebrow">Catalog</p>
+      <h1 className="mt-0.5">Places</h1>
+      <p className="mt-1 max-w-xl text-[13px] text-ink-soft">Pick a place. Set a public name once. Leave an emoji pulse — no account.</p>
+      <div className="horizon-rule mt-3" />
+      <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
         {spots.map((s) => {
           const st = stats[s.id];
           return (
-            <Link key={s.id} href={`/spots/${s.slug}`} className="glass overflow-hidden rounded-3xl hover:border-gold/30">
-              <div className="h-40 bg-cover bg-center" style={{ backgroundImage: s.cover_url ? `url(${s.cover_url})` : undefined }} />
-              <div className="p-5">
-                <p className="text-xs uppercase tracking-[0.16em] text-gold/70">{s.category}</p>
-                <h2 className="mt-1 font-display text-2xl">{s.name}</h2>
-                <p className="mt-2 line-clamp-3 text-sm text-sand/55">{s.description}</p>
-                <p className="mt-3 text-sm text-sand/70">{st && st.count ? `${st.avg.toFixed(2)} avg · ${st.count} pulses` : "No pulses yet"}</p>
+            <Link key={s.id} href={`/spots/${s.slug}`} className="card overflow-hidden">
+              <div className="h-28 bg-tide-mist bg-cover bg-center" style={{ backgroundImage: s.cover_url ? `url(${s.cover_url})` : undefined }} />
+              <div className="p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-tide">
+                  {s.category}
+                  {s.barangay ? ` · ${s.barangay}` : ""}
+                </p>
+                <h2 className="mt-0.5 leading-snug">{s.name}</h2>
+                <p className="mt-1 line-clamp-2 text-[12px] text-ink-soft">{s.description}</p>
+                <p className="mt-1.5 text-[11px] text-ink-soft">
+                  {st && st.count ? `${st.avg.toFixed(2)} avg · ${st.count} pulses` : "No pulses yet"}
+                </p>
               </div>
             </Link>
           );

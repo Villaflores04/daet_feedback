@@ -11,10 +11,12 @@ export default async function AdminSpotsPage() {
   const spots = hasPublicEnv() ? await fetchSpots({ privileged: true }) : [];
   return (
     <div>
-      <p className="text-xs uppercase tracking-[0.22em] text-gold">CRUD</p>
-      <h1 className="mt-2 font-display text-5xl">Tourism spots</h1>
-      <p className="mt-3 text-sand/60">Insert, edit, or remove places the public can rate.</p>
-      <div className="mt-8"><SpotManager initial={spots} /></div>
+      <p className="eyebrow">Manage</p>
+      <h1 className="mt-0.5">Tourism spots</h1>
+      <p className="mt-1 text-[13px] text-ink-soft">Insert, edit, or remove places the public can pulse.</p>
+      <div className="mt-3">
+        <SpotManager initial={spots} />
+      </div>
     </div>
   );
 }
