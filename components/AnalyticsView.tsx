@@ -1,9 +1,27 @@
 import Link from "next/link";
-import type { Analytics } from "@/lib/types";
+import type { Analytics, Sentiment } from "@/lib/types";
 import { sentimentLabel } from "@/lib/sentiment";
 
+function Bars({ title, hint, counts }: { title: string; hint: string; counts: Record<Sentiment, number> }) {
+  const total = counts.negative + counts.mixed + counts.positive || 1;
+  return (
+    <div className="glass rounded-3xl p-6">
+      <p className="text-xs uppercase tracking-[0.22em] text-gold">{title}</p>
+      <p className="mt-1 text-xs text-sand/45">{hint}</p>
+      <div className="mt-5 space-y-4">
+        {([["positive", counts.positive, "bg-foam"], ["mixed", counts.mixed, "bg-gold"], ["negative", counts.negative, "bg-coral"]] as const).map(([key, count, bar]) => (
+          <div key={title + key}>
+            <div className="mb-1 flex justify-between text-sm"><span>{sentimentLabel(key)}</span><span className="text-sand/50">{count}</span></div>
+            <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className={`h-full ${bar}`} style={{ width: `${(count / total) * 100}%` }} /></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function AnalyticsView({ data }: { data: Analytics }) {
-  const totalSent = data.sentiment.negative + data.sentiment.mixed + data.sentiment.positive || 1;
+  const wording = data.wording || { negative: 0, mixed: 0, positive: 0 };
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-3">
@@ -11,17 +29,8 @@ export function AnalyticsView({ data }: { data: Analytics }) {
         <Stat k="Average rating" v={data.avgRating ? data.avgRating.toFixed(2) : "—"} d="Across every spot" />
         <Stat k="Mapped spots" v={String(data.spotsCount)} d="Tourism inventory" />
       </div>
-      <div className="glass rounded-3xl p-6">
-        <p className="text-xs uppercase tracking-[0.22em] text-gold">Sentiment split</p>
-        <div className="mt-5 space-y-4">
-          {([["positive", data.sentiment.positive, "bg-foam"], ["mixed", data.sentiment.mixed, "bg-gold"], ["negative", data.sentiment.negative, "bg-coral"]] as const).map(([key, count, bar]) => (
-            <div key={key}>
-              <div className="mb-1 flex justify-between text-sm"><span>{sentimentLabel(key)}</span><span className="text-sand/50">{count}</span></div>
-              <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className={`h-full ${bar}`} style={{ width: `${(count / totalSent) * 100}%` }} /></div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <Bars title="Rating mood" hint="From the 1–5 score only" counts={data.sentiment} />
+      <Bars title="Wording mood" hint="Keyword scan of the comment — not a trained model" counts={wording} />
       <div className="glass overflow-hidden rounded-3xl">
         <div className="border-b border-white/5 px-6 py-4"><p className="text-xs uppercase tracking-[0.22em] text-gold">Spot ranking</p></div>
         <div className="divide-y divide-white/5">
