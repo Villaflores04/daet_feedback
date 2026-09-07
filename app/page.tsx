@@ -7,10 +7,27 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   if (!hasPublicEnv()) return <Hero reviews={0} avg={0} spots={[]} />;
   const [spots, analytics] = await Promise.all([fetchSpots(), fetchAnalytics()]);
-  return <Hero reviews={analytics.totalReviews} avg={analytics.avgRating} spots={spots.filter((s) => s.featured)} />;
+  return (
+    <Hero
+      reviews={analytics.totalReviews}
+      avg={analytics.avgRating}
+      spots={spots.filter((s) => s.featured)}
+      top={analytics.bySpot.filter((s) => s.count > 0).slice(0, 3)}
+    />
+  );
 }
 
-function Hero({ reviews, avg, spots }: { reviews: number; avg: number; spots: Awaited<ReturnType<typeof fetchSpots>> }) {
+function Hero({
+  reviews,
+  avg,
+  spots,
+  top = []
+}: {
+  reviews: number;
+  avg: number;
+  spots: Awaited<ReturnType<typeof fetchSpots>>;
+  top?: { id: string; name: string; slug: string; count: number; avg: number }[];
+}) {
   return (
     <div>
       <section className="relative overflow-hidden rounded-[2.2rem] border border-white/10 bg-[url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1800&q=80')] bg-cover bg-center">
@@ -34,6 +51,21 @@ function Hero({ reviews, avg, spots }: { reviews: number; avg: number; spots: Aw
           </div>
         </div>
       </section>
+      {top.length > 0 && (
+        <section className="mt-14">
+          <p className="text-xs uppercase tracking-[0.22em] text-gold">Highest rated</p>
+          <h2 className="mt-2 font-display text-4xl">From visitor pulses</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {top.map((s, i) => (
+              <Link key={s.id} href={`/spots/${s.slug}`} className="glass rounded-3xl p-5 hover:border-gold/30">
+                <p className="text-xs uppercase tracking-[0.18em] text-gold/70">#{i + 1}</p>
+                <h3 className="mt-2 font-display text-2xl">{s.name}</h3>
+                <p className="mt-2 text-sand/60">{s.avg.toFixed(2)} avg · {s.count} pulses</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
       <section className="mt-14">
         <div className="mb-6 flex items-end justify-between">
           <div>
