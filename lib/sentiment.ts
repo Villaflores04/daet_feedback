@@ -4,10 +4,10 @@ export const EMOJIS = ["😞", "😐", "🙂", "🤩"] as const;
 export type PulseEmoji = (typeof EMOJIS)[number];
 
 export const EMOJI_META: Record<PulseEmoji, { sentiment: Sentiment; rating: number; label: string; fil: string }> = {
-  "😞": { sentiment: "negative", rating: 2, label: "Needs care", fil: "Kailangan ng ayos" },
-  "😐": { sentiment: "mixed", rating: 3, label: "Okay lang", fil: "Okay lang" },
-  "🙂": { sentiment: "positive", rating: 4, label: "Good visit", fil: "Mabuti" },
-  "🤩": { sentiment: "positive", rating: 5, label: "Loved it", fil: "Natuwa" }
+  "😞": { sentiment: "negative", rating: 2, label: "Negative", fil: "Hindi maganda" },
+  "😐": { sentiment: "mixed", rating: 3, label: "Mixed", fil: "Okay lang" },
+  "🙂": { sentiment: "positive", rating: 4, label: "Positive", fil: "Maganda" },
+  "🤩": { sentiment: "positive", rating: 5, label: "Very positive", fil: "Natuwa" }
 };
 
 export function sentimentFromEmoji(emoji: string): Sentiment {
