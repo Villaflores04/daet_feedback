@@ -1,6 +1,24 @@
 import type { Sentiment } from "./types";
 
 export const EMOJIS = ["😞", "😐", "🙂", "🤩"] as const;
+export type PulseEmoji = (typeof EMOJIS)[number];
+
+export const EMOJI_META: Record<PulseEmoji, { sentiment: Sentiment; rating: number; label: string; fil: string }> = {
+  "😞": { sentiment: "negative", rating: 2, label: "Needs care", fil: "Kailangan ng ayos" },
+  "😐": { sentiment: "mixed", rating: 3, label: "Okay lang", fil: "Okay lang" },
+  "🙂": { sentiment: "positive", rating: 4, label: "Good visit", fil: "Mabuti" },
+  "🤩": { sentiment: "positive", rating: 5, label: "Loved it", fil: "Natuwa" }
+};
+
+export function sentimentFromEmoji(emoji: string): Sentiment {
+  if (emoji === "😞") return "negative";
+  if (emoji === "😐") return "mixed";
+  return "positive";
+}
+
+export function ratingFromEmoji(emoji: string): number {
+  return EMOJI_META[emoji as PulseEmoji]?.rating ?? 3;
+}
 
 export function sentimentFromRating(rating: number): Sentiment {
   if (rating <= 2) return "negative";
@@ -10,7 +28,7 @@ export function sentimentFromRating(rating: number): Sentiment {
 
 export function sentimentLabel(s: Sentiment) {
   if (s === "negative") return "Needs care";
-  if (s === "mixed") return "Mixed";
+  if (s === "mixed") return "Okay lang";
   return "Thriving";
 }
 

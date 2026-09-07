@@ -17,9 +17,9 @@ export default async function DashboardPage() {
   const data = await fetchAnalytics();
   return (
     <div>
-      <p className="text-xs uppercase tracking-[0.22em] text-gold">Public desk</p>
+      <p className="text-xs uppercase tracking-[0.22em] text-gold">Town mood</p>
       <h1 className="mt-2 font-display text-5xl">Live pulse</h1>
-      <p className="mt-3 max-w-2xl text-sand/60">Anyone can read the town's tourism sentiment. Officers moderate from the tourism desk.</p>
+      <p className="mt-3 max-w-2xl text-sand/60">Faces visitors picked, plus a keyword scan of their notes. No account needed to read this.</p>
       <div className="mt-10">
         <LivePulse initial={data} />
       </div>
