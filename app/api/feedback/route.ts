@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin, supabasePublic } from "@/lib/supabase";
 import { EMOJIS, sentimentFromRating } from "@/lib/sentiment";
 
+function db() {
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY) return supabaseAdmin();
+  return supabasePublic();
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const spotId = searchParams.get("spotId");
-  let q = supabasePublic().from("feedback").select("*, spots(name, slug)").order("created_at", { ascending: false }).limit(100);
+  let q = db().from("feedback").select("*, spots(name, slug)").order("created_at", { ascending: false }).limit(100);
   if (spotId) q = q.eq("spot_id", spotId);
   const { data, error } = await q;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -42,14 +47,7 @@ export async function POST(req: Request) {
     comment
   };
 
-  let client;
-  try {
-    client = supabaseAdmin();
-  } catch {
-    client = supabasePublic();
-  }
-
-  const { data, error } = await client.from("feedback").insert(row).select("*, spots(name, slug)").single();
+  const { data, error } = await db().from("feedback").insert(row).select("*, spots(name, slug)").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });
 }
