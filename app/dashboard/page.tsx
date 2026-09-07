@@ -1,8 +1,9 @@
-import { AnalyticsView } from "@/components/AnalyticsView";
+import { LivePulse } from "@/components/LivePulse";
 import { fetchAnalytics } from "@/lib/data";
 import { hasPublicEnv } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function DashboardPage() {
   if (!hasPublicEnv()) {
@@ -19,7 +20,9 @@ export default async function DashboardPage() {
       <p className="text-xs uppercase tracking-[0.22em] text-gold">Public desk</p>
       <h1 className="mt-2 font-display text-5xl">Live pulse</h1>
       <p className="mt-3 max-w-2xl text-sand/60">Anyone can read the town's tourism sentiment. Officers moderate from the tourism desk.</p>
-      <div className="mt-10"><AnalyticsView data={data} /></div>
+      <div className="mt-10">
+        <LivePulse initial={data} />
+      </div>
     </div>
   );
 }

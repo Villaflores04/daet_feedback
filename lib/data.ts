@@ -1,12 +1,11 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { supabaseAdmin, supabasePublic } from "./supabase";
 import type { Analytics, Feedback, Sentiment, Spot } from "./types";
 
 function reader() {
-  try {
-    return supabaseAdmin();
-  } catch {
-    return supabasePublic();
-  }
+  noStore();
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY) return supabaseAdmin();
+  return supabasePublic();
 }
 
 export async function fetchSpots(): Promise<Spot[]> {
