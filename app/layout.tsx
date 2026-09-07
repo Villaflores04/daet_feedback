@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Footer, Nav } from "@/components/Nav";
+import { AppChrome } from "@/components/AppChrome";
 import { SetupBanner } from "@/components/SetupBanner";
 import "./globals.css";
 
@@ -18,9 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans antialiased">
         <SetupBanner />
-        <Nav />
-        <main className="mx-auto min-h-[70vh] max-w-6xl px-5 py-10">{children}</main>
-        <Footer />
+        <AppChrome>{children}</AppChrome>
       </body>
     </html>
   );

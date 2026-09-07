@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabasePublic } from "@/lib/supabase";
+import { supabaseAdmin, supabasePublic } from "@/lib/supabase";
 import { EMOJIS, sentimentFromRating } from "@/lib/sentiment";
 
 export async function GET(req: Request) {
@@ -23,12 +23,33 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Set a profile name (2-40 characters) first." }, { status: 400 });
   }
   if (!spot_id) return NextResponse.json({ error: "Choose a spot." }, { status: 400 });
-  if (![1, 2, 3, 4, 5].includes(rating)) return NextResponse.json({ error: "Rating must be 1-5." }, { status: 400 });
-  if (!EMOJIS.includes(emoji as (typeof EMOJIS)[number])) return NextResponse.json({ error: "Pick a mood emoji." }, { status: 400 });
-  if (comment.length < 8 || comment.length > 600) return NextResponse.json({ error: "Comment must be 8-600 characters." }, { status: 400 });
-  const { data, error } = await supabasePublic().from("feedback").insert({
-    spot_id, display_name, rating, emoji, sentiment: sentimentFromRating(rating), comment
-  }).select("*, spots(name, slug)").single();
+  if (![1, 2, 3, 4, 5].includes(rating)) {
+    return NextResponse.json({ error: "Rating must be 1-5." }, { status: 400 });
+  }
+  if (!EMOJIS.includes(emoji as (typeof EMOJIS)[number])) {
+    return NextResponse.json({ error: "Pick a mood emoji." }, { status: 400 });
+  }
+  if (comment.length < 8 || comment.length > 600) {
+    return NextResponse.json({ error: "Comment must be 8–600 characters." }, { status: 400 });
+  }
+
+  const row = {
+    spot_id,
+    display_name,
+    rating,
+    emoji,
+    sentiment: sentimentFromRating(rating),
+    comment
+  };
+
+  let client;
+  try {
+    client = supabaseAdmin();
+  } catch {
+    client = supabasePublic();
+  }
+
+  const { data, error } = await client.from("feedback").insert(row).select("*, spots(name, slug)").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });
 }
