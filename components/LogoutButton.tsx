@@ -1,4 +1,5 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 
 export function LogoutButton() {
@@ -10,7 +11,9 @@ export function LogoutButton() {
         router.push("/admin/login");
         router.refresh();
       }}
-      className="rounded-full px-4 py-2 text-sm text-sand/50 hover:text-sand"
-    >Sign out</button>
+      className="rounded-full px-3 py-1.5 text-sm text-ink-soft hover:text-ink"
+    >
+      Sign out
+    </button>
   );
 }

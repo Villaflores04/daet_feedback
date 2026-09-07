@@ -15,17 +15,17 @@ const links = [
 export function AdminNav() {
   const path = usePathname() || "";
   return (
-    <header className="sticky top-0 z-40 border-b border-gold/20 bg-[#07131c]/90 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-4">
+    <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-shell">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3 md:px-5 md:py-4">
         <Link href="/admin">
-          <p className="text-[10px] uppercase tracking-[0.28em] text-gold/80">Officer desk</p>
-          <p className="font-display text-2xl tracking-tight text-sand">DAET Pulse</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-ink-soft">Officer desk</p>
+          <p className="font-display text-xl tracking-tight text-ink md:text-2xl">DAET Pulse</p>
         </Link>
-        <nav className="flex flex-wrap items-center gap-2 text-sm">
+        <nav className="flex flex-wrap items-center gap-1 text-sm">
           {links.map((l) => {
             const active = l.href === "/admin" ? path === "/admin" : path.startsWith(l.href);
             return (
-              <Link key={l.href} href={l.href} className={`rounded-full px-4 py-2 ${active ? "bg-gold font-semibold text-ink" : "text-sand/80 hover:bg-white/5"}`}>
+              <Link key={l.href} href={l.href} className={`rounded-full px-3 py-1.5 md:px-4 md:py-2 ${active ? "bg-gold font-semibold text-white" : "text-ink-soft hover:bg-paper"}`}>
                 {l.label}
               </Link>
             );
