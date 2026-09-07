@@ -25,20 +25,20 @@ export function AnalyticsView({ data }: { data: Analytics }) {
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-3">
-        <Stat k="Reviews" v={String(data.totalReviews)} d="All visitor pulses" />
-        <Stat k="Average rating" v={data.avgRating ? data.avgRating.toFixed(2) : "—"} d="Across every spot" />
-        <Stat k="Mapped spots" v={String(data.spotsCount)} d="Tourism inventory" />
+        <Stat k="Pulses" v={String(data.totalReviews)} d="Faces + notes from visitors" />
+        <Stat k="Optional average" v={data.avgRating ? data.avgRating.toFixed(2) : "—"} d="Stars only, if they picked them" />
+        <Stat k="Places" v={String(data.spotsCount)} d="Daet spots on the desk" />
       </div>
-      <Bars title="Rating mood" hint="From the 1–5 score only" counts={data.sentiment} />
-      <Bars title="Wording mood" hint="Keyword scan of the comment — not a trained model" counts={wording} />
+      <Bars title="Emoji mood" hint="Official pulse — from the face the visitor picked" counts={data.sentiment} />
+      <Bars title="Wording mood" hint="Keyword scan of the note — not a trained model" counts={wording} />
       <div className="glass overflow-hidden rounded-3xl">
-        <div className="border-b border-white/5 px-6 py-4"><p className="text-xs uppercase tracking-[0.22em] text-gold">Spot ranking</p></div>
+        <div className="border-b border-white/5 px-6 py-4"><p className="text-xs uppercase tracking-[0.22em] text-gold">Places</p></div>
         <div className="divide-y divide-white/5">
           {data.bySpot.map((s, i) => (
             <Link key={s.id} href={`/spots/${s.slug}`} className="flex items-center justify-between px-6 py-4 hover:bg-white/5">
               <div className="flex items-center gap-4">
                 <span className="w-6 font-display text-xl text-gold/80">{String(i + 1).padStart(2, "0")}</span>
-                <div><p className="font-medium">{s.name}</p><p className="text-xs text-sand/45">{s.count} reviews</p></div>
+                <div><p className="font-medium">{s.name}</p><p className="text-xs text-sand/45">{s.count ? `${s.count} pulses` : "No pulses yet — be first"}</p></div>
               </div>
               <p className="font-display text-2xl">{s.count ? s.avg.toFixed(1) : "—"}</p>
             </Link>
@@ -46,8 +46,8 @@ export function AnalyticsView({ data }: { data: Analytics }) {
         </div>
       </div>
       <div className="space-y-3">
-        <p className="text-xs uppercase tracking-[0.22em] text-gold">Latest voices</p>
-        {data.recent.length === 0 && <p className="text-sand/50">No reviews yet. Be the first pulse.</p>}
+        <p className="text-xs uppercase tracking-[0.22em] text-gold">Latest pulses</p>
+        {data.recent.length === 0 && <p className="text-sand/50">No pulses yet. Be the first.</p>}
         {data.recent.map((f) => (
           <article key={f.id} className="glass rounded-2xl p-5">
             <div className="flex items-center justify-between gap-3">
@@ -55,7 +55,7 @@ export function AnalyticsView({ data }: { data: Analytics }) {
               <span className="text-xl">{f.emoji}</span>
             </div>
             <p className="mt-2 text-sand/80">{f.comment}</p>
-            <p className="mt-2 text-xs text-sand/40">{f.rating}/5 · {new Date(f.created_at).toLocaleString()}</p>
+            <p className="mt-2 text-xs text-sand/40">{new Date(f.created_at).toLocaleString()}</p>
           </article>
         ))}
       </div>
