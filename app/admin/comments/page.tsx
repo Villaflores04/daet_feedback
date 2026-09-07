@@ -8,7 +8,9 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminCommentsPage() {
   if (!isAdminRequest()) redirect("/admin/login");
-  const [rows, spots] = hasPublicEnv() ? await Promise.all([fetchFeedback(), fetchSpots()]) : [[], []];
+  const [rows, spots] = hasPublicEnv()
+    ? await Promise.all([fetchFeedback(undefined, { privileged: true }), fetchSpots({ privileged: true })])
+    : [[], []];
   return (
     <div>
       <p className="text-xs uppercase tracking-[0.22em] text-gold">Moderate</p>

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminSpotsPage() {
   if (!isAdminRequest()) redirect("/admin/login");
-  const spots = hasPublicEnv() ? await fetchSpots() : [];
+  const spots = hasPublicEnv() ? await fetchSpots({ privileged: true }) : [];
   return (
     <div>
       <p className="text-xs uppercase tracking-[0.22em] text-gold">CRUD</p>
