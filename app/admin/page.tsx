@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { isAdminRequest } from "@/lib/admin-auth";
 import { fetchAnalytics } from "@/lib/data";
 import { hasPublicEnv } from "@/lib/supabase";
-import { AnalyticsView } from "@/components/AnalyticsView";
+import { LivePulse } from "@/components/LivePulse";
 import { LogoutButton } from "@/components/LogoutButton";
 
 export const dynamic = "force-dynamic";
@@ -11,8 +11,15 @@ export const dynamic = "force-dynamic";
 export default async function AdminHome() {
   if (!isAdminRequest()) redirect("/admin/login");
   const data = hasPublicEnv()
-    ? await fetchAnalytics()
-    : { totalReviews: 0, avgRating: 0, spotsCount: 0, sentiment: { negative: 0, mixed: 0, positive: 0 }, bySpot: [], recent: [] };
+    ? await fetchAnalytics({ privileged: true })
+    : {
+        totalReviews: 0,
+        avgRating: 0,
+        spotsCount: 0,
+        sentiment: { negative: 0, mixed: 0, positive: 0 },
+        bySpot: [],
+        recent: []
+      };
 
   return (
     <div>
@@ -27,7 +34,9 @@ export default async function AdminHome() {
           <LogoutButton />
         </div>
       </div>
-      <div className="mt-10"><AnalyticsView data={data} /></div>
+      <div className="mt-10">
+        <LivePulse initial={data} endpoint="/api/admin/analytics" />
+      </div>
     </div>
   );
 }
