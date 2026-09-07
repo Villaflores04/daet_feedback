@@ -3,15 +3,16 @@
 Public tourist feedback and sentiment dashboard for Daet, Camarines Norte.
 
 - Visitors: no login. Set a display name, then rate / comment. Open live analytics.
-- Officers: password session at `/admin`. CRUD spots and comments.
+- Officers: password session at `/admin`. CRUD spots and comments. Upload cover photos from the file picker.
 
 ## 1. Supabase
 
 1. Create a project.
-2. SQL editor → paste `supabase/schema.sql`.
-3. Copy URL + anon key + service role key.
+2. SQL editor → paste `supabase/schema.sql` (first time).
+3. If reviews do not save or photo upload fails, also run `supabase/fix_grants.sql`.
+4. Copy URL + anon key + service role key.
 
-## 2. Environment
+## 2. Environment (Vercel, not GitHub)
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=
@@ -21,21 +22,10 @@ ADMIN_PASSWORD=
 ADMIN_SESSION_SECRET=
 ```
 
-Generate `ADMIN_SESSION_SECRET` as a long random string.
+`NEXT_PUBLIC_*` = Config. The other three = Secret.
 
-## 3. Run
+## 3. Admin
 
-```bash
-npm install
-npm run dev
-```
+Open `/admin` and enter `ADMIN_PASSWORD`.
 
-## 4. Admin
-
-Open [http://localhost:3000/admin](http://localhost:3000/admin) and enter `ADMIN_PASSWORD`.
-
-## 5. Vercel
-
-Import `Villaflores04/daet_feedback`, add the same env vars, deploy.
-
-Capstone alignment notes: `docs/CAPSTONE.md`.
+The officer header stays on Desk / Spots / Comments. Use **Public site** only when you want the tourist view.
