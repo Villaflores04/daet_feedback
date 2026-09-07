@@ -1,23 +1,37 @@
-import { supabasePublic } from "./supabase";
+import { supabaseAdmin, supabasePublic } from "./supabase";
 import type { Analytics, Feedback, Sentiment, Spot } from "./types";
 
+function reader() {
+  try {
+    return supabaseAdmin();
+  } catch {
+    return supabasePublic();
+  }
+}
+
 export async function fetchSpots(): Promise<Spot[]> {
-  const { data, error } = await supabasePublic().from("spots").select("*").order("featured", { ascending: false }).order("name");
+  const { data, error } = await reader().from("spots").select("*").order("featured", { ascending: false }).order("name");
   if (error) throw error;
   return data ?? [];
 }
 
 export async function fetchSpot(slug: string): Promise<Spot | null> {
-  const { data, error } = await supabasePublic().from("spots").select("*").eq("slug", slug).maybeSingle();
+  const { data, error } = await reader().from("spots").select("*").eq("slug", slug).maybeSingle();
   if (error) throw error;
   return data;
 }
 
 export async function fetchFeedback(spotId?: string): Promise<Feedback[]> {
-  let q = supabasePublic().from("feedback").select("*, spots(name, slug)").order("created_at", { ascending: false }).limit(80);
+  let q = reader().from("feedback").select("*, spots(name, slug)").order("created_at", { ascending: false }).limit(80);
   if (spotId) q = q.eq("spot_id", spotId);
   const { data, error } = await q;
-  if (error) throw error;
+  if (error) {
+    let plain = reader().from("feedback").select("*").order("created_at", { ascending: false }).limit(80);
+    if (spotId) plain = plain.eq("spot_id", spotId);
+    const second = await plain;
+    if (second.error) throw second.error;
+    return (second.data ?? []) as Feedback[];
+  }
   return (data ?? []) as Feedback[];
 }
 
@@ -29,7 +43,10 @@ export async function fetchAnalytics(): Promise<Analytics> {
   for (const f of feedback) {
     sentiment[f.sentiment] += 1;
     const g = grouped.get(f.spot_id);
-    if (g) { g.sum += f.rating; g.count += 1; }
+    if (g) {
+      g.sum += f.rating;
+      g.count += 1;
+    }
   }
   const totalReviews = feedback.length;
   const avgRating = totalReviews === 0 ? 0 : feedback.reduce((a, b) => a + b.rating, 0) / totalReviews;
@@ -38,7 +55,9 @@ export async function fetchAnalytics(): Promise<Analytics> {
     avgRating,
     spotsCount: spots.length,
     sentiment,
-    bySpot: [...grouped.values()].map((g) => ({ id: g.id, name: g.name, slug: g.slug, count: g.count, avg: g.count ? g.sum / g.count : 0 })).sort((a, b) => b.avg - a.avg || b.count - a.count),
+    bySpot: [...grouped.values()]
+      .map((g) => ({ id: g.id, name: g.name, slug: g.slug, count: g.count, avg: g.count ? g.sum / g.count : 0 }))
+      .sort((a, b) => b.avg - a.avg || b.count - a.count),
     recent: feedback.slice(0, 8)
   };
 }
