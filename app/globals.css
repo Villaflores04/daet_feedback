@@ -5,43 +5,79 @@
 :root {
   --font-display: "Fraunces", Georgia, serif;
   --font-sans: "Manrope", system-ui, sans-serif;
-  --shell: #f5f1e6;
-  --paper: #ffffff;
-  --paper-sunk: #fbf8f1;
-  --ink: #14303a;
-  --ink-soft: #3f5c64;
-  --gold: #c89b3c;
-  --gold-mist: #f3e4be;
-  --tide: #1f6f6b;
-  --tide-mist: #dceeeb;
-  --coral: #d65f45;
-  --coral-mist: #f6e1da;
-  --line: rgba(20, 48, 58, 0.12);
-  --horizon: #c89b3c;
+  --dp-paper: #F6F1E7;
+  --dp-white: #FFFDF8;
+  --dp-ink: #17333A;
+  --dp-ink-strong: #0F272D;
+  --dp-muted: #547078;
+  --dp-tide: #1D6F73;
+  --dp-gold: #C58A2A;
+  --dp-gold-hover: #A96F16;
+  --dp-coral: #C95E55;
+  --dp-tide-wash: #EAF5F2;
+  --dp-border: rgba(23,51,58,.10);
+  --dp-ease-out: cubic-bezier(.22,1,.36,1);
+  --shell: #F6F1E7;
+  --paper: #FFFDF8;
+  --ink: #17333A;
+  --ink-soft: #547078;
+  --gold: #C58A2A;
+  --tide: #1D6F73;
+  --coral: #C95E55;
+  --line: rgba(23,51,58,.10);
+  --horizon: #C58A2A;
 }
 
-html, body { background: var(--shell); color: var(--ink); }
+html, body { background: var(--dp-paper); color: var(--dp-ink); }
 body {
   min-height: 100vh;
   font-family: var(--font-sans);
-  line-height: 1.55;
-  background-image:
-    radial-gradient(1000px 460px at 8% -8%, rgba(200,155,60,.10), transparent 55%),
-    radial-gradient(900px 520px at 105% 0%, rgba(31,111,107,.08), transparent 50%);
+  background: radial-gradient(circle at 80% -10%, rgba(45,133,132,.08), transparent 34rem), #F6F1E7;
 }
-h1, h2, h3 { font-family: var(--font-display); font-weight: 500; color: var(--ink); }
-.glass, .card { background: var(--paper); border: 1px solid var(--line); }
-.card { border-radius: 20px; transition: box-shadow .2s ease, transform .2s ease; }
+h1,h2,h3 { font-family: var(--font-display); font-weight: 500; color: var(--dp-ink-strong); }
+h1 { font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.12; }
+
+.glass, .card {
+  background: var(--dp-white);
+  border: 1px solid var(--dp-border);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(23,51,58,.07), 0 2px 8px rgba(23,51,58,.04);
+}
+.card { overflow: hidden; transition: box-shadow .45s var(--dp-ease-out), transform .45s var(--dp-ease-out); }
 @media (hover: hover) {
-  .card:hover { box-shadow: 0 12px 32px rgba(20,48,58,.08); transform: translateY(-2px); }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 18px 42px rgba(23,51,58,.11); }
+  .card:hover .card-img { transform: scale(1.025); }
 }
+.card-img { transition: transform .55s var(--dp-ease-out); }
+
 .horizon-rule {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--horizon) 15%, var(--horizon) 85%, transparent);
-  opacity: .55;
+  transform-origin: left center;
+  background: linear-gradient(90deg, transparent, var(--dp-gold) 12%, var(--dp-gold) 88%, transparent);
+  animation: horizon-draw .9s var(--dp-ease-out) both;
 }
-.btn-gold { background: var(--gold); color: #fff; border-radius: 999px; font-weight: 600; }
-.btn-ghost { border: 1px solid rgba(20,48,58,.22); border-radius: 999px; color: var(--ink); background: transparent; }
+@keyframes horizon-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.reveal { animation: rise-in .7s var(--dp-ease-out) both; }
+
+.btn-gold {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; border-radius: 999px; background: var(--dp-gold); color: #fff; font-weight: 600;
+}
+.btn-gold:hover { background: var(--dp-gold-hover); }
+.btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; border-radius: 999px; border: 1px solid rgba(23,51,58,.16);
+  background: var(--dp-white); color: var(--dp-ink);
+}
+
+.emoji-hit { transition: transform .28s var(--dp-ease-out), background .2s ease; }
+.emoji-hit[data-on="true"] { background: var(--dp-tide-wash); box-shadow: inset 0 0 0 2px var(--dp-tide); }
+.publish-success { animation: rise-in .45s var(--dp-ease-out) both; }
+.dp-bar-track { height: 8px; overflow: hidden; border-radius: 999px; background: var(--dp-tide-wash); }
+.dp-bar-fill { height: 100%; transform-origin: left; animation: bar-in .9s var(--dp-ease-out) both; }
+@keyframes bar-in { from { transform: scaleX(0); } }
+
 @media (prefers-reduced-motion: reduce) {
-  .card, .donut-seg { transition: none !important; animation: none !important; }
+  .reveal, .horizon-rule, .publish-success, .dp-bar-fill, .card, .card-img { animation: none !important; transition: none !important; transform: none !important; }
 }
