@@ -5,30 +5,43 @@
 :root {
   --font-display: "Fraunces", Georgia, serif;
   --font-sans: "Manrope", system-ui, sans-serif;
+  --shell: #f5f1e6;
+  --paper: #ffffff;
+  --paper-sunk: #fbf8f1;
+  --ink: #14303a;
+  --ink-soft: #3f5c64;
+  --gold: #c89b3c;
+  --gold-mist: #f3e4be;
+  --tide: #1f6f6b;
+  --tide-mist: #dceeeb;
+  --coral: #d65f45;
+  --coral-mist: #f6e1da;
+  --line: rgba(20, 48, 58, 0.12);
+  --horizon: #c89b3c;
 }
 
-html, body { background: #07131c; color: #f4efe4; }
-
+html, body { background: var(--shell); color: var(--ink); }
 body {
   min-height: 100vh;
+  font-family: var(--font-sans);
+  line-height: 1.55;
   background-image:
-    radial-gradient(1200px 500px at 10% -10%, rgba(232, 197, 114, 0.16), transparent 55%),
-    radial-gradient(900px 600px at 110% 10%, rgba(80, 180, 170, 0.14), transparent 50%),
-    linear-gradient(180deg, #07131c 0%, #0a1c28 45%, #07131c 100%);
+    radial-gradient(1000px 460px at 8% -8%, rgba(200,155,60,.10), transparent 55%),
+    radial-gradient(900px 520px at 105% 0%, rgba(31,111,107,.08), transparent 50%);
 }
-
-body::before {
-  content: "";
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  opacity: 0.18;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; color: var(--ink); }
+.glass, .card { background: var(--paper); border: 1px solid var(--line); }
+.card { border-radius: 20px; transition: box-shadow .2s ease, transform .2s ease; }
+@media (hover: hover) {
+  .card:hover { box-shadow: 0 12px 32px rgba(20,48,58,.08); transform: translateY(-2px); }
 }
-
-.glass {
-  background: rgba(12, 36, 51, 0.62);
-  border: 1px solid rgba(244, 239, 228, 0.08);
-  backdrop-filter: blur(18px);
+.horizon-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--horizon) 15%, var(--horizon) 85%, transparent);
+  opacity: .55;
+}
+.btn-gold { background: var(--gold); color: #fff; border-radius: 999px; font-weight: 600; }
+.btn-ghost { border: 1px solid rgba(20,48,58,.22); border-radius: 999px; color: var(--ink); background: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  .card, .donut-seg { transition: none !important; animation: none !important; }
 }
