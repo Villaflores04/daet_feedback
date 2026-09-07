@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const MAX = 5 * 1024 * 1024;
+const BUCKET = "spot-covers";
 
 export async function POST(req: Request) {
   if (!isAdminRequest()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -17,23 +18,33 @@ export async function POST(req: Request) {
   const ext = file.type.split("/")[1] === "jpeg" ? "jpg" : file.type.split("/")[1];
   const path = `covers/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const buf = Buffer.from(await file.arrayBuffer());
-
   const admin = supabaseAdmin();
-  const { error } = await admin.storage.from("spot-covers").upload(path, buf, {
-    contentType: file.type,
-    upsert: true
-  });
+
+  async function put() {
+    return admin.storage.from(BUCKET).upload(path, buf, { contentType: file.type, upsert: true });
+  }
+
+  let { error } = await put();
+  if (error && /bucket|not found|NoSuchBucket/i.test(error.message)) {
+    await admin.storage.createBucket(BUCKET, {
+      public: true,
+      fileSizeLimit: MAX,
+      allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    });
+    const retry = await put();
+    error = retry.error;
+  }
   if (error) {
     return NextResponse.json(
       {
-        error:
-          error.message.includes("Bucket") || error.message.includes("not found")
-            ? "Storage bucket missing. Run supabase/fix_grants.sql in the SQL editor."
-            : error.message
+        error: /bucket|not found/i.test(error.message)
+          ? "Storage bucket missing. In Supabase: Storage → New bucket → name spot-covers → Public."
+          : error.message
       },
       { status: 500 }
     );
   }
-  const { data } = admin.storage.from("spot-covers").getPublicUrl(path);
+
+  const { data } = admin.storage.from(BUCKET).getPublicUrl(path);
   return NextResponse.json({ url: data.publicUrl });
 }
