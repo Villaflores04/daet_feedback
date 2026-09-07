@@ -1,4 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
+import { polarityFromComment } from "./polarity";
 import { supabaseAdmin, supabasePublic } from "./supabase";
 import type { Analytics, Feedback, Sentiment, Spot } from "./types";
 
@@ -40,10 +41,12 @@ export async function fetchFeedback(spotId?: string, opts?: ReadOpts): Promise<F
 export async function fetchAnalytics(opts?: ReadOpts): Promise<Analytics> {
   const [spots, feedback] = await Promise.all([fetchSpots(opts), fetchFeedback(undefined, opts)]);
   const sentiment: Record<Sentiment, number> = { negative: 0, mixed: 0, positive: 0 };
+  const wording: Record<Sentiment, number> = { negative: 0, mixed: 0, positive: 0 };
   const grouped = new Map<string, { id: string; name: string; slug: string; sum: number; count: number }>();
   for (const s of spots) grouped.set(s.id, { id: s.id, name: s.name, slug: s.slug, sum: 0, count: 0 });
   for (const f of feedback) {
     sentiment[f.sentiment] += 1;
+    wording[f.comment_sentiment || polarityFromComment(f.comment)] += 1;
     const g = grouped.get(f.spot_id);
     if (g) {
       g.sum += f.rating;
@@ -57,6 +60,7 @@ export async function fetchAnalytics(opts?: ReadOpts): Promise<Analytics> {
     avgRating,
     spotsCount: spots.length,
     sentiment,
+    wording,
     bySpot: [...grouped.values()]
       .map((g) => ({ id: g.id, name: g.name, slug: g.slug, count: g.count, avg: g.count ? g.sum / g.count : 0 }))
       .sort((a, b) => b.avg - a.avg || b.count - a.count),

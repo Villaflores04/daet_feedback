@@ -19,6 +19,7 @@ export type Feedback = {
   rating: number;
   emoji: string;
   sentiment: Sentiment;
+  comment_sentiment?: Sentiment | null;
   comment: string;
   created_at: string;
   spots?: { name: string; slug: string } | null;
@@ -29,6 +30,7 @@ export type Analytics = {
   avgRating: number;
   spotsCount: number;
   sentiment: Record<Sentiment, number>;
+  wording: Record<Sentiment, number>;
   bySpot: { id: string; name: string; slug: string; count: number; avg: number }[];
   recent: Feedback[];
 };
