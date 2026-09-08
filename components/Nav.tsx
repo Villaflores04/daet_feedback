@@ -1,4 +1,31 @@
+"use client";
+
 import Link from "next/link";
-function Mark(){return <div className="mark-wrap" aria-hidden><span className="text-white text-xl">◌</span></div>}
-export function Nav(){return <header className="sticky top-0 z-40 nav-glass"><div className="page-shell flex min-h-[64px] items-center justify-between gap-4"><Link href="/" className="flex items-center gap-2.5 min-w-0"><Mark/><span><span className="block text-[9px] font-extrabold uppercase tracking-[.19em] text-[var(--muted)]">Municipality of Daet</span><span className="block font-display text-[1.08rem] leading-none">DAET Pulse</span></span></Link><nav className="flex items-center gap-1.5"><Link href="/spots" className="btn-secondary">Explore places</Link><Link href="/dashboard" className="btn-primary">Town pulse <span>↗</span></Link></nav></div></header>}
-export function Footer(){return <footer className="page-shell pb-8 pt-6"><div className="surface-quiet flex flex-col gap-2 py-5 text-[11px] text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between"><p>DAET Pulse · Visitor sentiment for Daet, Camarines Norte</p><p>Visitors never need an account.</p></div></footer>}
+import { useState } from "react";
+
+function Mark() {
+  return <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>;
+}
+
+export function Nav() {
+  const [open, setOpen] = useState(false);
+  return <header className="sticky top-0 z-40 nav-glass">
+    <div className="page-shell nav-inner">
+      <Link href="/" className="brand-lockup" onClick={() => setOpen(false)}>
+        <Mark />
+        <span className="brand-copy"><span className="brand-kicker">Municipality of Daet</span><span className="brand-name">DAET Pulse</span></span>
+      </Link>
+      <button type="button" className={`menu-toggle ${open ? "open" : ""}`} aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        <span /><span /><span />
+      </button>
+      <nav className={`nav-links ${open ? "open" : ""}`} aria-label="Main navigation">
+        <Link href="/spots" className="nav-link" onClick={() => setOpen(false)}>Explore places</Link>
+        <Link href="/dashboard" className="nav-cta" onClick={() => setOpen(false)}>Town pulse <span>↗</span></Link>
+      </nav>
+    </div>
+  </header>;
+}
+
+export function Footer() {
+  return <footer className="page-shell pb-8 pt-6"><div className="surface-quiet flex flex-col gap-2 py-5 text-[11px] text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between"><p>DAET Pulse · Visitor sentiment for Daet, Camarines Norte</p><p>Visitors never need an account.</p></div></footer>;
+}
