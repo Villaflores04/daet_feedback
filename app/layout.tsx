@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AppChrome } from "@/components/AppChrome";
 import { SetupBanner } from "@/components/SetupBanner";
 import "./globals.css";
+import "./creative.css";
 
 export const metadata: Metadata = {
   title: "DAET Pulse — tourist sentiment desk",
