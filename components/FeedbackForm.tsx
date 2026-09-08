@@ -5,4 +5,47 @@ import { useRouter } from "next/navigation";
 import { EMOJI_META, EMOJIS, type PulseEmoji } from "@/lib/sentiment";
 import type { Feedback } from "@/lib/types";
 import { NameModal, ProfileChip, useProfileName } from "./ProfileGate";
-export function FeedbackForm({spotId,spotName,onPosted}:{spotId:string;spotName:string;onPosted?:(row:Feedback)=>void}){const profile=useProfileName();const router=useRouter();const[askName,setAskName]=useState(false);const[emoji,setEmoji]=useState<PulseEmoji|"">("");const[rating,setRating]=useState(0);const[comment,setComment]=useState("");const[busy,setBusy]=useState(false);const[error,setError]=useState("");const[saved,setSaved]=useState<Feedback|null>(null);async function submit(){setError("");setSaved(null);if(!profile.name){setAskName(true);return}if(!emoji){setError("Choose one emoji first. That is your official pulse.");return}if(comment.trim().length<8){setError("Mag-iwan ng maikling komento / write at least 8 characters.");return}setBusy(true);try{const res=await fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({spot_id:spotId,display_name:profile.name,rating:rating||undefined,emoji,comment:comment.trim()})});const json=await res.json().catch(()=>({}));if(!res.ok){setError(json.error||"Your pulse could not be saved. Please try again.");return}setComment("");setEmoji("");setRating(0);setSaved(json as Feedback);onPosted?.(json as Feedback);router.refresh()}catch{setError("Your pulse could not be saved. Please try again.")}finally{setBusy(false)}}return <div className="surface feedback-stage"><div className="feedback-intro"><p className="eyebrow">Visitor pulse</p><h2 className="mt-3">Tell Daet how it felt.</h2><p className="mt-4 text-sm leading-relaxed text-[var(--muted)]">Your emoji is the official pulse. Add a short note so the town can understand the experience behind it.</p><div className="mt-8 flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--teal-soft)] text-lg">◎</span><span className="text-[11px] text-[var(--muted)]">No account required. Set a public name once.</span></div></div><div className="feedback-form"><div className="flex items-center justify-between gap-3"><div><p className="text-xs font-extrabold uppercase tracking-[.14em] text-[var(--muted)]">{spotName}</p><p className="mt-1 text-sm text-[var(--muted)]">Kumusta ang experience mo?</p></div><ProfileChip name={profile.name} onEdit={()=>setAskName(true)}/></div><div className="emoji-grid">{EMOJIS.map(e=><button type="button" key={e} onClick={()=>setEmoji(e)} className={`emoji-choice ${emoji===e?"active":""}`}><span className="text-2xl">{e}</span><span className="text-[10px] font-extrabold">{EMOJI_META[e].label}</span><span className="text-[9px] text-[var(--muted)]">{EMOJI_META[e].fil}</span></button>)}</div><div className="field"><label>Optional score</label><div className="flex gap-1">{[1,2,3,4,5].map(n=><button type="button" key={n} onClick={()=>setRating(n)} className={`grid h-9 w-9 place-items-center text-lg ${rating>=n?"text-[var(--gold)]":"text-[#c1ceca]"}`}>★</button>)}</div></div><div className="field"><label>Short comment / maikling komento</label><textarea value={comment} onChange={e=>setComment(e.target.value)} rows={4} maxLength={600} placeholder="What stood out? Linis, staff, crowd, sunset…"/></div><div className="mt-1 flex justify-between text-[10px] text-[var(--muted)]"><span className={error?"text-[var(--coral)]":""}>{error||"At least 8 characters"}</span><span>{comment.trim().length}/600</span></div>{saved&&<div className="mt-4 rounded-2xl bg-[var(--teal-soft)] px-4 py-3"><p className="font-extrabold text-[var(--teal)]">Your pulse is counted.</p><Link href="/dashboard" className="mt-1 inline-block text-[11px] font-extrabold text-[var(--teal)]">See how Daet feels →</Link></div>}<button type="button" disabled={busy} onClick={submit} className="btn-primary mt-4 w-full">{busy?"Publishing…":profile.name?"Publish pulse":"Set name, then publish"}</button><NameModal open={askName} initial={profile.name} onClose={()=>setAskName(false)} onSave={n=>{profile.save(n);setAskName(false)}}/></div></div>}
+
+const prompts: Record<PulseEmoji, { title: string; question: string; placeholder: string }> = {
+  "😞": { title: "Needs care", question: "What could have made the experience better?", placeholder: "Tell the town what should improve…" },
+  "😐": { title: "A mixed experience", question: "What felt good — and what could improve?", placeholder: "Share both sides of the experience…" },
+  "🙂": { title: "A positive experience", question: "What made the experience stand out?", placeholder: "Tell us what you enjoyed…" },
+  "🤩": { title: "A memorable experience", question: "What made you love this place?", placeholder: "Share the moment that stood out…" }
+};
+
+export function FeedbackForm({ spotId, spotName, onPosted }: { spotId: string; spotName: string; onPosted?: (row: Feedback) => void }) {
+  const profile = useProfileName(); const router = useRouter();
+  const [askName, setAskName] = useState(false); const [emoji, setEmoji] = useState<PulseEmoji | "">(""); const [rating, setRating] = useState(0); const [comment, setComment] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const [saved, setSaved] = useState<Feedback | null>(null);
+  async function submit() {
+    setError(""); setSaved(null);
+    if (!profile.name) { setAskName(true); return; }
+    if (!emoji) { setError("Choose the emoji that best represents your official pulse."); return; }
+    if (comment.trim().length < 8) { setError("Add a short explanation so people understand your pulse."); return; }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ spot_id: spotId, display_name: profile.name, rating: rating || undefined, emoji, comment: comment.trim() }) });
+      const json = await res.json().catch(() => ({})); if (!res.ok) { setError(json.error || "Your pulse could not be saved. Please try again."); return; }
+      setComment(""); setRating(0); setSaved(json as Feedback); onPosted?.(json as Feedback); window.dispatchEvent(new Event("daet:pulse-posted")); router.refresh();
+    } catch { setError("Your pulse could not be saved. Please try again."); } finally { setBusy(false); }
+  }
+  const selected = emoji ? prompts[emoji] : null;
+  return <div className="surface feedback-stage creative-feedback">
+    <div className="feedback-intro">
+      <p className="eyebrow">Create a pulse</p><h2 className="mt-3">How did {spotName} feel?</h2>
+      <p className="mt-4 text-sm leading-relaxed text-[var(--muted)]">One emoji becomes the official sentiment. Your words explain the feeling behind it.</p>
+      <div className="feedback-flow"><div><b>01</b><span>Choose a feeling</span></div><div><b>02</b><span>Explain the moment</span></div><div><b>03</b><span>Send it live</span></div></div>
+      <div className="feedback-note"><span>●</span><span>No account required. Your public name is saved only on this device.</span></div>
+    </div>
+    <div className="feedback-form">
+      <div className="feedback-form-head"><div><p className="spot-tag">{spotName}</p><p className="mt-1 text-sm text-[var(--muted)]">Kumusta ang experience mo?</p></div><ProfileChip name={profile.name} onEdit={() => setAskName(true)} /></div>
+      <div className="emoji-grid expressive-emojis">{EMOJIS.map((e) => <button type="button" key={e} onClick={() => { setEmoji(e); setError(""); }} className={`emoji-choice ${emoji === e ? "active" : ""}`}><span className="emoji-face">{e}</span><span className="emoji-label">{EMOJI_META[e].label}</span><span className="emoji-fil">{EMOJI_META[e].fil}</span></button>)}</div>
+      <div className={`emotion-message ${emoji ? "visible" : ""}`}>{selected ? <><strong>{selected.title}</strong><span>{selected.question}</span></> : <><strong>Your emoji is your official pulse.</strong><span>Choose one to tell the town how this place felt.</span></>}</div>
+      <div className="field"><label>Optional score · secondary detail</label><div className="rating-orbs">{[1,2,3,4,5].map((n) => <button type="button" key={n} aria-label={`${n} out of 5`} onClick={() => setRating(n)} className={rating >= n ? "active" : ""}><span>★</span><small>{n}</small></button>)}</div></div>
+      <div className="field"><label>{selected?.question || "Explain the feeling"}</label><textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={5} maxLength={600} placeholder={selected?.placeholder || "What stood out? Linis, staff, crowd, sunset…"}/></div>
+      <div className="feedback-meta"><span className={error ? "error-text" : ""}>{error || "Your words add context to the emoji pulse."}</span><span>{comment.trim().length}/600</span></div>
+      {saved && <div className="pulse-success"><div className="success-emoji">{saved.emoji}</div><div><strong>Your pulse is live.</strong><span>It now contributes to Daet's living mood.</span><Link href="/dashboard">See the live pulse →</Link></div></div>}
+      <button type="button" disabled={busy} onClick={submit} className="btn-primary pulse-submit">{busy ? "Sending your pulse…" : profile.name ? "Send my pulse →" : "Set my name →"}</button>
+      <NameModal open={askName} initial={profile.name} onClose={() => setAskName(false)} onSave={(n) => { profile.save(n); setAskName(false); }} />
+    </div>
+  </div>;
+}
