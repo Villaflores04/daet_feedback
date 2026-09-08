@@ -28,7 +28,6 @@ export function FeedbackForm({ spotId, spotName, onPosted }: { spotId: string; s
     setSaved(null);
     if (!profile.name) { setAskName(true); return; }
     if (!emoji) { setError("Choose the emoji that best represents your official pulse."); return; }
-    if (comment.trim().length < 8) { setError("Add a short explanation so people understand your pulse."); return; }
 
     setBusy(true);
     try {
@@ -76,8 +75,8 @@ export function FeedbackForm({ spotId, spotName, onPosted }: { spotId: string; s
       <div className={`emotion-message ${emoji ? "visible" : ""}`}>
         {selected ? <><strong>{selected.title}</strong><span>{selected.question}</span></> : <><strong>Your emoji is your official pulse.</strong><span>Choose one to tell the town how this place felt.</span></>}
       </div>
-      <div className="field"><label>{selected?.question || "Explain the feeling"}</label><textarea value={comment} onChange={e => setComment(e.target.value)} rows={5} maxLength={600} placeholder={selected?.placeholder || "What stood out? Linis, staff, crowd, sunset…"} /></div>
-      <div className="feedback-meta"><span className={error ? "error-text" : ""}>{error || "Your words add context to the emoji pulse."}</span><span>{comment.trim().length}/600</span></div>
+      <div className="field"><label>{selected?.question || "Add a comment"} <span className="field-optional">optional</span></label><textarea value={comment} onChange={e => setComment(e.target.value)} rows={5} maxLength={600} placeholder={selected?.placeholder || "Say a few words about the experience, or leave it blank…"} /></div>
+      <div className="feedback-meta"><span className={error ? "error-text" : ""}>{error || "Your words are optional; the emoji is enough to create the official pulse."}</span><span>{comment.trim().length}/600</span></div>
       {saved && <div className="pulse-success"><div className="success-emoji">{saved.emoji}</div><div><strong>Your pulse is live.</strong><span>It now contributes to this place's mood.</span><Link href="/dashboard">See the living dashboard →</Link></div></div>}
       <button type="button" disabled={busy} onClick={submit} className="btn-primary pulse-submit">{busy ? "Sending your pulse…" : profile.name ? "Send my pulse →" : "Set my name →"}</button>
       <NameModal open={askName} initial={profile.name} onClose={() => setAskName(false)} onSave={n => { profile.save(n); setAskName(false); }} />
