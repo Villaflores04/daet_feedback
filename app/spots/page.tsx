@@ -1,5 +1,9 @@
-import Link from "next/link";
 import { fetchAnalytics, fetchSpots } from "@/lib/data";
 import { hasPublicEnv } from "@/lib/supabase";
-export const dynamic="force-dynamic";export const revalidate=0;
-export default async function SpotsPage(){if(!hasPublicEnv())return <div className="page-shell"><h1>Places</h1><p className="mt-2 text-sm text-[var(--muted)]">Connect Supabase to load destinations.</p></div>;const[spots,analytics]=await Promise.all([fetchSpots(),fetchAnalytics()]);return <div className="page-shell pb-12"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow">Explore Daet</p><h1 className="mt-3">Choose a place. Leave its pulse.</h1><p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--muted)]">Browse destinations, open a place, and tell the town how the experience felt. No visitor account required.</p></div><Link href="/dashboard" className="btn-secondary">See town pulse →</Link></div><div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{spots.map(s=>{const st=analytics.bySpot.find(x=>x.id===s.id);return <Link key={s.id} href={`/spots/${s.slug}`} className="spot-card"><div className="spot-media" style={{backgroundImage:s.cover_url?`url(${s.cover_url})`:undefined}}/><div className="spot-card-body"><p className="spot-tag">{s.category}{s.barangay?` · ${s.barangay}`:""}</p><h2 className="mt-2">{s.name}</h2><p className="mt-2 line-clamp-3 text-xs leading-relaxed text-[var(--muted)]">{s.description}</p><div className="spot-rating"><span>{st?.count?`${st.count} pulses`:"Be the first pulse"}</span><strong>{st?.count?st.avg.toFixed(1):"—"}</strong></div></div></Link>})}</div></div>}
+import { ExplorePlaces } from "@/components/ExplorePlaces";
+export const dynamic="force-dynamic"; export const revalidate=0;
+export default async function SpotsPage(){
+  if(!hasPublicEnv()) return <div className="page-shell"><h1>Places</h1><p className="mt-2 text-sm text-[var(--muted)]">Connect Supabase to load destinations.</p></div>;
+  const [spots,analytics]=await Promise.all([fetchSpots(),fetchAnalytics()]);
+  return <ExplorePlaces spots={spots} analytics={analytics}/>;
+}
