@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import type { Analytics } from "@/lib/types";
 import { AnalyticsView } from "./AnalyticsView";
@@ -8,15 +7,16 @@ export function LivePulse({ initial, endpoint = "/api/analytics" }: { initial: A
   const [data, setData] = useState(initial);
   useEffect(() => {
     let on = true;
-    fetch(endpoint, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((json) => {
+    async function refresh() {
+      try {
+        const res = await fetch(endpoint, { cache: "no-store" });
+        const json = await res.json();
         if (on && json && typeof json.totalReviews === "number") setData(json);
-      })
-      .catch(() => {});
-    return () => {
-      on = false;
-    };
+      } catch {}
+    }
+    refresh();
+    const timer = window.setInterval(refresh, 12000);
+    return () => { on = false; window.clearInterval(timer); };
   }, [endpoint]);
   return <AnalyticsView data={data} />;
 }
