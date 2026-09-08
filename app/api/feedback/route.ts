@@ -3,10 +3,6 @@ import { supabaseAdmin, supabasePublic } from "@/lib/supabase";
 import { polarityFromComment } from "@/lib/polarity";
 import { EMOJIS, ratingFromEmoji, sentimentFromEmoji } from "@/lib/sentiment";
 
-function clientIp(req: Request) {
-  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
-}
-
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const spotId = searchParams.get("spotId");
