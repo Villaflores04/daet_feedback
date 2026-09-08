@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin, supabasePublic } from "@/lib/supabase";
 import { polarityFromComment } from "@/lib/polarity";
-import { tooManyPulses } from "@/lib/ratelimit";
 import { EMOJIS, ratingFromEmoji, sentimentFromEmoji } from "@/lib/sentiment";
 
 function clientIp(req: Request) {
@@ -20,9 +19,6 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  if (tooManyPulses(clientIp(req))) {
-    return NextResponse.json({ error: "Please wait before sending another pulse." }, { status: 429 });
-  }
   const body = await req.json().catch(() => ({}));
   const display_name = String(body.display_name || "").trim();
   const comment = String(body.comment || "").trim();
@@ -38,8 +34,8 @@ export async function POST(req: Request) {
   if (!EMOJIS.includes(emoji as (typeof EMOJIS)[number])) {
     return NextResponse.json({ error: "Pick one emotion: 😞 😐 🙂 🤩.", field: "emoji" }, { status: 400 });
   }
-  if (comment.length < 8 || comment.length > 600) {
-    return NextResponse.json({ error: "Tell us a little more — your comment needs 8–600 characters.", field: "comment" }, { status: 400 });
+  if (comment.length > 600) {
+    return NextResponse.json({ error: "Your comment is too long. Keep it within 600 characters.", field: "comment" }, { status: 400 });
   }
   let db;
   try { db = supabaseAdmin(); } catch { db = supabasePublic(); }
