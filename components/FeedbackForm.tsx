@@ -35,8 +35,8 @@ export function FeedbackForm({ spotId, spotName, onPosted }: { spotId: string; s
       const res = await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: { spot_id: spotId, display_name: profile.name, emoji, comment: comment.trim() }
-      } as never);
+        body: JSON.stringify({ spot_id: spotId, display_name: profile.name, emoji, rating: ratingFromEmoji(emoji), comment: comment.trim() })
+      });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) { setError(json.error || "Your pulse could not be saved. Please try again."); return; }
       setComment("");
