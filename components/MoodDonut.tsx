@@ -2,7 +2,7 @@
 
 import type { Sentiment } from "@/lib/types";
 
-export function MoodDonut({ positive, mixed, negative, size = 160, className = "" }: { positive: number; mixed: number; negative: number; size?: number; className?: string }) {
+export function MoodDonut({ positive, mixed, negative, size = 160, className = "", showCenter = false }: { positive: number; mixed: number; negative: number; size?: number; className?: string; showCenter?: boolean }) {
   const total = positive + mixed + negative || 1;
   const r = 46;
   const c = 2 * Math.PI * r;
@@ -25,6 +25,6 @@ export function MoodDonut({ positive, mixed, negative, size = 160, className = "
         return circle;
       })}
     </svg>
-    <div className="mood-donut-center"><strong>{totalPulses}</strong><span>pulses</span></div>
+    {showCenter && <div className="mood-donut-center"><strong>{totalPulses}</strong><span>pulses</span></div>}
   </div>;
 }
