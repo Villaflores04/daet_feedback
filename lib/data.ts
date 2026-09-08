@@ -115,7 +115,7 @@ export async function fetchAnalytics(opts?: ReadOpts): Promise<Analytics> {
   })).sort((a,b) => b.count-a.count || b.avg-a.avg);
 
   const mostDiscussed = spotList.map(s => ({
-    id:s.id, name:s.name, slug:s.slug, discussion:s.pulse.discussion,
+    id:s.id, name:s.name, slug:s.slug, discussion:s.count + s.pulse.discussion,
     replies:s.pulse.replies, reactions:s.pulse.agrees + s.pulse.disagrees
   })).filter(s => s.discussion > 0).sort((a,b) => b.discussion-a.discussion).slice(0,5);
 
