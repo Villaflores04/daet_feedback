@@ -5,7 +5,7 @@ import { MoodDonut } from "@/components/MoodDonut";
 export const dynamic="force-dynamic"; export const revalidate=0;
 
 export default async function HomePage(){
-  const fallback={totalReviews:0,avgRating:0,spotsCount:0,sentiment:{positive:0,mixed:0,negative:0},wording:{positive:0,mixed:0,negative:0},bySpot:[],recent:[]};
+  const fallback={totalReviews:0,avgRating:0,spotsCount:0,sentiment:{positive:0,mixed:0,negative:0},wording:{positive:0,mixed:0,negative:0},bySpot:[],recent:[],timeline:[],mostDiscussed:[],emergingConcerns:[],consensus:{agree:0,disagree:0,score:0}};
   const [spots,analytics]=hasPublicEnv()?await Promise.all([fetchSpots(),fetchAnalytics()]):[[],fallback];
   const total=analytics.totalReviews||1;
   const positive=Math.round(analytics.sentiment.positive/total*100);
