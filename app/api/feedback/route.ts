@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   let q = db.from("feedback").select("*, spots(name, slug)").order("created_at", { ascending: false }).limit(200);
   if (spotId) q = q.eq("spot_id", spotId);
   const { data, error } = await q;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "The pulse could not be saved.", detail: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
 
@@ -34,12 +34,12 @@ export async function POST(req: Request) {
   if (display_name.length < 2 || display_name.length > 40) {
     return NextResponse.json({ error: "Set a public name (2-40 characters) first." }, { status: 400 });
   }
-  if (!spot_id) return NextResponse.json({ error: "Choose a spot." }, { status: 400 });
+  if (!spot_id) return NextResponse.json({ error: "Choose a place before sending your pulse.", field: "spot_id" }, { status: 400 });
   if (!EMOJIS.includes(emoji as (typeof EMOJIS)[number])) {
-    return NextResponse.json({ error: "Pick one emoji: 😞 😐 🙂 🤩." }, { status: 400 });
+    return NextResponse.json({ error: "Pick one emotion: 😞 😐 🙂 🤩.", field: "emoji" }, { status: 400 });
   }
   if (comment.length < 8 || comment.length > 600) {
-    return NextResponse.json({ error: "Comment must be 8–600 characters." }, { status: 400 });
+    return NextResponse.json({ error: "Tell us a little more — your comment needs 8–600 characters.", field: "comment" }, { status: 400 });
   }
   let db;
   try { db = supabaseAdmin(); } catch { db = supabasePublic(); }
