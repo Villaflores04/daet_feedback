@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { EMOJI_META, EMOJIS, type PulseEmoji } from "@/lib/sentiment";
+import { EMOJI_META, EMOJIS, ratingFromEmoji, type PulseEmoji } from "@/lib/sentiment";
 import type { Feedback } from "@/lib/types";
 import { NameModal, ProfileChip, useProfileName } from "./ProfileGate";
 
