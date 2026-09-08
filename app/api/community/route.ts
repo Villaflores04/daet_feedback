@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     for (const row of reactions ?? []) {
       const current = reactionMap.get(row.feedback_id) ?? { agree: 0, disagree: 0, mine: null };
       if (row.reaction === "agree") current.agree += 1;
-      if (row.reaction === "disagree") current.disagree += 1;
+      if (row.reaction === "disagree") current.disagree += 1;\n      if (visitorKey && row.visitor_key === visitorKey) current.mine = row.reaction;
       if (visitorKey && row.visitor_key === visitorKey) current.mine = row.reaction;
       reactionMap.set(row.feedback_id, current);
     }
