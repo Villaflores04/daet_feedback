@@ -28,11 +28,8 @@ drop policy if exists "feedback reactions readable" on public.feedback_reactions
 create policy "feedback reactions readable" on public.feedback_reactions for select using (true);
 drop policy if exists "feedback replies readable" on public.feedback_replies;
 create policy "feedback replies readable" on public.feedback_replies for select using (true);
+-- Writes are intentionally performed by the server API with the service-role key.
 drop policy if exists "feedback reactions insert public" on public.feedback_reactions;
-create policy "feedback reactions insert public" on public.feedback_reactions for insert with check (char_length(visitor_key) between 16 and 120 and reaction in ('agree','disagree'));
 drop policy if exists "feedback reactions update public" on public.feedback_reactions;
-create policy "feedback reactions update public" on public.feedback_reactions for update using (true) with check (char_length(visitor_key) between 16 and 120 and reaction in ('agree','disagree'));
 drop policy if exists "feedback reactions delete public" on public.feedback_reactions;
-create policy "feedback reactions delete public" on public.feedback_reactions for delete using (true);
 drop policy if exists "feedback replies insert public" on public.feedback_replies;
-create policy "feedback replies insert public" on public.feedback_replies for insert with check (char_length(visitor_key) between 16 and 120 and char_length(display_name) between 2 and 40 and char_length(comment) between 2 and 400);
