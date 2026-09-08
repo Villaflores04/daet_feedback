@@ -21,7 +21,7 @@ create table if not exists public.feedback (
   rating smallint not null check (rating between 1 and 5),
   emoji text not null check (emoji in ('😞','😐','🙂','🤩')),
   sentiment text not null check (sentiment in ('negative','mixed','positive')),
-  comment text not null check (char_length(comment) between 8 and 600),
+  comment text not null check (char_length(comment) between 0 and 600),
   created_at timestamptz not null default now()
 );
 
@@ -42,7 +42,7 @@ create policy "feedback insert public" on public.feedback
   for insert with check (
     char_length(display_name) between 2 and 40
     and rating between 1 and 5
-    and char_length(comment) between 8 and 600
+    and char_length(comment) between 0 and 600
   );
 
 insert into public.spots (name, slug, category, barangay, description, cover_url, featured) values
