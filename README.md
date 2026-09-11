@@ -29,3 +29,4 @@ ADMIN_SESSION_SECRET=
 Open `/admin` and enter `ADMIN_PASSWORD`.
 
 The officer header stays on Desk / Spots / Comments. Use **Public site** only when you want the tourist view.
+
