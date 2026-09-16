@@ -19,53 +19,70 @@ function DeskLogin() {
   const unlock = useDesk((s) => s.unlock);
 
   return (
-    <main className="relative flex min-h-svh items-center justify-center bg-page px-4">
-      <div className="w-full max-w-sm">
-        <form
-          className="rounded-2xl bg-plate p-6 shadow-plate"
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (!matchesDeskKey(value)) {
-              setError(true);
-              return;
-            }
-            unlock();
-          }}
-        >
+    <main className="relative isolate min-h-svh overflow-hidden bg-page">
+      <img
+        src="/hero.jpg"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover object-[center_68%]"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-page via-page/82 to-ink/20" />
+      <div className="relative mx-auto flex min-h-svh max-w-6xl flex-col justify-end px-4 pb-16 pt-16 sm:px-6 lg:justify-center lg:pb-20">
+        <div className="rise w-full max-w-md">
           <Wordmark />
-          <h1 className="mt-6 font-display text-2xl tracking-tight">
-            Type the shared key
+          <h1 className="mt-6 font-display text-[2.05rem] leading-[1.12] tracking-[-0.03em] text-ink sm:text-4xl">
+            Municipal desk
           </h1>
-          <p className="mt-2 text-sm text-muted">
-            Hint visible: <span className="font-medium text-ink">daet</span>
+          <p className="mt-3 text-base text-muted">
+            Shared key for officers. Faces stay on this device.
           </p>
-          <input
-            autoFocus
-            type="password"
-            value={value}
-            onChange={(e) => {
-              setValue(e.target.value);
-              setError(false);
+          <form
+            className="mt-6 rounded-2xl bg-plate p-5 shadow-plate"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!matchesDeskKey(value)) {
+                setError(true);
+                return;
+              }
+              unlock();
             }}
-            className="mt-5 h-12 w-full rounded-xl border border-line bg-page px-3 outline-none focus:border-teal"
-            placeholder="Shared key"
-            autoComplete="off"
-          />
-          {error ? (
-            <p className="mt-2 text-sm text-neg">That key does not open the desk.</p>
-          ) : null}
-          <button
-            type="submit"
-            className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-xl bg-teal text-sm font-medium text-plate"
           >
-            Open desk
-          </button>
-        </form>
-        <Link href="/"
-          className="mt-4 inline-flex h-11 w-full items-center justify-center text-sm font-medium text-action"
-        >
-          Back to visitor site
-        </Link>
+            <p className="text-sm font-medium text-muted">
+              Hint visible: <span className="font-medium text-ink">daet</span>
+            </p>
+            <label className="mt-3 block">
+              <span className="sr-only">Shared key</span>
+              <input
+                autoFocus
+                type="password"
+                value={value}
+                onChange={(e) => {
+                  setValue(e.target.value);
+                  setError(false);
+                }}
+                className="h-12 w-full rounded-xl border border-line bg-page px-3 outline-none focus:border-teal"
+                placeholder="Shared key"
+                autoComplete="off"
+              />
+            </label>
+            {error ? (
+              <p className="mt-2 text-sm text-neg">
+                That key does not open the desk.
+              </p>
+            ) : null}
+            <button
+              type="submit"
+              className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-xl bg-teal text-sm font-medium text-plate"
+            >
+              Open desk
+            </button>
+          </form>
+          <Link
+            href="/"
+            className="mt-4 inline-flex h-11 items-center text-sm font-medium text-action"
+          >
+            Back to visitor site
+          </Link>
+        </div>
       </div>
     </main>
   );

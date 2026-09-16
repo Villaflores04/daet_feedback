@@ -41,7 +41,6 @@
   }
 
   html,
-  body,
   body {
     min-height: 100%;
     background: var(--color-page);
@@ -87,17 +86,26 @@
 
 @keyframes boot-bar {
   from {
-    width: 8%;
+    width: 10%;
   }
   to {
     width: 100%;
   }
 }
 
-@keyframes boot-fade {
+@keyframes boot-leave {
   to {
     opacity: 0;
     visibility: hidden;
+  }
+}
+
+@keyframes boot-photo {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
   }
 }
 
@@ -115,7 +123,15 @@
 }
 
 .boot-bar {
-  animation: boot-bar 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: boot-bar 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.boot-leave {
+  animation: boot-leave 520ms ease forwards;
+}
+
+.boot-photo {
+  animation: boot-photo 2.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .rise > * {
@@ -142,6 +158,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .boot-bar,
+  .boot-leave,
+  .boot-photo,
   .rise > * {
     animation: none !important;
   }
