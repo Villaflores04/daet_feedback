@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { rehydratePulse } from "@/lib/pulse/store";
 import { useDesk } from "@/lib/pulse/desk";

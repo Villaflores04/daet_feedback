@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { FaceGauge } from "@/components/face-gauge";
 import { MoodBar } from "@/components/mood-bar";
@@ -19,8 +21,7 @@ export function BoardTabs({
   if (desk) {
     return (
       <div className="flex rounded-xl bg-cool p-1">
-        <Link
-          to="/desk/board"
+        <Link href="/desk/board"
           className={cn(
             "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
             active === "faces" ? "bg-plate text-ink shadow-plate" : "text-muted",
@@ -28,9 +29,7 @@ export function BoardTabs({
         >
           Faces
         </Link>
-        <Link
-          to="/desk/board"
-          search={{ tab: "words" }}
+        <Link href="/desk/board?tab=words"
           className={cn(
             "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
             active === "words" ? "bg-plate text-ink shadow-plate" : "text-muted",
@@ -44,8 +43,7 @@ export function BoardTabs({
 
   return (
     <div className="flex rounded-xl bg-cool p-1">
-      <Link
-        to="/board"
+      <Link href="/board"
         className={cn(
           "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
           active === "faces" ? "bg-plate text-ink shadow-plate" : "text-muted",
@@ -53,8 +51,7 @@ export function BoardTabs({
       >
         Faces
       </Link>
-      <Link
-        to="/board/words"
+      <Link href="/board/words"
         className={cn(
           "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
           active === "words" ? "bg-plate text-ink shadow-plate" : "text-muted",
@@ -187,9 +184,7 @@ export function BoardView({
                         )}
                       </ul>
                     )}
-                    <Link
-                      to="/spots/$slug"
-                      params={{ slug: channel.slug }}
+                    <Link href={`/spots/${channel.slug}`}
                       className="mt-3 inline-flex h-11 items-center text-sm font-medium text-action"
                     >
                       Open place

@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { PulseMark } from "@/components/mark";
 
 export function SiteFooter() {
@@ -8,8 +8,7 @@ export function SiteFooter() {
         <p className="text-sm leading-relaxed text-muted">
           Municipality of Daet, Camarines Norte. Faces stay on this device.
         </p>
-        <Link
-          to="/desk"
+        <Link href="/desk"
           className="inline-flex h-10 items-center gap-2 text-xs uppercase tracking-[0.16em] text-muted"
         >
           <PulseMark className="size-4" />

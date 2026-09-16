@@ -1,4 +1,7 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+"use client";
+
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { Wordmark } from "@/components/mark";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +19,7 @@ export function SiteHeader({
   landing?: boolean;
   scrolled?: boolean;
 }) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const pathname = usePathname();
   const hidden = landing && !scrolled;
 
   return (
@@ -30,7 +33,7 @@ export function SiteHeader({
       )}
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" aria-label="DAET Pulse home">
+        <Link href="/" aria-label="DAET Pulse home">
           <Wordmark compact />
         </Link>
         <nav className="hidden items-center gap-1 lg:flex">
@@ -42,7 +45,7 @@ export function SiteHeader({
             return (
               <Link
                 key={link.to}
-                to={link.to}
+                href={link.to}
                 className={cn(
                   "inline-flex h-11 items-center rounded-lg px-3 text-sm font-medium",
                   active ? "bg-cool text-ink" : "text-muted hover:text-ink",

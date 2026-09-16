@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { StoredPhoto } from "@/components/stored-photo";

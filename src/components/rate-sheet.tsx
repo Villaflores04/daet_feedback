@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { FacePicker } from "@/components/face-picker";

@@ -217,7 +217,15 @@ export const usePulse = create<PulseState>()(
     }),
     {
       name: PULSE_KEY,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() =>
+        typeof window === "undefined"
+          ? {
+              getItem: () => null,
+              setItem: () => {},
+              removeItem: () => {},
+            }
+          : localStorage,
+      ),
       skipHydration: true,
       partialize: (state) => ({
         channels: state.channels,

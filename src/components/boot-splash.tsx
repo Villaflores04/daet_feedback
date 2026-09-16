@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, type ReactNode } from "react";
 
 const BOOT_KEY = "daet-pulse-booted";

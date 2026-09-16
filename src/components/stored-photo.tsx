@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, type ImgHTMLAttributes } from "react";
 import { getPhotoUrl, peekPhotoUrl, subscribePhotos } from "@/lib/pulse/photos";
 import { cn } from "@/lib/utils";

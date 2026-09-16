@@ -1,4 +1,7 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+"use client";
+
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { Compass, LayoutList, Radio, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +13,7 @@ const ITEMS = [
 ];
 
 export function SiteDock() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const pathname = usePathname();
 
   return (
     <nav
@@ -25,7 +28,7 @@ export function SiteDock() {
           return (
             <li key={item.to}>
               <Link
-                to={item.to}
+                href={item.to}
                 className={cn(
                   "flex h-14 flex-col items-center justify-center gap-0.5 text-[0.7rem] font-medium",
                   active ? "text-teal" : "text-muted",

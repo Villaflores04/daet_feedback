@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Lightbox } from "@/components/lightbox";
 import { StoredPhoto } from "@/components/stored-photo";
@@ -59,9 +61,7 @@ export function PulseCard({
           <p className="text-xs text-muted">
             {hidePlace ? null : channel ? (
               <>
-                <Link
-                  to="/spots/$slug"
-                  params={{ slug: channel.slug }}
+                <Link href={`/spots/${channel.slug}`}
                   className="text-teal"
                 >
                   {channel.name}

@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FacePicker } from "@/components/face-picker";
 import { PhotoField } from "@/components/photo-field";

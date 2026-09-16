@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { PublicChrome } from "@/components/public-chrome";
 
 export function NotFoundPage() {
@@ -12,8 +12,7 @@ export function NotFoundPage() {
         <p className="mx-auto mt-4 max-w-md text-muted">
           The page is missing. The beach, the pylon, and the desk are still here.
         </p>
-        <Link
-          to="/"
+        <Link href="/"
           className="mt-8 inline-flex h-12 items-center rounded-xl bg-teal px-6 text-sm font-medium text-plate"
         >
           Back to Daet
