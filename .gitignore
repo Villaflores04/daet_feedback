@@ -1,5 +1,13 @@
 node_modules
-.next
+dist
+.output
+.nitro
+.tanstack
+.vite
 .env
 .env.local
+*.log
+screenshots
+artifacts
+attachments
 .DS_Store

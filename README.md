@@ -1,32 +1,49 @@
 # DAET Pulse
 
-Public tourist feedback and sentiment dashboard for Daet, Camarines Norte.
+Municipality of Daet, Camarines Norte — a public tourism feedback desk.
 
-- Visitors: no login. Set a display name, then rate / comment. Open live analytics.
-- Officers: password session at `/admin`. CRUD spots and comments. Upload cover photos from the file picker.
+Visitors leave one official face (🤩 Wow · 😊 Happy · 😐 Medium · 😢 Sad) plus an optional note and photo. No accounts. Officers open the municipal desk with the shared key `daet`.
 
-## 1. Supabase
+This build is **device-local** (browser storage). Visitor pulses, wishes, and photos start **empty**. The six tourism spots are catalog only.
 
-1. Create a project.
-2. SQL editor → paste `supabase/schema.sql` (first time).
-3. If reviews do not save or photo upload fails, also run `supabase/fix_grants.sql`.
-4. Copy URL + anon key + service role key.
+## Places
 
-## 2. Environment (Vercel, not GitHub)
+- Bagasbas Beach
+- Cathedral of St. John the Baptist
+- First Rizal Monument
+- Mercedes Island Views
+- Camarines Norte Provincial Capitol
+- Friendship Park
 
+## Run
+
+```bash
+npm install
+npm run dev
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-ADMIN_PASSWORD=
-ADMIN_SESSION_SECRET=
-```
 
-`NEXT_PUBLIC_*` = Config. The other three = Secret.
+## Municipal desk
 
-## 3. Admin
+Footer, tiny muted text: **Municipal desk**. Shared key: `daet`.
 
-Open `/admin` and enter `ADMIN_PASSWORD`.
+## Empty data
 
-The officer header stays on Desk / Spots / Comments. Use **Public site** only when you want the tourist view.
+Demo pulses and wishes are not seeded. First visitors write on a blank board.
 
+If you still see old faces from a previous preview, the app wipes `daet-pulse-v5` (and earlier) on first load of `daet-pulse-v6`.
+
+## Supabase (optional)
+
+The live app does **not** need Supabase. To wipe the old Next.js tables in your existing project and create empty Pulse tables, run:
+
+[`supabase/schema.sql`](supabase/schema.sql)
+
+in the Supabase SQL editor. That file:
+
+1. Drops old `spots` / `feedback` / `community` tables and all of their rows
+2. Creates empty `channels`, `pulses`, `wishes`
+3. Inserts the six places only — **zero** visitor rows
+
+## GitHub
+
+https://github.com/Villaflores04/daet_feedback
