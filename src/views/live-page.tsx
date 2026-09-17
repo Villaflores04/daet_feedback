@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { PublicChrome } from "@/components/public-chrome";
-import { PulseCard } from "@/components/pulse-card";
+import { StoryConversation } from "@/components/story-conversation";
 import { usePulse } from "@/lib/pulse/store";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,13 @@ export function LivePage() {
   const router = useRouter();
   const channels = usePulse((s) => s.channels);
   const pulses = usePulse((s) => s.pulses);
-  const [photosOnly, setPhotosOnly] = useState(false);
+  const photosOnly = search.get("photos") === "1";
+  function filter(nextPlace: string | undefined, photos: boolean) {
+    const params = new URLSearchParams();
+    if (nextPlace) params.set("place", nextPlace);
+    if (photos) params.set("photos", "1");
+    router.replace(`/live${params.size ? `?${params}` : ""}`, { scroll: false });
+  }
 
   useEffect(() => {
     if (!highlight) return;
@@ -58,56 +64,54 @@ export function LivePage() {
         </header>
         <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
           <FilterChip
-            active={!place && !photosOnly}
+            active={!place}
             onClick={() => {
-              setPhotosOnly(false);
-              router.push("/live");
+              filter(undefined, photosOnly);
             }}
           >
-            All
+            All places
           </FilterChip>
           {channels.map((channel) => (
             <FilterChip
               key={channel.id}
-              active={place === channel.slug && !photosOnly}
+              active={place === channel.slug}
               onClick={() => {
-                setPhotosOnly(false);
-                router.push(`/live?place=${channel.slug}`);
+                filter(channel.slug, photosOnly);
               }}
             >
               {channel.name}
             </FilterChip>
           ))}
+        </div>
+        <div className="mt-3 flex items-center justify-between gap-3">
           <FilterChip
             active={photosOnly}
             onClick={() => {
-              setPhotosOnly(true);
-              router.push(place ? `/live?place=${place}` : "/live");
+              filter(place, !photosOnly);
             }}
           >
-            Photos
+            Photos only
           </FilterChip>
+          <p className="text-right text-xs text-muted" role="status">{roots.length} {roots.length === 1 ? "story" : "stories"} · Newest first</p>
         </div>
 
         {roots.length === 0 ? (
-          <p className="mt-8 rounded-2xl bg-plate px-4 py-10 text-center text-sm text-muted shadow-plate">
-            No voices here yet.
-          </p>
+          <div className="mt-8 rounded-2xl bg-plate px-4 py-10 text-center text-sm text-muted shadow-plate">
+            <p>No stories match these filters yet.</p>
+            {place || photosOnly ? <button type="button" onClick={() => filter(undefined, false)} className="mt-3 min-h-11 rounded-full bg-cool px-5 font-semibold text-teal">Clear filters</button> : null}
+          </div>
         ) : (
-          <ul className="mt-6 grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-6 grid items-start gap-5 lg:grid-cols-2">
             {roots.map((item) => {
               const channel = channels.find((c) => c.id === item.channelId);
               return (
                 <li key={item.id}>
-                  <PulseCard
+                  <StoryConversation
                     pulse={item}
                     channel={channel}
                     hidePlace={Boolean(activePlace)}
                     highlight={highlight === item.id}
-                    onReply={() => {
-                      if (!channel) return;
-                      router.push(`/spots/${channel.slug}?reply=${item.id}`);
-                    }}
+                    replies={pulses.filter(p => p.parentId === item.id).sort((a, b) => a.createdAt - b.createdAt)}
                   />
                 </li>
               );

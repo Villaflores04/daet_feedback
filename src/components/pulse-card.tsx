@@ -28,6 +28,9 @@ export function PulseCard({
   highlight = false,
   onReply,
   compactPhoto = true,
+  replyLabel = "Reply",
+  repliesOpen,
+  repliesId,
 }: {
   pulse: Pulse;
   channel?: Channel;
@@ -35,6 +38,9 @@ export function PulseCard({
   highlight?: boolean;
   onReply?: () => void;
   compactPhoto?: boolean;
+  replyLabel?: string;
+  repliesOpen?: boolean;
+  repliesId?: string;
 }) {
   const face = faceById(pulse.face);
   const mine = usePulse((s) => s.myReacts[pulse.id]);
@@ -87,6 +93,7 @@ export function PulseCard({
         <button
           type="button"
           onClick={() => setOpenPhoto(true)}
+          aria-label={`Enlarge photo from ${pulse.callsign}`}
           className={cn(
             "mt-3 overflow-hidden rounded-xl",
             compactPhoto ? "h-28 w-40" : "w-full",
@@ -134,10 +141,12 @@ export function PulseCard({
           <button
             type="button"
             onClick={onReply}
+            aria-expanded={repliesOpen}
+            aria-controls={repliesId}
             className="ml-auto inline-flex h-11 items-center gap-1.5 rounded-lg px-3 text-sm text-action"
           >
             <MessageCircle className="size-4" />
-            Reply
+            {replyLabel}
           </button>
         ) : null}
       </footer>

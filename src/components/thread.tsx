@@ -10,7 +10,7 @@ import type { Channel, FaceId, Pulse } from "@/lib/pulse/types";
 import { useCallsign } from "@/lib/pulse/visitor";
 import { toast } from "sonner";
 
-function ReplyForm({
+export function ReplyForm({
   channel,
   parent,
   onDone,
@@ -20,7 +20,9 @@ function ReplyForm({
   onDone: () => void;
 }) {
   const { callsign, setCallsign } = useCallsign();
-  const addPulse = usePulse((s) => s.addPulse);
+  const sendReply = usePulse((s) => s.sendReply);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
   const [face, setFace] = useState<FaceId | null>(null);
   const [body, setBody] = useState("");
   const [photo, setPhoto] = useState<string | undefined>();
@@ -32,7 +34,7 @@ function ReplyForm({
   }, [callsign]);
 
   useEffect(() => {
-    boxRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    boxRef.current?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
   }, []);
 
   return (
@@ -43,47 +45,64 @@ function ReplyForm({
       <p className="mb-2 text-xs text-muted">
         Replying to {parent.callsign}
       </p>
-      <FacePicker value={face} onChange={setFace} caption={false} />
+      <fieldset disabled={sending}>
+        <FacePicker value={face} onChange={setFace} caption={false} />
+      </fieldset>
       <input
+        aria-label="Your name"
+        maxLength={80}
+        disabled={sending}
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Callsign"
         className="mt-3 h-11 w-full rounded-xl border border-line bg-plate px-3 text-sm text-ink outline-none focus:border-teal"
       />
       <textarea
+        aria-label="Your reply"
+        maxLength={2000}
+        disabled={sending}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={3}
         placeholder="Add a note (optional)"
         className="mt-2 w-full rounded-xl border border-line bg-plate px-3 py-2 text-sm text-ink outline-none focus:border-teal"
       />
-      <div className="mt-2">
+      <fieldset disabled={sending} className="mt-2">
         <PhotoField value={photo} onChange={setPhoto} />
-      </div>
+      </fieldset>
+      {error ? <p role="alert" className="mt-3 text-sm text-neg">{error} Your draft is still here; please try again.</p> : null}
       <div className="mt-3 flex gap-2">
         <Button
           type="button"
           className="h-11 flex-1"
-          disabled={!face}
-          onClick={() => {
-            if (!face) return;
+          disabled={!face || sending}
+          onClick={async () => {
+            if (!face || sending) return;
+            setSending(true);
+            setError("");
             const next = name.trim() || callsign || "Visitor";
             setCallsign(next);
-            addPulse({
-              channelId: channel.id,
-              parentId: parent.id,
-              callsign: next,
-              face,
-              body,
-              photo,
-            });
-            toast("Reply sent");
-            onDone();
+            try {
+              await sendReply({
+                channelId: channel.id,
+                parentId: parent.id,
+                callsign: next,
+                face,
+                body,
+                photo,
+              });
+              toast("Reply sent");
+              onDone();
+            } catch (cause) {
+              setError(cause instanceof Error ? cause.message : "Could not send your reply.");
+            } finally {
+              setSending(false);
+            }
           }}
         >
-          Send
+          {sending ? "Sending…" : "Send reply"}
         </Button>
-        <Button type="button" variant="ghost" className="h-11" onClick={onDone}>
+        <Button type="button" variant="ghost" className="h-11" disabled={sending} onClick={onDone}>
           Cancel
         </Button>
       </div>

@@ -47,6 +47,7 @@ type PulseState = {
   myReacts: Record<string, "up" | "down">;
   hydrated: boolean;
   addPulse: (draft: DraftPulse) => Pulse;
+  sendReply: (draft: DraftPulse) => Promise<Pulse>;
   reactPulse: (id: string, side: "up" | "down") => void;
   addWish: (draft: DraftWish) => Wish;
   acceptWish: (id: string) => Channel | null;
@@ -113,6 +114,27 @@ export const usePulse = create<PulseState>()(
         set((state) => ({ pulses: [pulse, ...state.pulses] }));
         void publishPulse(pulse, get);
         return pulse;
+      },
+      sendReply: async (draft) => {
+        if (!draft.parentId) throw new Error("Choose a story to reply to.");
+        let photo = draft.photo;
+        if (photo && !isRemotePhoto(photo)) {
+          const blob = await getPhotoBlob(photo);
+          if (!blob) throw new Error("Please attach your photo again.");
+          const uploaded = await uploadSharedPhoto(photo, blob);
+          if (!uploaded.ok) throw new Error(uploaded.error);
+          photo = uploaded.data;
+        }
+        const pulse: Pulse = {
+          ...draft, parentId: draft.parentId, id: uid("p"), photo,
+          callsign: draft.callsign.trim() || "Visitor",
+          body: (draft.body ?? "").trim(),
+          createdAt: Date.now(), reacts: { up: 0, down: 0 },
+        };
+        const saved = await saveSharedPulse(pulse);
+        if (!saved.ok) throw new Error(saved.error);
+        set((state) => ({ pulses: [saved.data, ...state.pulses.filter((p) => p.id !== saved.data.id)] }));
+        return saved.data;
       },
       reactPulse: (id, side) => {
         set((state) => {
