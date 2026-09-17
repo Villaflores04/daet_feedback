@@ -1,9 +1,8 @@
 "use client";
-
-import { useEffect, type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { useDialogFocus } from "@/hooks/use-dialog-focus";
 import { cn } from "@/lib/utils";
-
 export function SheetFrame({
   open,
   onClose,
@@ -17,51 +16,43 @@ export function SheetFrame({
   children: ReactNode;
   wide?: boolean;
 }) {
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [open, onClose]);
-
+  const ref = useDialogFocus(open, onClose);
+  const titleId = useId();
   if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center lg:items-center">
-      <button
-        type="button"
-        className="absolute inset-0 bg-ink/45"
-        aria-label="Close"
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
+      <div
+        className="sheet-backdrop absolute inset-0 bg-ink/45 backdrop-blur-sm"
         onClick={onClose}
+        aria-hidden="true"
       />
       <div
+        ref={ref}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={titleId}
         className={cn(
-          "relative z-10 flex max-h-[92svh] w-full flex-col rounded-t-2xl bg-page shadow-plate lg:max-h-[86svh] lg:rounded-2xl",
-          wide ? "lg:w-[560px]" : "lg:w-[440px]",
+          "sheet-panel relative z-10 flex max-h-[92dvh] w-full flex-col rounded-t-2xl bg-page shadow-plate sm:max-h-[86dvh] sm:rounded-xl",
+          wide ? "sm:max-w-xl" : "sm:max-w-lg",
         )}
       >
-        <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-          <h2 className="font-display text-lg tracking-tight text-ink">{title}</h2>
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line px-5 py-4">
+          <h2 id={titleId} className="font-display text-2xl tracking-tight">
+            {title}
+          </h2>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex size-11 items-center justify-center rounded-lg text-muted"
-            aria-label="Close"
+            className="inline-flex size-11 items-center justify-center rounded-full bg-cool"
+            aria-label="Close dialog"
           >
-            <X className="size-5" />
+            <X size={19} />
           </button>
         </header>
-        <div className="overflow-y-auto px-4 py-4">{children}</div>
+        <div className="overflow-y-auto overscroll-contain px-5 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          {children}
+        </div>
       </div>
     </div>
   );

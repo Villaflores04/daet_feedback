@@ -24,8 +24,11 @@ export function WishDetail() {
 
   return (
     <article className="mx-auto max-w-xl">
-      <Link href="/desk/wishes" className="inline-flex h-11 items-center text-sm text-action">
-        All wishes
+      <Link
+        href="/desk/wishes"
+        className="inline-flex h-11 items-center text-sm text-action"
+      >
+        All suggestions
       </Link>
       <h1 className="mt-3 font-display text-3xl tracking-tight">{wish.name}</h1>
       <p className="mt-1 text-sm text-muted">
@@ -44,7 +47,7 @@ export function WishDetail() {
           <dd className="mt-1 text-ink">{wish.where || "—"}</dd>
         </div>
         <div>
-          <dt className="text-muted">Why it should be on the board</dt>
+          <dt className="text-muted">Why visitors recommend it</dt>
           <dd className="mt-1 text-ink">{wish.why || "—"}</dd>
         </div>
       </dl>
@@ -61,7 +64,7 @@ export function WishDetail() {
               toast(created ? `Kept as ${created.name}` : "Already kept");
             }}
           >
-            Accept
+            Add to places
           </Button>
         ) : null}
         <Button
@@ -70,11 +73,11 @@ export function WishDetail() {
           className="h-12 flex-1"
           onClick={() => {
             burnWish(wish.id);
-            toast("Wish burned");
+            toast("Suggestion removed");
             router.push("/desk/wishes");
           }}
         >
-          Burn
+          Remove suggestion
         </Button>
       </div>
     </article>

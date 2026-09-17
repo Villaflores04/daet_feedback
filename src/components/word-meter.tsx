@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export function WordMeter({
   tally,
-  title = "Words in notes — not the official face.",
+  title = "Sentiment in visitor notes",
   className,
 }: {
   tally: MoodTally;
@@ -11,9 +11,9 @@ export function WordMeter({
   className?: string;
 }) {
   const rows = [
-    { key: "pos", label: "Up", value: tally.pos, color: "bg-pos" },
+    { key: "pos", label: "Positive", value: tally.pos, color: "bg-pos" },
     { key: "mix", label: "Mixed", value: tally.mix, color: "bg-mix" },
-    { key: "neg", label: "Down", value: tally.neg, color: "bg-neg" },
+    { key: "neg", label: "Negative", value: tally.neg, color: "bg-neg" },
   ];
   const max = Math.max(1, tally.pos, tally.mix, tally.neg);
 
@@ -21,11 +21,15 @@ export function WordMeter({
     <figure className={cn("rounded-2xl bg-plate p-5 shadow-plate", className)}>
       <figcaption className="text-sm font-medium text-ink">{title}</figcaption>
       <p className="mt-1 text-xs text-muted">
-        Keyword scan of comment bodies only. Bicol, Tagalog, and sarcasm can miss.
+        Estimated from keywords in visitor notes. Local expressions and sarcasm
+        may be misunderstood.
       </p>
       <ul className="mt-5 space-y-3">
         {rows.map((row) => (
-          <li key={row.key} className="grid grid-cols-[4.5rem_1fr_2rem] items-center gap-2">
+          <li
+            key={row.key}
+            className="grid grid-cols-[4.5rem_1fr_2rem] items-center gap-2"
+          >
             <span className="text-sm text-muted">{row.label}</span>
             <div className="h-3 overflow-hidden rounded-full bg-cool">
               <span

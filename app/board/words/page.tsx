@@ -10,7 +10,7 @@ function WordsInner() {
   const open = search.get("open") ?? undefined;
   return (
     <PublicChrome>
-      <main>
+      <main id="main-content">
         <BoardView mode="words" openSlug={open} />
       </main>
     </PublicChrome>

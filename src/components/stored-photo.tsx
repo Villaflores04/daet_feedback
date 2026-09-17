@@ -45,6 +45,8 @@ export function StoredPhoto({
 
   return (
     <img
+      loading="lazy"
+      decoding="async"
       src={src}
       alt={alt ?? ""}
       className={cn("spot-photo", className)}

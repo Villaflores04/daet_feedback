@@ -13,7 +13,9 @@ export function FacePicker({
   return (
     <fieldset>
       {caption ? (
-        <legend className="mb-3 text-sm font-medium text-ink">{FACE_COPY}</legend>
+        <legend className="mb-3 text-sm font-medium text-ink">
+          {FACE_COPY}
+        </legend>
       ) : (
         <legend className="sr-only">{FACE_COPY}</legend>
       )}
@@ -33,11 +35,13 @@ export function FacePicker({
               onClick={() => onChange(face.id)}
               aria-pressed={selected}
               className={cn(
-                "flex min-h-20 flex-col items-center justify-center gap-1 rounded-xl bg-plate px-1 py-2 shadow-plate transition-[transform,box-shadow,background-color,border-color] duration-150 active:scale-[0.96]",
-                selected ? `border-2 ${moodClass}` : "border border-transparent",
+                "flex min-h-24 flex-col items-center justify-center gap-1 rounded-lg bg-plate px-1 py-2 shadow-plate transition-[transform,box-shadow,background-color,border-color] duration-150 active:scale-[0.96]",
+                selected
+                  ? `border-2 ${moodClass}`
+                  : "border border-transparent",
               )}
             >
-              <span className="text-[1.65rem] leading-none" aria-hidden>
+              <span className="text-[2rem] leading-none" aria-hidden>
                 {face.glyph}
               </span>
               <span className="text-[0.7rem] font-medium text-muted">

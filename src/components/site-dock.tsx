@@ -1,40 +1,37 @@
 "use client";
-
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Compass, LayoutList, Radio, Send } from "lucide-react";
+import {
+  Compass,
+  ChartNoAxesCombined,
+  MessagesSquare,
+  Plus,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-
 const ITEMS = [
-  { to: "/spots" as const, label: "Explore", icon: Compass, match: "/spots" },
-  { to: "/live" as const, label: "Live", icon: Radio, match: "/live" },
-  { to: "/board" as const, label: "Board", icon: LayoutList, match: "/board" },
-  { to: "/transmit" as const, label: "Share", icon: Send, match: "/transmit" },
+  { to: "/spots", label: "Explore", icon: Compass },
+  { to: "/live", label: "Stories", icon: MessagesSquare },
+  { to: "/board", label: "Town pulse", icon: ChartNoAxesCombined },
+  { to: "/transmit", label: "Share", icon: Plus },
 ];
-
 export function SiteDock() {
   const pathname = usePathname();
-
   return (
-    <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-plate/96 backdrop-blur-md lg:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      aria-label="Visitor dock"
-    >
-      <ul className="mx-auto grid max-w-lg grid-cols-4 px-2 pt-1">
+    <nav className="site-dock lg:hidden" aria-label="Visitor navigation">
+      <ul>
         {ITEMS.map((item) => {
           const Icon = item.icon;
-          const active = pathname === item.to || pathname.startsWith(item.match);
+          const active = pathname.startsWith(item.to);
           return (
             <li key={item.to}>
               <Link
                 href={item.to}
-                className={cn(
-                  "flex h-14 flex-col items-center justify-center gap-0.5 text-[0.7rem] font-medium",
-                  active ? "text-teal" : "text-muted",
-                )}
+                aria-current={active ? "page" : undefined}
+                className={cn(active && "is-active")}
               >
-                <Icon className="size-5" strokeWidth={active ? 2.4 : 1.8} />
+                <span>
+                  <Icon size={21} strokeWidth={active ? 2.1 : 1.6} />
+                </span>
                 {item.label}
               </Link>
             </li>

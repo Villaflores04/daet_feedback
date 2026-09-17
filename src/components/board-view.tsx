@@ -21,21 +21,27 @@ export function BoardTabs({
   if (desk) {
     return (
       <div className="flex rounded-xl bg-cool p-1">
-        <Link href="/desk/board"
+        <Link
+          href="/desk/board"
           className={cn(
             "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
-            active === "faces" ? "bg-plate text-ink shadow-plate" : "text-muted",
+            active === "faces"
+              ? "bg-plate text-ink shadow-plate"
+              : "text-muted",
           )}
         >
-          Faces
+          Emoji ratings
         </Link>
-        <Link href="/desk/board?tab=words"
+        <Link
+          href="/desk/board?tab=words"
           className={cn(
             "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
-            active === "words" ? "bg-plate text-ink shadow-plate" : "text-muted",
+            active === "words"
+              ? "bg-plate text-ink shadow-plate"
+              : "text-muted",
           )}
         >
-          Words
+          Text sentiment
         </Link>
       </div>
     );
@@ -43,21 +49,23 @@ export function BoardTabs({
 
   return (
     <div className="flex rounded-xl bg-cool p-1">
-      <Link href="/board"
+      <Link
+        href="/board"
         className={cn(
           "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
           active === "faces" ? "bg-plate text-ink shadow-plate" : "text-muted",
         )}
       >
-        Faces
+        Emoji ratings
       </Link>
-      <Link href="/board/words"
+      <Link
+        href="/board/words"
         className={cn(
           "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
           active === "words" ? "bg-plate text-ink shadow-plate" : "text-muted",
         )}
       >
-        Words
+        Text sentiment
       </Link>
     </div>
   );
@@ -84,21 +92,23 @@ export function BoardView({
   const townWords = tallyScans(scanPulses(pulses));
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:max-w-5xl">
-      <header className="mb-5">
-        <p className="text-xs uppercase tracking-[0.18em] text-muted">Board</p>
+    <div className="page-width pb-12">
+      <header className="page-intro">
+        <p className="text-xs uppercase tracking-[0.18em] text-muted">
+          Town pulse
+        </p>
         <h1 className="mt-1 font-display text-3xl tracking-tight text-ink">
-          {mode === "faces" ? "Visitor faces" : "Words in notes"}
+          {mode === "faces" ? "The feeling of Daet" : "Between the lines"}
         </h1>
         <p className="mt-2 text-sm text-muted">
           {mode === "faces"
-            ? "Visitor faces — the official signal."
-            : "Words in notes — not the official face."}
+            ? "How visitors rated their experience, one emoji at a time."
+            : "Explore the estimated sentiment in visitor notes."}
         </p>
       </header>
       <BoardTabs active={mode} desk={desk} />
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
         {mode === "faces" ? (
           <FaceGauge tally={townFaces} className="lg:sticky lg:top-20" />
         ) : (
@@ -107,7 +117,9 @@ export function BoardView({
 
         <ul className="space-y-2">
           {channels.map((channel) => {
-            const placePulses = pulses.filter((p) => p.channelId === channel.id);
+            const placePulses = pulses.filter(
+              (p) => p.channelId === channel.id,
+            );
             const faces = tallyFaces(placePulses);
             const scanned = scanPulses(placePulses);
             const words = tallyScans(scanned);
@@ -116,16 +128,22 @@ export function BoardView({
             const tally = mode === "faces" ? faces : words;
 
             return (
-              <li key={channel.id} className="rounded-2xl bg-plate shadow-plate">
+              <li
+                key={channel.id}
+                className="rounded-2xl bg-plate shadow-plate"
+              >
                 <button
                   type="button"
+                  aria-expanded={expanded}
                   onClick={() => setOpen(expanded ? null : channel.slug)}
                   className="flex w-full items-center gap-3 px-4 py-3 text-left"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-ink">{channel.name}</p>
+                    <p className="truncate font-medium text-ink">
+                      {channel.name}
+                    </p>
                     <p className="text-xs tabular-nums text-muted">
-                      {count} {mode === "faces" ? "faces" : "scanned notes"}
+                      {count} {mode === "faces" ? "ratings" : "scanned notes"}
                     </p>
                   </div>
                   <MoodBar tally={tally} className="hidden w-28 sm:block" />
@@ -145,7 +163,10 @@ export function BoardView({
                             (p) => !p.parentId && p.face === face.id,
                           ).length;
                           return (
-                            <li key={face.id} className="rounded-xl bg-cool py-2">
+                            <li
+                              key={face.id}
+                              className="rounded-xl bg-cool py-2"
+                            >
                               <span className="block text-lg" aria-hidden>
                                 {face.glyph}
                               </span>
@@ -184,7 +205,8 @@ export function BoardView({
                         )}
                       </ul>
                     )}
-                    <Link href={`/spots/${channel.slug}`}
+                    <Link
+                      href={`/spots/${channel.slug}`}
                       className="mt-3 inline-flex h-11 items-center text-sm font-medium text-action"
                     >
                       Open place

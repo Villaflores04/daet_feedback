@@ -46,11 +46,11 @@ export function WishSheet({
     setWhy("");
     setPhoto(undefined);
     onClose();
-    toast("Wish sent / On the desk");
+    toast("Suggestion sent to the municipal desk");
   };
 
   return (
-    <SheetFrame open={open} onClose={onClose} title="Wish a place">
+    <SheetFrame open={open} onClose={onClose} title="Suggest a place">
       <div className="space-y-4">
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-ink">
@@ -75,7 +75,9 @@ export function WishSheet({
           />
         </label>
         <fieldset>
-          <legend className="mb-2 text-sm font-medium text-ink">Category</legend>
+          <legend className="mb-2 text-sm font-medium text-ink">
+            Category
+          </legend>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((item) => (
               <button
@@ -84,9 +86,7 @@ export function WishSheet({
                 onClick={() => setCategory(item)}
                 className={cn(
                   "h-10 rounded-full px-3 text-sm",
-                  category === item
-                    ? "bg-teal text-plate"
-                    : "bg-cool text-ink",
+                  category === item ? "bg-teal text-plate" : "bg-cool text-ink",
                 )}
               >
                 {item}
@@ -96,7 +96,7 @@ export function WishSheet({
         </fieldset>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-ink">
-            Why it should be on the board
+            What makes it worth visiting?
           </span>
           <textarea
             value={why}
@@ -107,7 +107,7 @@ export function WishSheet({
         </label>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-ink">
-            Callsign
+            Nickname (optional)
           </span>
           <input
             value={alias}
@@ -118,7 +118,7 @@ export function WishSheet({
         </label>
         <PhotoField value={photo} onChange={setPhoto} />
         <Button type="button" className="h-12 w-full" onClick={submit}>
-          Send wish
+          Send suggestion
         </Button>
       </div>
     </SheetFrame>

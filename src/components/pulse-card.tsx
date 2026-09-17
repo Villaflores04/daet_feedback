@@ -46,7 +46,7 @@ export function PulseCard({
     <article
       id={`pulse-${pulse.id}`}
       className={cn(
-        "rounded-2xl bg-plate p-4 shadow-plate",
+        "rounded-xl bg-plate p-5 shadow-plate",
         highlight && "ring-2 ring-teal",
       )}
     >
@@ -61,9 +61,7 @@ export function PulseCard({
           <p className="text-xs text-muted">
             {hidePlace ? null : channel ? (
               <>
-                <Link href={`/spots/${channel.slug}`}
-                  className="text-teal"
-                >
+                <Link href={`/spots/${channel.slug}`} className="text-teal">
                   {channel.name}
                 </Link>
                 <span aria-hidden> · </span>
@@ -78,7 +76,9 @@ export function PulseCard({
       </header>
 
       {pulse.body ? (
-        <p className="mt-3 text-[0.95rem] leading-relaxed text-ink">{pulse.body}</p>
+        <p className="mt-4 break-words text-[0.95rem] leading-relaxed text-ink">
+          {pulse.body}
+        </p>
       ) : (
         <p className="mt-3 text-sm text-muted">{face.label} — face only</p>
       )}
@@ -103,7 +103,7 @@ export function PulseCard({
         </button>
       ) : null}
 
-      <footer className="mt-3 flex items-center gap-1">
+      <footer className="mt-4 flex items-center gap-1 border-t border-line pt-2">
         <button
           type="button"
           onClick={() => reactPulse(pulse.id, "up")}

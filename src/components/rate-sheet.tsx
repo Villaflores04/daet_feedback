@@ -36,7 +36,7 @@ export function RateSheet({
 
   const submit = () => {
     if (!face) {
-      toast("Pick one official face.");
+      toast("Choose how your visit felt.");
       return;
     }
     const nextName = name.trim() || callsign || "Visitor";
@@ -54,7 +54,7 @@ export function RateSheet({
     setPhoto(undefined);
     onClose();
     onSent?.(pulse.id);
-    toast(parentId ? "Reply sent" : "Pulse sent");
+    toast(parentId ? "Reply sent" : "Your experience has been shared.");
   };
 
   return (
@@ -68,7 +68,7 @@ export function RateSheet({
         <FacePicker value={face} onChange={setFace} />
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-ink">
-            Callsign
+            Nickname (optional)
           </span>
           <input
             value={name}
@@ -96,7 +96,7 @@ export function RateSheet({
           disabled={!face}
           onClick={submit}
         >
-          Send
+          Share experience
         </Button>
       </div>
     </SheetFrame>

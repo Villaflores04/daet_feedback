@@ -14,7 +14,7 @@ function arc(cx: number, cy: number, r: number, start: number, end: number) {
 
 export function FaceGauge({
   tally,
-  title = "Visitor faces — the official signal.",
+  title = "Visitor ratings",
   className,
 }: {
   tally: MoodTally;
@@ -39,9 +39,9 @@ export function FaceGauge({
 
   const label =
     tally.total === 0
-      ? "No faces yet"
+      ? "No ratings yet"
       : mood === "POS"
-        ? "Mostly up"
+        ? "Mostly positive"
         : mood === "NEG"
           ? "Needs care"
           : "Mixed";
@@ -49,7 +49,7 @@ export function FaceGauge({
   return (
     <figure className={cn("rounded-2xl bg-plate p-5 shadow-plate", className)}>
       <figcaption className="text-sm font-medium text-ink">{title}</figcaption>
-      <div className="relative mx-auto mt-2 h-36 w-64">
+      <div className="relative mx-auto mt-2 h-36 w-64 max-w-full">
         <svg viewBox="0 0 200 120" className="h-full w-full" aria-hidden>
           <path
             d={arc(100, 108, 78, 0, 180)}
@@ -62,7 +62,13 @@ export function FaceGauge({
             ? paths.map((seg) => (
                 <path
                   key={seg.key}
-                  d={arc(100, 108, 78, seg.start + 1.2, Math.max(seg.start + 1.2, seg.end - 1.2))}
+                  d={arc(
+                    100,
+                    108,
+                    78,
+                    seg.start + 1.2,
+                    Math.max(seg.start + 1.2, seg.end - 1.2),
+                  )}
                   fill="none"
                   stroke={seg.color}
                   strokeWidth="16"
@@ -72,9 +78,11 @@ export function FaceGauge({
             : null}
         </svg>
         <div className="absolute inset-x-0 bottom-1 text-center">
-          <p className="font-display text-2xl tracking-tight text-ink">{label}</p>
+          <p className="font-display text-2xl tracking-tight text-ink">
+            {label}
+          </p>
           <p className="text-xs tabular-nums text-muted">
-            {tally.total} {tally.total === 1 ? "face" : "faces"}
+            {tally.total} {tally.total === 1 ? "rating" : "ratings"}
           </p>
         </div>
       </div>

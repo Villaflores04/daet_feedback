@@ -21,7 +21,7 @@ export function DeskChannels() {
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-muted">
-            Channels
+            Place management
           </p>
           <h1 className="mt-1 font-display text-3xl tracking-tight">Places</h1>
         </div>
@@ -30,7 +30,7 @@ export function DeskChannels() {
         </Button>
       </div>
 
-      <ul className="mt-6 space-y-3">
+      <ul className="mt-6 grid gap-4 xl:grid-cols-2">
         {channels.map((channel) => (
           <li
             key={channel.id}
@@ -108,7 +108,9 @@ function ChannelEditor({
   }) => void;
 }) {
   const [name, setName] = useState(channel?.name ?? "");
-  const [category, setCategory] = useState<Category>(channel?.category ?? "Park");
+  const [category, setCategory] = useState<Category>(
+    channel?.category ?? "Park",
+  );
   const [blurb, setBlurb] = useState(channel?.blurb ?? "");
   const [about, setAbout] = useState(channel?.about ?? "");
   const [cover, setCover] = useState<string | undefined>(channel?.cover);
@@ -161,23 +163,22 @@ function ChannelEditor({
             rows={4}
             className="w-full rounded-xl border border-line bg-plate px-3 py-2 outline-none focus:border-teal"
           />
-          <PhotoField
-            value={cover}
-            onChange={setCover}
-            label="Cover photo"
-          />
+          <PhotoField value={cover} onChange={setCover} label="Cover photo" />
           <div className="flex gap-2 pt-2">
             <Button
               type="button"
               className="h-12 flex-1"
               disabled={name.trim().length < 2}
-              onClick={() =>
-                onSave({ name, category, blurb, about, cover })
-              }
+              onClick={() => onSave({ name, category, blurb, about, cover })}
             >
               Save
             </Button>
-            <Button type="button" variant="ghost" className="h-12" onClick={onClose}>
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-12"
+              onClick={onClose}
+            >
               Cancel
             </Button>
           </div>

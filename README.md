@@ -15,7 +15,7 @@ npm run dev
 
 ## Municipal desk
 
-Footer, tiny muted text: **Municipal desk**. Shared key: `daet`.
+Open **Municipal desk** from the footer. Shared key: `daet`.
 
 ## Vercel
 
@@ -28,3 +28,16 @@ Run [`supabase/schema.sql`](supabase/schema.sql) in the SQL editor to wipe old t
 ## GitHub
 
 https://github.com/Villaflores04/daet_feedback
+
+## Interface and motion
+
+The white, blue, and blue-green interface adapts to phone, tablet, and desktop screens. Explore supports place search and category filters. Visitor and municipal-desk routes, local storage, emoji mappings, and text sentiment rules are preserved.
+
+The landing page alone mounts `CoastalHero`. Its sky, coastal image, water, and foreground foliage move independently with native scroll; scroll listeners are detached when the scene is offscreen. Reduced-motion preferences render a static scene. There is no forced loading delay.
+
+Shared dialogs contain keyboard focus, close with Escape, and restore focus to their trigger. Mobile layouts include bottom navigation and safe-area spacing.
+
+```bash
+npm ci
+npm run build
+```

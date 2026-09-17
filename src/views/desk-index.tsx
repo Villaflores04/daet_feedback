@@ -26,14 +26,14 @@ function DeskLogin() {
         className="absolute inset-0 h-full w-full object-cover object-[center_68%]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-page via-page/82 to-ink/20" />
-      <div className="relative mx-auto flex min-h-svh max-w-6xl flex-col justify-end px-4 pb-16 pt-16 sm:px-6 lg:justify-center lg:pb-20">
-        <div className="rise w-full max-w-md">
+      <div className="relative mx-auto flex min-h-svh max-w-6xl flex-col justify-end px-4 pb-16 pt-16 sm:px-6 lg:justify-center lg:items-end lg:pb-20">
+        <div className="rise w-full max-w-md rounded-2xl bg-white/95 p-7 shadow-plate">
           <Wordmark />
           <h1 className="mt-6 font-display text-[2.05rem] leading-[1.12] tracking-[-0.03em] text-ink sm:text-4xl">
             Municipal desk
           </h1>
           <p className="mt-3 text-base text-muted">
-            Shared key for officers. Faces stay on this device.
+            Manage the guide and review visitor feedback on this device.
           </p>
           <form
             className="mt-6 rounded-2xl bg-plate p-5 shadow-plate"
@@ -89,36 +89,36 @@ function DeskLogin() {
 }
 
 function DeskHome() {
-  const openWishCount = usePulse(
-    (s) => s.wishes.reduce((n, wish) => n + (wish.status === "open" ? 1 : 0), 0),
+  const openWishCount = usePulse((s) =>
+    s.wishes.reduce((n, wish) => n + (wish.status === "open" ? 1 : 0), 0),
   );
-  const ticketCount = usePulse(
-    (s) => s.pulses.reduce((n, pulse) => n + (pulse.parentId ? 0 : 1), 0),
+  const ticketCount = usePulse((s) =>
+    s.pulses.reduce((n, pulse) => n + (pulse.parentId ? 0 : 1), 0),
   );
   const placeCount = usePulse((s) => s.channels.length);
 
   const cards = [
     {
       to: "/desk/board" as const,
-      label: "Board",
-      hint: "Two instruments",
+      label: "Sentiment",
+      hint: "Emoji ratings & visitor notes",
       icon: LayoutList,
     },
     {
       to: "/desk/channels" as const,
-      label: "Channels",
+      label: "Places",
       hint: `${placeCount} places`,
       icon: MapPinned,
     },
     {
       to: "/desk/wishes" as const,
-      label: "Wishes",
+      label: "Suggestions",
       hint: `${openWishCount} open`,
       icon: Inbox,
     },
     {
       to: "/desk/log" as const,
-      label: "Log",
+      label: "Activity",
       hint: `${ticketCount} tickets`,
       icon: ScrollText,
     },
@@ -127,9 +127,12 @@ function DeskHome() {
   return (
     <div>
       <p className="text-xs uppercase tracking-[0.18em] text-muted">Officer</p>
-      <h1 className="mt-1 font-display text-3xl tracking-tight">Desk</h1>
+      <h1 className="mt-1 font-display text-3xl tracking-tight">
+        A view of the town.
+      </h1>
       <p className="mt-2 max-w-lg text-sm text-muted">
-        Shared kiosk key. Charts load when Board is opened. This device only.
+        Manage places, review visitor feedback, and follow up on suggestions.
+        Data is stored on this device.
       </p>
       <ul className="mt-6 grid gap-3 sm:grid-cols-2">
         {cards.map((card) => {

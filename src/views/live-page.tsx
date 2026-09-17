@@ -21,7 +21,13 @@ export function LivePage() {
     const t = window.setTimeout(() => {
       document
         .getElementById(`pulse-${highlight}`)
-        ?.scrollIntoView({ block: "center", behavior: "smooth" });
+        ?.scrollIntoView({
+          block: "center",
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? "instant"
+            : "smooth",
+        });
     }, 120);
     return () => window.clearTimeout(t);
   }, [highlight]);
@@ -40,15 +46,16 @@ export function LivePage() {
 
   return (
     <PublicChrome>
-      <main className="mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:max-w-4xl">
-        <p className="text-xs uppercase tracking-[0.18em] text-muted">Live</p>
-        <h1 className="mt-1 font-display text-3xl tracking-tight">
-          Visitor voices
-        </h1>
-        <p className="mt-2 text-sm text-muted">
-          Tap agree if this matches what you saw.
-        </p>
-
+      <main id="main-content" className="page-width pb-16">
+        <header className="page-intro">
+          <p className="eyebrow">From the community</p>
+          <h1 className="mt-1 font-display text-3xl tracking-tight">
+            Visitor voices
+          </h1>
+          <p className="mt-2 text-sm text-muted">
+            A collection of visits, discoveries, and honest impressions.
+          </p>
+        </header>
         <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
           <FilterChip
             active={!place && !photosOnly}
@@ -87,7 +94,7 @@ export function LivePage() {
             No voices here yet.
           </p>
         ) : (
-          <ul className="mt-5 grid gap-3 lg:grid-cols-2">
+          <ul className="mt-6 grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
             {roots.map((item) => {
               const channel = channels.find((c) => c.id === item.channelId);
               return (
@@ -125,6 +132,7 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
         "h-10 shrink-0 rounded-full px-4 text-sm font-medium",
         active ? "bg-teal text-plate" : "bg-cool text-ink",

@@ -1,70 +1,69 @@
 "use client";
-
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import {
+  LayoutDashboard,
+  ChartNoAxesCombined,
+  MapPinned,
+  Inbox,
+  ScrollText,
+  LockKeyhole,
+  ArrowUpRight,
+} from "lucide-react";
 import { Wordmark } from "@/components/mark";
 import { useDesk } from "@/lib/pulse/desk";
-import { cn } from "@/lib/utils";
-
 const LINKS = [
-  { to: "/desk" as const, label: "Home", exact: true },
-  { to: "/desk/board" as const, label: "Board" },
-  { to: "/desk/channels" as const, label: "Channels" },
-  { to: "/desk/wishes" as const, label: "Wishes" },
-  { to: "/desk/log" as const, label: "Log" },
+  { to: "/desk", label: "Overview", icon: LayoutDashboard, exact: true },
+  { to: "/desk/board", label: "Sentiment", icon: ChartNoAxesCombined },
+  { to: "/desk/channels", label: "Places", icon: MapPinned },
+  { to: "/desk/wishes", label: "Suggestions", icon: Inbox },
+  { to: "/desk/log", label: "Activity", icon: ScrollText },
 ];
-
 export function DeskShell({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const lock = useDesk((s) => s.lock);
-
+  const pathname = usePathname(),
+    lock = useDesk((s) => s.lock);
   return (
-    <div className="min-h-svh bg-page text-ink">
-      <header className="sticky top-0 z-30 border-b border-line bg-page/94 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2.5 sm:px-6">
-          <Link href="/desk" className="min-w-0">
-            <Wordmark compact />
-          </Link>
-          <span className="hidden rounded-full bg-cool px-2 py-0.5 text-[0.65rem] uppercase tracking-[0.14em] text-muted sm:inline-flex">
-            Desk
-          </span>
-          <div className="ml-auto flex shrink-0 items-center">
-            <Link href="/"
-              className="inline-flex h-11 items-center px-2.5 text-sm font-medium text-action"
-            >
-              Visitor site
-            </Link>
-            <button
-              type="button"
-              onClick={() => lock()}
-              className="inline-flex h-11 items-center px-2.5 text-sm text-muted"
-            >
-              Lock
-            </button>
-          </div>
-        </div>
-        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-3 pb-2 sm:px-5">
+    <div className="desk-shell">
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
+      <aside className="desk-sidebar">
+        <Link href="/desk" aria-label="Municipal desk home">
+          <Wordmark compact />
+        </Link>
+        <nav aria-label="Municipal desk navigation">
           {LINKS.map((link) => {
+            const Icon = link.icon;
             const active = link.exact
               ? pathname === link.to
-              : pathname === link.to || pathname.startsWith(`${link.to}/`);
+              : pathname.startsWith(link.to);
             return (
               <Link
-                key={link.to}
                 href={link.to}
-                className={cn(
-                  "inline-flex h-11 shrink-0 items-center rounded-lg px-3 text-sm font-medium",
-                  active ? "bg-cool text-ink" : "text-muted",
-                )}
+                key={link.to}
+                className="desk-nav-link"
+                aria-current={active ? "page" : undefined}
               >
+                <Icon size={18} />
                 {link.label}
               </Link>
             );
           })}
         </nav>
-      </header>
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">{children}</div>
+        <div className="desk-actions mt-auto pt-5">
+          <Link href="/" className="desk-nav-link">
+            Visitor site <ArrowUpRight size={16} />
+          </Link>
+          <button onClick={() => lock()} className="desk-nav-link">
+            <LockKeyhole size={16} />
+            Lock desk
+          </button>
+        </div>
+      </aside>
+      <main id="main-content" className="desk-content">
+        {children}
+      </main>
     </div>
   );
 }

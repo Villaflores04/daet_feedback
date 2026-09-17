@@ -23,7 +23,10 @@ export function PublicChrome({
   }, [landing]);
 
   return (
-    <div className="min-h-svh bg-page text-ink">
+    <div className="public-shell min-h-svh bg-page text-ink">
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
       <SiteHeader landing={landing} scrolled={scrolled} />
       {children}
       <SiteFooter />

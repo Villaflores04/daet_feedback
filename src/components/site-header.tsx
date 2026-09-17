@@ -1,17 +1,14 @@
 "use client";
-
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { Wordmark } from "@/components/mark";
 import { cn } from "@/lib/utils";
-
 const LINKS = [
-  { to: "/spots" as const, label: "Explore" },
-  { to: "/live" as const, label: "Live" },
-  { to: "/board" as const, label: "Board" },
-  { to: "/transmit" as const, label: "Share" },
+  { to: "/spots", label: "Explore" },
+  { to: "/live", label: "Visitor stories" },
+  { to: "/board", label: "Town pulse" },
 ];
-
 export function SiteHeader({
   landing = false,
   scrolled = false,
@@ -20,42 +17,39 @@ export function SiteHeader({
   scrolled?: boolean;
 }) {
   const pathname = usePathname();
-  const hidden = landing && !scrolled;
-
   return (
     <header
       className={cn(
-        "z-40 transition-[background-color,box-shadow,transform,opacity] duration-200",
-        landing ? "fixed inset-x-0 top-0" : "sticky top-0",
-        hidden
-          ? "pointer-events-none -translate-y-2 opacity-0"
-          : "bg-page/92 shadow-[0_1px_0_0_var(--color-line)] backdrop-blur-md",
+        "site-header",
+        landing && "site-header-landing",
+        scrolled && "is-scrolled",
       )}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <div className="page-width flex h-[76px] items-center justify-between gap-4">
         <Link href="/" aria-label="DAET Pulse home">
-          <Wordmark compact />
+          <Wordmark />
         </Link>
-        <nav className="hidden items-center gap-1 lg:flex">
-          {LINKS.map((link) => {
-            const active =
-              pathname === link.to ||
-              (link.to !== "/spots" && pathname.startsWith(link.to)) ||
-              (link.to === "/spots" && pathname.startsWith("/spots"));
-            return (
-              <Link
-                key={link.to}
-                href={link.to}
-                className={cn(
-                  "inline-flex h-11 items-center rounded-lg px-3 text-sm font-medium",
-                  active ? "bg-cool text-ink" : "text-muted hover:text-ink",
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+        <nav
+          className="hidden items-center gap-1 lg:flex"
+          aria-label="Main navigation"
+        >
+          {LINKS.map((link) => (
+            <Link
+              href={link.to}
+              key={link.to}
+              aria-current={pathname.startsWith(link.to) ? "page" : undefined}
+              className={cn(
+                "header-link",
+                pathname.startsWith(link.to) && "is-active",
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
+        <Link href="/transmit" className="header-share">
+          Share a moment <ArrowUpRight size={16} />
+        </Link>
       </div>
     </header>
   );

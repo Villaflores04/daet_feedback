@@ -10,7 +10,7 @@ function BoardInner() {
   const open = search.get("open") ?? undefined;
   return (
     <PublicChrome>
-      <main>
+      <main id="main-content">
         <BoardView mode="faces" openSlug={open} />
       </main>
     </PublicChrome>

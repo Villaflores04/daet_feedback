@@ -25,13 +25,17 @@ export function DeskLog() {
   return (
     <div>
       <p className="text-xs uppercase tracking-[0.18em] text-muted">Log</p>
-      <h1 className="mt-1 font-display text-3xl tracking-tight">Tickets</h1>
+      <h1 className="mt-1 font-display text-3xl tracking-tight">
+        Visitor activity
+      </h1>
       <p className="mt-2 text-sm text-muted">
-        Filter by place and official mood. Burn deletes with no undo.
+        Review feedback by place and visitor rating. Deleted feedback cannot be
+        restored.
       </p>
 
       <div className="mt-5 flex flex-wrap gap-2">
         <select
+          aria-label="Filter feedback by place"
           value={spot}
           onChange={(e) => setSpot(e.target.value)}
           className="h-11 rounded-xl border border-line bg-plate px-3 text-sm"
@@ -47,13 +51,20 @@ export function DeskLog() {
           <button
             key={item}
             type="button"
+            aria-pressed={mood === item}
             onClick={() => setMood(item)}
             className={cn(
               "h-11 rounded-full px-4 text-sm font-medium",
               mood === item ? "bg-teal text-plate" : "bg-cool",
             )}
           >
-            {item === "all" ? "All moods" : item}
+            {item === "all"
+              ? "All ratings"
+              : item === "POS"
+                ? "Positive"
+                : item === "MIX"
+                  ? "Mixed"
+                  : "Negative"}
           </button>
         ))}
       </div>
@@ -86,17 +97,19 @@ export function DeskLog() {
                 className="h-11 shrink-0 px-2 text-sm text-neg"
                 onClick={() => {
                   burnPulse(pulse.id);
-                  toast("Ticket burned");
+                  toast("Feedback deleted");
                 }}
               >
-                Burn
+                Delete
               </button>
             </li>
           );
         })}
       </ul>
       {tickets.length === 0 ? (
-        <p className="mt-8 text-center text-sm text-muted">No tickets in this filter.</p>
+        <p className="mt-8 text-center text-sm text-muted">
+          No feedback matches these filters.
+        </p>
       ) : null}
     </div>
   );
