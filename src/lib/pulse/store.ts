@@ -1,9 +1,14 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { uid, slugify } from "./ids";
-import { ingestDataUrl } from "./photos";
+import { getPhotoBlob, ingestDataUrl, isRemotePhoto } from "./photos";
 import { SEED_CHANNELS, SEED_PULSES } from "./seed";
-import { fetchPulseSnapshot, saveSharedPulse, saveSharedWish } from "./remote";
+import {
+  fetchPulseSnapshot,
+  saveSharedPulse,
+  saveSharedWish,
+  uploadSharedPhoto,
+} from "./remote";
 import type { Category, Channel, FaceId, Pulse, Wish } from "./types";
 
 export const PULSE_KEY = "daet-pulse-v6";
@@ -59,6 +64,19 @@ async function stripDataImage(value?: string) {
   return value;
 }
 
+async function publishPulse(pulse: Pulse, get: () => PulseState) {
+  let shared = pulse;
+  if (pulse.photo && !isRemotePhoto(pulse.photo)) {
+    const blob = await getPhotoBlob(pulse.photo);
+    if (blob) {
+      const uploaded = await uploadSharedPhoto(pulse.photo, blob);
+      if (uploaded.ok) shared = { ...pulse, photo: uploaded.data };
+    }
+  }
+  const saved = await saveSharedPulse(shared);
+  if (saved.ok) void get().syncShared();
+}
+
 export const usePulse = create<PulseState>()(
   persist(
     (set, get) => ({
@@ -93,9 +111,7 @@ export const usePulse = create<PulseState>()(
           reacts: { up: 0, down: 0 },
         };
         set((state) => ({ pulses: [pulse, ...state.pulses] }));
-        void saveSharedPulse(pulse).then((saved) => {
-          if (saved.ok) void get().syncShared();
-        });
+        void publishPulse(pulse, get);
         return pulse;
       },
       reactPulse: (id, side) => {

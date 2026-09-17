@@ -29,7 +29,7 @@ The site loads and saves visitor feedback through `/api/pulse`, so the same data
 2. In the deployment environment, set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
 3. Redeploy the site.
 
-Browser-local feedback from the old preview is migrated when that browser next opens the updated site. Image uploads are still local to the submitting device; the shared feedback includes the emoji and note.
+Browser-local feedback from the old preview is migrated when that browser next opens the updated site. Image uploads are saved in the public `pulse-photos` Supabase Storage bucket and appear with shared feedback on every device.
 
 ## GitHub
 

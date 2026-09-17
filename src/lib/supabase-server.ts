@@ -3,6 +3,7 @@ import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 let client: SupabaseClient | null = null;
+let storageClient: SupabaseClient | null = null;
 
 export function supabaseServer() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -20,4 +21,20 @@ export function supabaseServer() {
     });
   }
   return client;
+}
+
+export function supabaseStorageServer() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "Supabase Storage is not configured. Add SUPABASE_SERVICE_ROLE_KEY to this deployment.",
+    );
+  }
+  if (!storageClient) {
+    storageClient = createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  }
+  return storageClient;
 }

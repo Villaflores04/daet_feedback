@@ -48,3 +48,25 @@ export function saveSharedWish(wish: Wish) {
     body: JSON.stringify({ action: "wish", wish }),
   });
 }
+
+export async function uploadSharedPhoto(id: string, file: Blob) {
+  try {
+    const form = new FormData();
+    form.set("id", id);
+    form.set("file", file, `${id}.jpg`);
+    const response = await fetch("/api/pulse/photo", {
+      method: "POST",
+      body: form,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || typeof data.url !== "string") {
+      return {
+        ok: false as const,
+        error: String(data.error || "Could not save the image."),
+      };
+    }
+    return { ok: true as const, data: data.url };
+  } catch {
+    return { ok: false as const, error: "Could not reach the image service." };
+  }
+}

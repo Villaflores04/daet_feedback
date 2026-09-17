@@ -3,6 +3,10 @@
 
 create extension if not exists "pgcrypto";
 
+-- Public bucket for visitor photos. Uploads go through the server route; public read access lets every device show the image.
+insert into storage.buckets (id, name, public) values ('pulse-photos', 'pulse-photos', true)
+on conflict (id) do update set public = true;
+
 create table if not exists public.channels (
   id text primary key,
   slug text not null unique,

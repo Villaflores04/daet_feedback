@@ -30,9 +30,7 @@ function openDb(): Promise<IDBDatabase> {
 }
 
 export function isRemotePhoto(id: string) {
-  return (
-    id.startsWith("/") || id.startsWith("http") || id.startsWith("blob:")
-  );
+  return id.startsWith("/") || id.startsWith("http") || id.startsWith("blob:");
 }
 
 export async function putPhoto(id: string, blob: Blob) {
@@ -47,6 +45,21 @@ export async function putPhoto(id: string, blob: Blob) {
   if (prev) URL.revokeObjectURL(prev);
   urlCache.set(id, URL.createObjectURL(blob));
   notify();
+}
+
+export async function getPhotoBlob(id: string): Promise<Blob | null> {
+  if (!id || isRemotePhoto(id)) return null;
+  try {
+    const db = await openDb();
+    return await new Promise<Blob | null>((resolve, reject) => {
+      const tx = db.transaction(STORE, "readonly");
+      const req = tx.objectStore(STORE).get(id);
+      req.onsuccess = () => resolve((req.result as Blob | undefined) ?? null);
+      req.onerror = () => reject(req.error);
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function getPhotoUrl(id: string): Promise<string | null> {
