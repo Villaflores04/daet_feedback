@@ -28,7 +28,7 @@ export function SiteFooter() {
         </div>
         <div className="mt-10 flex flex-col gap-2 border-t border-line pt-5 text-xs text-muted sm:flex-row sm:justify-between">
           <p>Daet, Camarines Norte · Philippines</p>
-          <p>Visitor feedback is stored on this device.</p>
+          <p>Visitor feedback syncs with the town database.</p>
         </div>
       </div>
     </footer>

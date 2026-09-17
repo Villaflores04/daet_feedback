@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { uid, slugify } from "./ids";
 import { ingestDataUrl } from "./photos";
 import { SEED_CHANNELS, SEED_PULSES } from "./seed";
+import { fetchPulseSnapshot, saveSharedPulse, saveSharedWish } from "./remote";
 import type { Category, Channel, FaceId, Pulse, Wish } from "./types";
 
 export const PULSE_KEY = "daet-pulse-v6";
@@ -50,6 +51,7 @@ type PulseState = {
   deleteChannel: (id: string) => void;
   burnPulse: (id: string) => void;
   setHydrated: () => void;
+  syncShared: () => Promise<boolean>;
 };
 
 async function stripDataImage(value?: string) {
@@ -66,6 +68,18 @@ export const usePulse = create<PulseState>()(
       myReacts: {},
       hydrated: false,
       setHydrated: () => set({ hydrated: true }),
+      syncShared: async () => {
+        const snapshot = await fetchPulseSnapshot();
+        if (!snapshot.ok) return false;
+        set({
+          channels: snapshot.data.channels.length
+            ? snapshot.data.channels
+            : get().channels,
+          pulses: snapshot.data.pulses,
+          wishes: snapshot.data.wishes,
+        });
+        return true;
+      },
       addPulse: (draft) => {
         const pulse: Pulse = {
           id: uid("p"),
@@ -79,6 +93,9 @@ export const usePulse = create<PulseState>()(
           reacts: { up: 0, down: 0 },
         };
         set((state) => ({ pulses: [pulse, ...state.pulses] }));
+        void saveSharedPulse(pulse).then((saved) => {
+          if (saved.ok) void get().syncShared();
+        });
         return pulse;
       },
       reactPulse: (id, side) => {
@@ -116,6 +133,9 @@ export const usePulse = create<PulseState>()(
           createdAt: Date.now(),
         };
         set((state) => ({ wishes: [wish, ...state.wishes] }));
+        void saveSharedWish(wish).then((saved) => {
+          if (saved.ok) void get().syncShared();
+        });
         return wish;
       },
       acceptWish: (id) => {
@@ -192,7 +212,9 @@ export const usePulse = create<PulseState>()(
       updateChannel: (id, patch) => {
         set((state) => ({
           channels: state.channels.map((channel) =>
-            channel.id === id ? { ...channel, ...patch, id: channel.id } : channel,
+            channel.id === id
+              ? { ...channel, ...patch, id: channel.id }
+              : channel,
           ),
         }));
       },
@@ -201,9 +223,7 @@ export const usePulse = create<PulseState>()(
           channels: state.channels.filter((c) => c.id !== id),
           pulses: state.pulses.filter((p) => p.channelId !== id),
           wishes: state.wishes.map((wish) =>
-            wish.channelId === id
-              ? { ...wish, channelId: undefined }
-              : wish,
+            wish.channelId === id ? { ...wish, channelId: undefined } : wish,
           ),
         }));
       },
@@ -261,30 +281,22 @@ export const usePulse = create<PulseState>()(
         } catch {
           /* keep rehydrated JSON */
         }
-        usePulse.getState().setHydrated();
       },
     },
   ),
 );
 
-export function rehydratePulse() {
-  if (typeof window !== "undefined") {
-    const FLAG = "daet-pulse-empty-v6";
-    if (localStorage.getItem(FLAG) !== "1") {
-      for (const key of Object.keys(localStorage)) {
-        if (key.startsWith("daet-pulse") && key !== FLAG) {
-          localStorage.removeItem(key);
-        }
-      }
-      try {
-        indexedDB.deleteDatabase("daet-pulse-photos");
-      } catch {
-        /* ignore */
-      }
-      localStorage.setItem(FLAG, "1");
-    }
+export async function rehydratePulse() {
+  await usePulse.persist.rehydrate();
+  const local = usePulse.getState();
+  const snapshot = await fetchPulseSnapshot();
+  if (snapshot.ok) {
+    // Bring forward feedback that was created before the shared database was restored.
+    await Promise.all(local.pulses.map((pulse) => saveSharedPulse(pulse)));
+    await Promise.all(local.wishes.map((wish) => saveSharedWish(wish)));
+    await usePulse.getState().syncShared();
   }
-  void usePulse.persist.rehydrate();
+  usePulse.getState().setHydrated();
 }
 
 export function channelBySlug(slug: string) {
