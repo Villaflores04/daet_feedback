@@ -7,8 +7,9 @@ export async function GET() {
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
   const body = await request.json().catch(() => ({}));
-  // Preserve the existing desk password; deployments may override it server-side.
-  if (typeof body.password !== "string" || !equal(body.password, process.env.ADMIN_DESK_KEY || "daet")) {
+  const password = process.env.ADMIN_DESK_KEY;
+  if (!password) return NextResponse.json({ error: "The municipal desk password has not been configured on the server." }, { status: 503 });
+  if (typeof body.password !== "string" || !equal(body.password, password)) {
     return NextResponse.json({ error: "That password does not open the desk." }, { status: 401 });
   }
   try {

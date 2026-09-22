@@ -2,7 +2,7 @@
 
 Sign in to the admin desk once. Add to places and Remove suggestion execute directly without another password or confirmation form. Sign-in creates an eight-hour HttpOnly session checked by both server actions. Lock desk clears the session. Older browser-only sessions require signing in once after deployment.
 
-The existing `daet` sign-in password remains the default; `ADMIN_DESK_KEY` is an optional server-side override for that sign-in password, not a removal key. The existing `SUPABASE_SERVICE_ROLE_KEY` must be configured server-side for database writes and session signing. No new environment variable or SQL migration is required for these changes.
+The municipal desk password is read from the private `ADMIN_DESK_KEY` hosting variable. Set it in the hosting dashboard; it is never stored in the repository or sent to visitors. The existing `SUPABASE_SERVICE_ROLE_KEY` must be configured server-side for database writes and session signing. No SQL migration is required for these changes.
 
 Add to places creates a shared channel and marks the suggestion accepted. Stable channel IDs prevent duplicate places on retries, including retrying after a partial database failure. Success appears only after both operations finish. The accepted place can be opened directly from the suggestion.
 
