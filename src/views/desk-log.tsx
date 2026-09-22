@@ -13,10 +13,10 @@ export function DeskLog() {
   const burnPulse = usePulse((s) => s.burnPulse);
   const [spot, setSpot] = useState<string>("all");
   const [mood, setMood] = useState<Mood | "all">("all");
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const tickets = useMemo(() => {
     return pulses
-      .filter((p) => !p.parentId)
       .filter((p) => (spot === "all" ? true : p.channelId === spot))
       .filter((p) => (mood === "all" ? true : moodOf(p.face) === mood))
       .sort((a, b) => b.createdAt - a.createdAt);
@@ -84,23 +84,28 @@ export function DeskLog() {
               <div className="min-w-0 flex-1">
                 <p className="font-medium">
                   {pulse.callsign}
+                  <span className="ml-2 text-xs text-teal">{pulse.parentId ? "Reply" : "Comment"}</span>
                   <span className="ml-2 text-xs font-normal text-muted">
                     {channel?.name}
                   </span>
                 </p>
-                <p className="mt-1 text-sm text-muted">
+                <p className="mt-1 break-words text-sm text-muted">
                   {pulse.body || `${face.label} — face only`}
                 </p>
               </div>
               <button
                 type="button"
                 className="h-11 shrink-0 px-2 text-sm text-neg"
-                onClick={() => {
-                  burnPulse(pulse.id);
-                  toast("Feedback deleted");
+                disabled={Boolean(deleting)}
+                onClick={async () => {
+                  if (!confirm(pulse.parentId ? "Delete this reply?" : "Delete this comment and its replies?")) return;
+                  setDeleting(pulse.id);
+                  try { await burnPulse(pulse.id); toast("Feedback deleted"); }
+                  catch (cause) { toast.error(cause instanceof Error ? cause.message : "Could not delete comment."); }
+                  finally { setDeleting(null); }
                 }}
               >
-                Delete
+                {deleting === pulse.id ? "Deleting…" : "Delete"}
               </button>
             </li>
           );

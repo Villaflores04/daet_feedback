@@ -10,9 +10,9 @@ import {
   uploadSharedPhoto,
   removeSharedWish,
   acceptSharedWish,
+  saveSharedChannel, deleteSharedChannel, deleteSharedPulse,
 } from "./remote";
 import type { Category, Channel, FaceId, Pulse, Wish } from "./types";
-
 export const PULSE_KEY = "daet-pulse-v6";
 
 type DraftPulse = {
@@ -54,10 +54,10 @@ type PulseState = {
   addWish: (draft: DraftWish) => Wish;
   acceptWish: (id: string) => Promise<Channel>;
   burnWish: (id: string) => Promise<void>;
-  addChannel: (draft: DraftChannel) => Channel;
-  updateChannel: (id: string, patch: Partial<Channel>) => void;
-  deleteChannel: (id: string) => void;
-  burnPulse: (id: string) => void;
+  addChannel: (draft: DraftChannel, id?: string) => Promise<Channel>;
+  updateChannel: (id: string, patch: Partial<Channel>) => Promise<void>;
+  deleteChannel: (id: string) => Promise<void>;
+  burnPulse: (id: string) => Promise<void>;
   setHydrated: () => void;
   syncShared: () => Promise<boolean>;
 };
@@ -65,6 +65,16 @@ type PulseState = {
 async function stripDataImage(value?: string) {
   if (value && value.startsWith("data:image")) return ingestDataUrl(value);
   return value;
+}
+
+async function sharedCover(photo?: string) {
+  if (!photo) return "";
+  if (isRemotePhoto(photo) || photo.startsWith("/")) return photo;
+  const blob = await getPhotoBlob(photo);
+  if (!blob) throw new Error("Please attach the cover photo again.");
+  const uploaded = await uploadSharedPhoto(photo, blob);
+  if (!uploaded.ok) throw new Error(uploaded.error);
+  return uploaded.data;
 }
 
 async function publishPulse(pulse: Pulse, get: () => PulseState) {
@@ -93,9 +103,7 @@ export const usePulse = create<PulseState>()(
         const snapshot = await fetchPulseSnapshot();
         if (!snapshot.ok) return false;
         set({
-          channels: snapshot.data.channels.length
-            ? snapshot.data.channels
-            : get().channels,
+          channels: snapshot.data.channels,
           pulses: snapshot.data.pulses,
           wishes: snapshot.data.wishes,
         });
@@ -193,52 +201,35 @@ export const usePulse = create<PulseState>()(
         if (!result.ok) throw new Error(result.error);
         set((state) => ({ wishes: state.wishes.map(wish => wish.id === id ? { ...wish, status: "burned" as const } : wish) }));
       },
-      addChannel: (draft) => {
-        const slugBase = slugify(draft.name);
-        const taken = new Set(get().channels.map((c) => c.slug));
-        let slug = slugBase;
-        let n = 2;
-        while (taken.has(slug)) {
-          slug = `${slugBase}-${n}`;
-          n += 1;
-        }
-        const channel: Channel = {
-          id: uid("ch"),
-          slug,
-          name: draft.name.trim(),
-          category: draft.category,
-          featured: Boolean(draft.featured),
-          cover: draft.cover || "",
-          blurb: draft.blurb.trim(),
-          about: draft.about.trim() || draft.blurb.trim(),
-        };
-        set((state) => ({ channels: [...state.channels, channel] }));
-        return channel;
+      addChannel: async (draft, id = uid("ch")) => {
+        const cover = await sharedCover(draft.cover);
+        const channel: Channel = { ...draft, id, slug: `${slugify(draft.name).slice(0, 70) || "place"}-${id.toLowerCase().replace(/_/g, "-")}`, cover, featured: Boolean(draft.featured) };
+        const saved = await saveSharedChannel(channel, true);
+        if (!saved.ok) throw new Error(saved.error);
+        set(state => ({ channels: [...state.channels.filter(c => c.id !== id), saved.data] }));
+        return saved.data;
       },
-      updateChannel: (id, patch) => {
-        set((state) => ({
-          channels: state.channels.map((channel) =>
-            channel.id === id
-              ? { ...channel, ...patch, id: channel.id }
-              : channel,
-          ),
+      updateChannel: async (id, patch) => {
+        const current = get().channels.find(c => c.id === id);
+        if (!current) throw new Error("This place is no longer available.");
+        const cover = await sharedCover(patch.cover);
+        const saved = await saveSharedChannel({ ...current, ...patch, cover, id, slug: current.slug }, false);
+        if (!saved.ok) throw new Error(saved.error);
+        set(state => ({ channels: state.channels.map(c => c.id === id ? saved.data : c) }));
+      },
+      deleteChannel: async (id) => {
+        const result = await deleteSharedChannel(id);
+        if (!result.ok) throw new Error(result.error);
+        set(state => ({
+          channels: state.channels.filter(c => c.id !== id),
+          pulses: state.pulses.filter(p => p.channelId !== id),
+          wishes: state.wishes.map(w => w.channelId === id ? { ...w, channelId: undefined } : w),
         }));
       },
-      deleteChannel: (id) => {
-        set((state) => ({
-          channels: state.channels.filter((c) => c.id !== id),
-          pulses: state.pulses.filter((p) => p.channelId !== id),
-          wishes: state.wishes.map((wish) =>
-            wish.channelId === id ? { ...wish, channelId: undefined } : wish,
-          ),
-        }));
-      },
-      burnPulse: (id) => {
-        set((state) => ({
-          pulses: state.pulses.filter(
-            (pulse) => pulse.id !== id && pulse.parentId !== id,
-          ),
-        }));
+      burnPulse: async (id) => {
+        const result = await deleteSharedPulse(id);
+        if (!result.ok) throw new Error(result.error);
+        set(state => ({ pulses: state.pulses.filter(p => p.id !== id && p.parentId !== id) }));
       },
     }),
     {
@@ -294,14 +285,8 @@ export const usePulse = create<PulseState>()(
 
 export async function rehydratePulse() {
   await usePulse.persist.rehydrate();
-  const local = usePulse.getState();
-  const snapshot = await fetchPulseSnapshot();
-  if (snapshot.ok) {
-    // Bring forward feedback that was created before the shared database was restored.
-    await Promise.all(local.pulses.map((pulse) => saveSharedPulse(pulse)));
-    await Promise.all(local.wishes.map((wish) => saveSharedWish(wish)));
-    await usePulse.getState().syncShared();
-  }
+  // The server is authoritative: replaying cached rows resurrected deleted comments.
+  await usePulse.getState().syncShared();
   usePulse.getState().setHydrated();
 }
 

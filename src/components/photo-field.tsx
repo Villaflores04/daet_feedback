@@ -9,13 +9,16 @@ export function PhotoField({
   value,
   onChange,
   label = "Photo (optional)",
+  onBusyChange,
 }: {
   value?: string;
   onChange: (id?: string) => void;
   label?: string;
+  onBusyChange?: (busy: boolean) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   return (
     <div>
@@ -57,14 +60,20 @@ export function PhotoField({
           event.target.value = "";
           if (!file) return;
           setBusy(true);
+          onBusyChange?.(true);
+          setError("");
           try {
             const id = await ingestFile(file);
             onChange(id);
+          } catch {
+            setError("Could not prepare this photo. Try a JPG or PNG image.");
           } finally {
             setBusy(false);
+            onBusyChange?.(false);
           }
         }}
       />
+      {error ? <p role="alert" className="mt-2 text-sm text-neg">{error}</p> : null}
     </div>
   );
 }

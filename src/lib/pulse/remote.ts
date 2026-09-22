@@ -37,6 +37,16 @@ export function fetchPulseSnapshot() {
   return request<PulseSnapshot>("/api/pulse");
 }
 
+export function saveSharedChannel(channel: Channel, creating: boolean) {
+  return request<Channel>("/api/desk/channels", { method: creating ? "POST" : "PATCH", body: JSON.stringify(channel) });
+}
+export function deleteSharedChannel(id: string) {
+  return request<{ id: string }>("/api/desk/channels", { method: "DELETE", body: JSON.stringify({ id }) });
+}
+export function deleteSharedPulse(id: string) {
+  return request<{ id: string }>("/api/desk/pulses", { method: "DELETE", body: JSON.stringify({ id }) });
+}
+
 export function saveSharedPulse(pulse: Pulse) {
   return request<Pulse>("/api/pulse", {
     method: "POST",
