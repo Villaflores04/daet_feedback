@@ -1079,8 +1079,8 @@ h2 em {
 .stories-toolbar > p { margin-left: auto; align-self: center; }
 .stories-feed { margin: 28px auto 0; width: min(100%, 820px); display: grid; gap: 24px; }
 .stories-feed .story-card { padding: 24px; box-shadow: none; }
-.story-photo { display: block; width: 100%; background: #edf4f6; }
-.story-photo img { width: 100%; height: auto; max-height: 440px; object-fit: contain; object-position: center; }
+.story-photo { display: block; width: fit-content; max-width: min(100%, 260px); background: #edf4f6; }
+.story-photo img { width: auto; max-width: 100%; height: auto; max-height: 220px; object-fit: contain; object-position: center; }
 .sentiment-page { min-width: 0; }
 .sentiment-layout { display: grid; grid-template-columns: minmax(280px, .85fr) minmax(0, 1.15fr); align-items: start; gap: 28px; margin-top: 28px; }
 .sentiment-layout > figure { top: 100px; padding: 28px; }
@@ -1111,7 +1111,6 @@ h2 em {
 .coastal-wash { background: linear-gradient(90deg, #f7fbfdfa 0%, #f7fbfdd9 22%, #f7fbfd35 50%, transparent 70%), linear-gradient(#f4fbfd88, transparent 55%); }
 .coastal-content { padding-top: clamp(140px, 20svh, 210px); transform: translate3d(calc(var(--journey) * -25px), calc(var(--journey) * -85px), 0); }
 .coastal-content h1 { font-size: clamp(70px, 7.2vw, 112px); max-width: 720px; }
-.coastal-sails { position: absolute; width: 95%; height: 30%; bottom: 17%; left: 2%; opacity: .85; transform: translate3d(calc(var(--journey) * 95px), calc(var(--journey) * -20px), 0) scale(calc(1 + var(--journey) * .12)); pointer-events: none; }
 .coastal-water { height: 42%; transform: translate3d(calc(var(--journey) * -80px), calc(var(--journey) * 70px), 0) scale(calc(1 + var(--journey) * .15)); }
 .coastal-surf { position: absolute; bottom: -10%; left: -10%; width: 120%; height: 36%; pointer-events: none; transform: translate3d(calc(var(--journey) * 100px), calc(var(--journey) * -35px), 0) scale(calc(1 + var(--journey) * .3)); }
 .coastal-frond { width: 400px; height: 570px; bottom: -190px; filter: drop-shadow(0 15px 20px #0b45531a); }
@@ -1158,7 +1157,6 @@ h2 em {
   .coastal-town { width: 160%; height: 82%; left: -35%; bottom: -4%; object-position: 36% bottom; }
   .coastal-wash { background: linear-gradient(#f8fcff 0%, #f7fbfdf2 23%, #f7fbfda6 43%, transparent 70%); }
   .coastal-sun { top: 31%; right: 9%; width: 100px; opacity: .65; }
-  .coastal-sails { width: 150%; left: -40%; height: 22%; bottom: 10%; opacity: .6; }
   .coastal-content .hero-description { max-width: 300px; font-size: 15px; }
   .coastal-frond { width: 290px; height: 390px; bottom: -170px; }
   .coastal-frond-left { left: -160px; }

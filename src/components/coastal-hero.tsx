@@ -70,12 +70,6 @@ export function CoastalHero() {
           fetchPriority="high"
         />
         <div className="coastal-wash" aria-hidden="true" />
-        <svg className="coastal-sails" viewBox="0 0 1200 250" aria-hidden="true">
-          <g transform="translate(390 78) scale(.55)" fill="#fbfdf9" stroke="#326c78" strokeWidth="1.5">
-            <path d="M805 45v111h-65Z M813 70l38 85h-38Z" /><path d="M731 163h128l-17 12h-97Z" fill="#215d6e" />
-            <path d="M1000 97v62h-34Z" /><path d="M962 165h59l-9 7h-43Z" fill="#215d6e" />
-          </g>
-        </svg>
         <svg
           className="coastal-water"
           viewBox="0 0 1440 350"
