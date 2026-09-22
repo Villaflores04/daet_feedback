@@ -1,10 +1,14 @@
 # Suggestion removal
 
-Set `ADMIN_DESK_KEY` to a private, strong value in the hosting environment and keep `SUPABASE_SERVICE_ROLE_KEY` configured server-side. Redeploy, then enter the private key when confirming removal in the suggestion detail page. The old browser-only desk key is not authorization for database deletion.
+Sign in to the admin desk once. Add to places and Remove suggestion execute directly without another password or confirmation form. Sign-in creates an eight-hour HttpOnly session checked by both server actions. Lock desk clears the session. Older browser-only sessions require signing in once after deployment.
 
-Removal sets the existing `wishes.status` to `burned`. It preserves an accepted place and its feedback, and prevents older browser caches from recreating the suggestion. The supplied schema already supports this status; no schema migration is required. The key is neither saved in browser storage nor bundled into client code.
+The existing `daet` sign-in password remains the default; `ADMIN_DESK_KEY` is an optional server-side override for that sign-in password, not a removal key. The existing `SUPABASE_SERVICE_ROLE_KEY` must be configured server-side for database writes and session signing. No new environment variable or SQL migration is required for these changes.
 
-Failed requests keep the suggestion visible and show a retryable error. Successful removal returns to the inbox. The API rejects missing or incorrect credentials before accessing Supabase.
+Add to places creates a shared channel and marks the suggestion accepted. Stable channel IDs prevent duplicate places on retries, including retrying after a partial database failure. Success appears only after both operations finish. The accepted place can be opened directly from the suggestion.
+
+Removal sets the existing `wishes.status` to `burned`. It preserves an accepted place and its feedback, and prevents older browser caches from recreating the suggestion. Credentials are not saved in browser storage.
+
+Failed requests keep the suggestion visible and show a retryable error. Successful removal returns to the inbox. The API rejects missing or invalid sessions before accessing Supabase.
 
 Text sentiment is a deterministic English/Filipino keyword estimate with whole-word matching, short negation scope and phrase matching. It includes replies; unmatched text is shown separately rather than discarded. Sarcasm and unfamiliar language still require human review.
 

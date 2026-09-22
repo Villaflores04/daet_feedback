@@ -1,4 +1,5 @@
 import type { Channel, Pulse, Wish } from "./types";
+import { useDesk } from "./desk";
 
 export type PulseSnapshot = {
   channels: Channel[];
@@ -20,6 +21,7 @@ async function request<T>(
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
+      if (response.status === 401) useDesk.setState({ unlocked: false, opening: false });
       return {
         ok: false,
         error: String(data.error || "Shared feedback is unavailable."),
@@ -49,11 +51,16 @@ export function saveSharedWish(wish: Wish) {
   });
 }
 
-export function removeSharedWish(id: string, adminKey: string) {
+export function removeSharedWish(id: string) {
   return request<{ id: string }>("/api/desk/wishes", {
     method: "DELETE",
-    headers: { "x-admin-key": adminKey },
     body: JSON.stringify({ id }),
+  });
+}
+
+export function acceptSharedWish(id: string) {
+  return request<{ channel: Channel; wishId: string }>("/api/desk/wishes", {
+    method: "POST", body: JSON.stringify({ id }),
   });
 }
 

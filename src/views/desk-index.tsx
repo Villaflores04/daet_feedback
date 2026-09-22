@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Inbox, LayoutList, MapPinned, ScrollText } from "lucide-react";
 import { Wordmark } from "@/components/mark";
-import { matchesDeskKey, useDesk } from "@/lib/pulse/desk";
+import { useDesk } from "@/lib/pulse/desk";
 import { usePulse } from "@/lib/pulse/store";
 
 export function DeskIndex() {
@@ -15,7 +15,8 @@ export function DeskIndex() {
 
 function DeskLogin() {
   const [value, setValue] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
   const unlock = useDesk((s) => s.unlock);
 
   return (
@@ -37,17 +38,15 @@ function DeskLogin() {
           </p>
           <form
             className="mt-6 rounded-2xl bg-plate p-5 shadow-plate"
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
-              if (!matchesDeskKey(value)) {
-                setError(true);
-                return;
-              }
-              unlock();
+              if (pending) return;
+              setPending(true); setError("");
+              try { await unlock(value); } catch (cause) { setError(cause instanceof Error ? cause.message : "Could not open the desk."); } finally { setPending(false); }
             }}
           >
             <p className="text-sm font-medium text-muted">
-              Hint visible: <span className="font-medium text-ink">daet</span>
+              Sign in once to manage suggestions and places.
             </p>
             <label className="mt-3 block">
               <span className="sr-only">Shared key</span>
@@ -57,7 +56,7 @@ function DeskLogin() {
                 value={value}
                 onChange={(e) => {
                   setValue(e.target.value);
-                  setError(false);
+                  setError("");
                 }}
                 className="h-12 w-full rounded-xl border border-line bg-page px-3 outline-none focus:border-teal"
                 placeholder="Shared key"
@@ -66,14 +65,15 @@ function DeskLogin() {
             </label>
             {error ? (
               <p className="mt-2 text-sm text-neg">
-                That key does not open the desk.
+                {error}
               </p>
             ) : null}
             <button
               type="submit"
+              disabled={pending}
               className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-xl bg-teal text-sm font-medium text-plate"
             >
-              Open desk
+              {pending ? "Opening…" : "Open desk"}
             </button>
           </form>
           <Link
@@ -132,7 +132,7 @@ function DeskHome() {
       </h1>
       <p className="mt-2 max-w-lg text-sm text-muted">
         Manage places, review visitor feedback, and follow up on suggestions.
-        Data is stored on this device.
+        Suggestion approvals and removals are saved to the shared database.
       </p>
       <ul className="mt-6 grid gap-3 sm:grid-cols-2">
         {cards.map((card) => {

@@ -9,6 +9,7 @@ import {
   saveSharedWish,
   uploadSharedPhoto,
   removeSharedWish,
+  acceptSharedWish,
 } from "./remote";
 import type { Category, Channel, FaceId, Pulse, Wish } from "./types";
 
@@ -51,8 +52,8 @@ type PulseState = {
   sendReply: (draft: DraftPulse) => Promise<Pulse>;
   reactPulse: (id: string, side: "up" | "down") => void;
   addWish: (draft: DraftWish) => Wish;
-  acceptWish: (id: string) => Channel | null;
-  burnWish: (id: string, adminKey: string) => Promise<void>;
+  acceptWish: (id: string) => Promise<Channel>;
+  burnWish: (id: string) => Promise<void>;
   addChannel: (draft: DraftChannel) => Channel;
   updateChannel: (id: string, patch: Partial<Channel>) => void;
   deleteChannel: (id: string) => void;
@@ -177,40 +178,18 @@ export const usePulse = create<PulseState>()(
         });
         return wish;
       },
-      acceptWish: (id) => {
-        const wish = get().wishes.find((item) => item.id === id);
-        if (!wish || wish.status !== "open") return null;
-        const slugBase = slugify(wish.name);
-        const taken = new Set(get().channels.map((c) => c.slug));
-        let slug = slugBase;
-        let n = 2;
-        while (taken.has(slug)) {
-          slug = `${slugBase}-${n}`;
-          n += 1;
-        }
-        const about = [wish.where, wish.why].filter(Boolean).join(" — ");
-        const channel: Channel = {
-          id: uid("ch"),
-          slug,
-          name: wish.name,
-          category: wish.category,
-          featured: false,
-          cover: wish.photo || "",
-          blurb: wish.why || wish.where || "Added from a visitor wish.",
-          about: about || wish.name,
-        };
-        set((state) => ({
-          channels: [...state.channels, channel],
-          wishes: state.wishes.map((item) =>
-            item.id === id
-              ? { ...item, status: "kept" as const, channelId: channel.id }
-              : item,
-          ),
+      acceptWish: async (id) => {
+        const result = await acceptSharedWish(id);
+        if (!result.ok) throw new Error(result.error);
+        const channel = result.data.channel;
+        set(state => ({
+          channels: [...state.channels.filter(c => c.id !== channel.id), channel],
+          wishes: state.wishes.map(w => w.id === id ? { ...w, status: "kept" as const, channelId: channel.id } : w),
         }));
         return channel;
       },
-      burnWish: async (id, adminKey) => {
-        const result = await removeSharedWish(id, adminKey);
+      burnWish: async (id) => {
+        const result = await removeSharedWish(id);
         if (!result.ok) throw new Error(result.error);
         set((state) => ({ wishes: state.wishes.map(wish => wish.id === id ? { ...wish, status: "burned" as const } : wish) }));
       },

@@ -30,7 +30,7 @@ export default function DeskLayout({ children }: { children: ReactNode }) {
   }
 
   if (!unlocked) {
-    return <>{children}</>;
+    return pathname === "/desk" ? <>{children}</> : <p className="p-6">Opening admin sign-in…</p>;
   }
 
   return (

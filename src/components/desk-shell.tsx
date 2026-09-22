@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Wordmark } from "@/components/mark";
 import { useDesk } from "@/lib/pulse/desk";
+import { toast } from "sonner";
 const LINKS = [
   { to: "/desk", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/desk/board", label: "Sentiment", icon: ChartNoAxesCombined },
@@ -55,7 +56,7 @@ export function DeskShell({ children }: { children: ReactNode }) {
           <Link href="/" className="desk-nav-link">
             Visitor site <ArrowUpRight size={16} />
           </Link>
-          <button onClick={() => lock()} className="desk-nav-link">
+          <button onClick={() => { void lock().catch(() => toast.error("Could not lock the desk. Please try again.")); }} className="desk-nav-link">
             <LockKeyhole size={16} />
             Lock desk
           </button>

@@ -13,8 +13,7 @@ export function WishDetail() {
   const id = String(params.id ?? "");
   const router = useRouter();
   const [removing, setRemoving] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-  const [adminKey, setAdminKey] = useState("");
+  const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
   const hydrated = usePulse(s => s.hydrated);
   const wish = usePulse((s) => s.wishes.find((item) => item.id === id));
@@ -65,44 +64,44 @@ export function WishDetail() {
           <Button
             type="button"
             className="h-12 flex-1"
-            disabled={removing}
-            onClick={() => {
-              const created = acceptWish(wish.id);
-              toast(created ? `Kept as ${created.name}` : "Already kept");
+            disabled={removing || adding}
+            onClick={async () => {
+              if (adding || removing) return;
+              setAdding(true); setError("");
+              try {
+                const created = await acceptWish(wish.id);
+                toast(`Added ${created.name} to places`);
+              } catch (cause) {
+                setError(cause instanceof Error ? cause.message : "Could not add this place.");
+              } finally { setAdding(false); }
             }}
           >
-            Add to places
+            {adding ? "Adding…" : "Add to places"}
           </Button>
         ) : null}
         <Button
           type="button"
           variant="danger"
           className="h-12 flex-1"
-          disabled={removing}
-          onClick={() => setConfirming(true)}
+          disabled={removing || adding}
+          onClick={async () => {
+            if (removing || adding) return;
+            setRemoving(true); setError("");
+            try {
+              await burnWish(wish.id);
+              toast("Suggestion removed");
+              router.replace("/desk/wishes");
+            } catch (cause) {
+              setError(cause instanceof Error ? cause.message : "Could not remove suggestion.");
+              setRemoving(false);
+            }
+          }}
         >
-          Remove suggestion
+          {removing ? "Removing…" : "Remove suggestion"}
         </Button>
       </div>
-      {confirming ? <form className="mt-4 rounded-xl border border-line p-4" onSubmit={async event => {
-        event.preventDefault();
-        if (removing) return;
-        setRemoving(true); setError("");
-        try {
-          await burnWish(wish.id, adminKey);
-          setAdminKey("");
-          toast("Suggestion removed");
-          router.replace("/desk/wishes");
-        } catch (cause) {
-          setError(cause instanceof Error ? cause.message : "Could not remove suggestion.");
-          setRemoving(false);
-        }
-      }}>
-        <p className="text-sm">Remove this suggestion from the inbox? Any accepted place and its feedback will remain.</p>
-        <label className="mt-3 block text-sm">Admin removal key<input type="password" autoComplete="off" required value={adminKey} disabled={removing} onChange={e => setAdminKey(e.target.value)} className="mt-1 h-11 w-full rounded-lg border border-line bg-plate px-3" /></label>
-        {error ? <p role="alert" className="mt-3 text-sm text-neg">{error}</p> : null}
-        <div className="mt-3 flex gap-2"><Button type="submit" variant="danger" disabled={removing}>{removing ? "Removing…" : "Confirm removal"}</Button><Button type="button" variant="ghost" disabled={removing} onClick={() => { setConfirming(false); setAdminKey(""); setError(""); }}>Cancel</Button></div>
-      </form> : null}
+      {error ? <p role="alert" className="mt-3 text-sm text-neg">{error} <Link href="/desk" className="underline">Open admin desk</Link></p> : null}
+      {channel ? <Link href={`/spots/${channel.slug}`} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-teal">View place</Link> : null}
     </article>
   );
 }
