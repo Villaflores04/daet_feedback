@@ -49,6 +49,14 @@ export function saveSharedWish(wish: Wish) {
   });
 }
 
+export function removeSharedWish(id: string, adminKey: string) {
+  return request<{ id: string }>("/api/desk/wishes", {
+    method: "DELETE",
+    headers: { "x-admin-key": adminKey },
+    body: JSON.stringify({ id }),
+  });
+}
+
 export async function uploadSharedPhoto(id: string, file: Blob) {
   try {
     const form = new FormData();

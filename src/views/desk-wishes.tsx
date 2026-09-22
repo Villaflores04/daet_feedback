@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function DeskWishes() {
   const wishes = usePulse((s) => s.wishes);
+  const visible = wishes.filter(wish => wish.status !== "burned");
 
   return (
     <div>
@@ -14,13 +15,13 @@ export function DeskWishes() {
       <h1 className="mt-1 font-display text-3xl tracking-tight">
         Place suggestions
       </h1>
-      {wishes.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="mt-8 rounded-2xl bg-plate px-4 py-10 text-center text-sm text-muted shadow-plate">
           No suggestions yet. New place suggestions will appear here.
         </p>
       ) : (
         <ul className="mt-6 space-y-3">
-          {wishes.map((wish) => (
+          {visible.map((wish) => (
             <li key={wish.id}>
               <Link
                 href={`/desk/wishes/${wish.id}`}

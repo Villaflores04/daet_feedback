@@ -90,6 +90,7 @@ export function BoardView({
 
   const townFaces = tallyFaces(pulses);
   const townWords = tallyScans(scanPulses(pulses));
+  const textCount = pulses.filter(p => p.body.trim()).length;
 
   return (
     <div className="page-width pb-12">
@@ -107,6 +108,7 @@ export function BoardView({
         </p>
       </header>
       <BoardTabs active={mode} desk={desk} />
+      {mode === "words" ? <p className="mt-4 text-sm text-muted" role="status">{textCount} notes and replies checked · {townWords.total} classified · {textCount - townWords.total} without a clear sentiment match. Empty notes are excluded.</p> : null}
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
         {mode === "faces" ? (
@@ -122,6 +124,8 @@ export function BoardView({
             );
             const faces = tallyFaces(placePulses);
             const scanned = scanPulses(placePulses);
+            const classifiedIds = new Set(scanned.map(note => note.pulse.id));
+            const unmatched = placePulses.filter(p => p.body.trim() && !classifiedIds.has(p.id));
             const words = tallyScans(scanned);
             const expanded = open === channel.slug;
             const count = mode === "faces" ? faces.total : words.total;
@@ -181,7 +185,7 @@ export function BoardView({
                       <ul className="space-y-2">
                         {scanned.length === 0 ? (
                           <li className="text-sm text-muted">
-                            No scanned notes on this place yet.
+                            No clearly classified notes on this place yet.
                           </li>
                         ) : (
                           scanned.map((note) => (
@@ -203,6 +207,7 @@ export function BoardView({
                             </li>
                           ))
                         )}
+                        {unmatched.map(note => <li key={note.id} className="break-words rounded-xl bg-cool px-3 py-2 text-sm"><span className="mr-2 text-xs font-semibold text-muted">UNCLASSIFIED</span>{note.body}</li>)}
                       </ul>
                     )}
                     <Link

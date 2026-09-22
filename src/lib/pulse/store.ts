@@ -8,6 +8,7 @@ import {
   saveSharedPulse,
   saveSharedWish,
   uploadSharedPhoto,
+  removeSharedWish,
 } from "./remote";
 import type { Category, Channel, FaceId, Pulse, Wish } from "./types";
 
@@ -51,7 +52,7 @@ type PulseState = {
   reactPulse: (id: string, side: "up" | "down") => void;
   addWish: (draft: DraftWish) => Wish;
   acceptWish: (id: string) => Channel | null;
-  burnWish: (id: string) => void;
+  burnWish: (id: string, adminKey: string) => Promise<void>;
   addChannel: (draft: DraftChannel) => Channel;
   updateChannel: (id: string, patch: Partial<Channel>) => void;
   deleteChannel: (id: string) => void;
@@ -208,22 +209,10 @@ export const usePulse = create<PulseState>()(
         }));
         return channel;
       },
-      burnWish: (id) => {
-        const wish = get().wishes.find((item) => item.id === id);
-        if (!wish) return;
-        set((state) => {
-          let channels = state.channels;
-          let pulses = state.pulses;
-          if (wish.channelId) {
-            channels = channels.filter((c) => c.id !== wish.channelId);
-            pulses = pulses.filter((p) => p.channelId !== wish.channelId);
-          }
-          return {
-            channels,
-            pulses,
-            wishes: state.wishes.filter((item) => item.id !== id),
-          };
-        });
+      burnWish: async (id, adminKey) => {
+        const result = await removeSharedWish(id, adminKey);
+        if (!result.ok) throw new Error(result.error);
+        set((state) => ({ wishes: state.wishes.map(wish => wish.id === id ? { ...wish, status: "burned" as const } : wish) }));
       },
       addChannel: (draft) => {
         const slugBase = slugify(draft.name);

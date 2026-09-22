@@ -12,7 +12,7 @@ export function WordMeter({
 }) {
   const rows = [
     { key: "pos", label: "Positive", value: tally.pos, color: "bg-pos" },
-    { key: "mix", label: "Mixed", value: tally.mix, color: "bg-mix" },
+    { key: "mix", label: "Mixed / OK", value: tally.mix, color: "bg-mix" },
     { key: "neg", label: "Negative", value: tally.neg, color: "bg-neg" },
   ];
   const max = Math.max(1, tally.pos, tally.mix, tally.neg);
@@ -21,7 +21,7 @@ export function WordMeter({
     <figure className={cn("rounded-2xl bg-plate p-5 shadow-plate", className)}>
       <figcaption className="text-sm font-medium text-ink">{title}</figcaption>
       <p className="mt-1 text-xs text-muted">
-        Estimated from keywords in visitor notes. Local expressions and sarcasm
+        Estimated from words and negation in notes and replies. Local expressions and sarcasm
         may be misunderstood.
       </p>
       <ul className="mt-5 space-y-3">
@@ -44,7 +44,7 @@ export function WordMeter({
         ))}
       </ul>
       <p className="mt-4 text-xs tabular-nums text-muted">
-        {tally.total} scanned {tally.total === 1 ? "note" : "notes"}
+        {tally.total} classified {tally.total === 1 ? "note" : "notes"}
       </p>
     </figure>
   );

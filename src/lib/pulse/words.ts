@@ -1,6 +1,7 @@
 import type { Mood, Pulse } from "./types";
 
 const POS = [
+  "good", "excellent", "enjoy", "enjoyed", "helpful", "recommend", "recommended", "comfortable", "affordable", "accommodating", "ganda", "magagandang", "mabait", "maayos", "presko", "panalo", "napakaganda", "nakakarelax",
   "beautiful",
   "stunning",
   "amazing",
@@ -39,6 +40,7 @@ const POS = [
 ];
 
 const NEG = [
+  "bad", "terrible", "awful", "disappointed", "disappointing", "disappoint", "worst", "rude", "expensive", "unsafe", "noisy", "uncomfortable", "horrible", "panget", "madumi", "nakakadismaya", "nakakainis", "mainit", "maingay",
   "dirty",
   "filthy",
   "trash",
@@ -88,20 +90,29 @@ export type ScannedNote = {
   mood: Mood;
 };
 
-function hits(body: string, words: string[]) {
-  let n = 0;
-  for (const word of words) {
-    if (body.includes(word)) n += 1;
-  }
-  return n;
-}
+const negators = new Set(["not", "no", "never", "hardly", "without", "hindi", "di", "walang", "wala", "dili"]);
+const boundaries = new Set(["but", "however", "although", "pero", "kaso", "yet", "and", "at"]);
+const entries = [...POS.map(word => ({ word, score: 1 })), ...NEG.map(word => ({ word, score: -1 })), ...MIX.map(word => ({ word, score: 0 }))]
+  .map(entry => ({ ...entry, tokens: entry.word.replace(/-/g, " ").split(" ") }))
+  .sort((a, b) => b.tokens.length - a.tokens.length);
 
 export function scanBody(body: string): Mood | null {
-  const text = body.trim().toLowerCase();
+  const text = body.trim().toLowerCase().replace(/[’']/g, "'").replace(/\b(can't|cannot|won't|\w+n't)\b/g, "not").replace(/-/g, " ");
   if (!text) return null;
-  const pos = hits(text, POS);
-  const neg = hits(text, NEG);
-  const mix = hits(text, MIX);
+  const tokens = text.match(/[\p{L}\p{N}]+|[.!?,;:]/gu) ?? [];
+  let pos = 0, neg = 0, mix = 0;
+  for (let i = 0; i < tokens.length; i++) {
+    const entry = entries.find(e => e.tokens.every((token, offset) => tokens[i + offset] === token));
+    if (!entry) continue;
+    let inverted = false;
+    for (let j = i - 1; j >= Math.max(0, i - 3); j--) {
+      if (/^[.!?,;:]$/.test(tokens[j]) || boundaries.has(tokens[j])) break;
+      if (negators.has(tokens[j]) && tokens[j + 1] !== "only") inverted = !inverted;
+    }
+    const score = entry.score * (inverted ? -1 : 1);
+    if (score > 0) pos++; else if (score < 0) neg++; else mix++;
+    i += entry.tokens.length - 1;
+  }
   if (pos === 0 && neg === 0 && mix === 0) return null;
   if (pos > 0 && neg > 0) return "MIX";
   if (pos > neg && pos >= mix) return "POS";
@@ -112,7 +123,6 @@ export function scanBody(body: string): Mood | null {
 export function scanPulses(pulses: Pulse[]): ScannedNote[] {
   const notes: ScannedNote[] = [];
   for (const pulse of pulses) {
-    if (pulse.parentId) continue;
     const mood = scanBody(pulse.body);
     if (!mood) continue;
     notes.push({ pulse, mood });

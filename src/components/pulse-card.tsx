@@ -46,18 +46,20 @@ export function PulseCard({
   const mine = usePulse((s) => s.myReacts[pulse.id]);
   const reactPulse = usePulse((s) => s.reactPulse);
   const [openPhoto, setOpenPhoto] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const reply = Boolean(pulse.parentId);
   const iso = new Date(pulse.createdAt).toISOString();
 
   return (
     <article
       id={`pulse-${pulse.id}`}
       className={cn(
-        "rounded-xl bg-plate p-5 shadow-plate",
+        reply ? "rounded-lg bg-plate px-3 py-2" : "rounded-xl bg-plate p-5 shadow-plate",
         highlight && "ring-2 ring-teal",
       )}
     >
-      <header className="flex items-start gap-3">
-        <span className="text-2xl leading-none" aria-hidden>
+      <header className="flex items-start gap-2">
+        <span className={reply ? "text-lg leading-none" : "text-2xl leading-none"} aria-hidden>
           {face.glyph}
         </span>
         <div className="min-w-0 flex-1">
@@ -82,12 +84,13 @@ export function PulseCard({
       </header>
 
       {pulse.body ? (
-        <p className="mt-4 break-words text-[0.95rem] leading-relaxed text-ink">
+        <p className={cn("whitespace-pre-wrap break-words text-ink", reply ? "mt-2 text-sm leading-5" : "mt-4 text-[0.95rem] leading-relaxed", reply && pulse.body.length > 180 && !expanded && "line-clamp-4")}>
           {pulse.body}
         </p>
       ) : (
         <p className="mt-3 text-sm text-muted">{face.label} — face only</p>
       )}
+      {reply && pulse.body.length > 180 ? <button type="button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)} className="min-h-11 text-xs font-semibold text-teal">{expanded ? "Show less" : "Read full reply"}</button> : null}
 
       {pulse.photo ? (
         <button
@@ -96,7 +99,7 @@ export function PulseCard({
           aria-label={`Enlarge photo from ${pulse.callsign}`}
           className={cn(
             "mt-3 overflow-hidden rounded-xl",
-            compactPhoto ? "h-28 w-40" : "w-full",
+            reply ? "h-20 w-28" : compactPhoto ? "h-28 w-40" : "w-full",
           )}
         >
           <StoredPhoto
@@ -110,7 +113,7 @@ export function PulseCard({
         </button>
       ) : null}
 
-      <footer className="mt-4 flex items-center gap-1 border-t border-line pt-2">
+      <footer className={cn("flex items-center gap-1", reply ? "mt-1" : "mt-4 border-t border-line pt-2")}>
         <button
           type="button"
           onClick={() => reactPulse(pulse.id, "up")}
