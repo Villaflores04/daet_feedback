@@ -9,7 +9,7 @@ function DeskBoardInner() {
   const tab = search.get("tab");
   const open = search.get("open") ?? undefined;
   return (
-    <div className="-mx-4 sm:-mx-6">
+    <div className="min-w-0">
       <BoardView
         mode={tab === "words" ? "words" : "faces"}
         openSlug={open}

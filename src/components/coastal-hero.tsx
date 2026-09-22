@@ -15,7 +15,8 @@ export function CoastalHero() {
     const draw = () => {
       frame = 0;
       const rect = node.getBoundingClientRect();
-      const travel = Math.max(1, node.offsetHeight - window.innerHeight);
+      const stage = node.querySelector<HTMLElement>(".coastal-stage");
+      const travel = Math.max(1, node.offsetHeight - (stage?.offsetHeight || window.innerHeight));
       const progress = reduced.matches
         ? 0
         : Math.min(1, Math.max(0, -rect.top / travel));
@@ -51,6 +52,8 @@ export function CoastalHero() {
     >
       <div className="coastal-stage">
         <div className="coastal-sky" aria-hidden="true" />
+        <div className="coastal-sun" aria-hidden="true" />
+        <div className="coastal-orbit" aria-hidden="true" />
         <div className="coastal-clouds" aria-hidden="true">
           <svg viewBox="0 0 1440 500" preserveAspectRatio="none">
             <path
@@ -67,6 +70,12 @@ export function CoastalHero() {
           fetchPriority="high"
         />
         <div className="coastal-wash" aria-hidden="true" />
+        <svg className="coastal-sails" viewBox="0 0 1200 250" aria-hidden="true">
+          <g transform="translate(390 78) scale(.55)" fill="#fbfdf9" stroke="#326c78" strokeWidth="1.5">
+            <path d="M805 45v111h-65Z M813 70l38 85h-38Z" /><path d="M731 163h128l-17 12h-97Z" fill="#215d6e" />
+            <path d="M1000 97v62h-34Z" /><path d="M962 165h59l-9 7h-43Z" fill="#215d6e" />
+          </g>
+        </svg>
         <svg
           className="coastal-water"
           viewBox="0 0 1440 350"
@@ -90,6 +99,11 @@ export function CoastalHero() {
             strokeWidth="2"
             opacity=".65"
           />
+        </svg>
+        <svg className="coastal-surf" viewBox="0 0 1440 260" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M-100 90C180 4 310 218 630 125S1120 35 1550 122V300H-100Z" fill="#298b9926" />
+          <path d="M-100 95C180 9 310 223 630 130S1120 40 1550 127" stroke="#efffff" strokeWidth="3" fill="none" />
+          <path d="M-100 165C180 79 310 293 630 200S1120 110 1550 197" stroke="#efffff80" strokeWidth="1.5" fill="none" />
         </svg>
         <svg
           className="coastal-frond coastal-frond-left"
@@ -135,6 +149,7 @@ export function CoastalHero() {
             </Link>
           </div>
         </div>
+        <div className="coastal-location" aria-hidden="true"><span>THE PACIFIC SIDE OF LIFE</span><p>A little closer<br />to the <em>coast.</em></p><small>Daet · Camarines Norte · Philippines</small></div>
         <div className="coastal-caption page-width">
           <a href="#discover" className="scroll-cue">
             <ArrowDown size={16} /> Scroll to discover
@@ -143,6 +158,7 @@ export function CoastalHero() {
             <Waves size={18} /> A town best experienced.
           </span>
         </div>
+        <div className="journey-progress" aria-hidden="true"><span /></div>
       </div>
     </section>
   );

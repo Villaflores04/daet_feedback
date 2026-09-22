@@ -62,28 +62,13 @@ export function LivePage() {
             A collection of visits, discoveries, and honest impressions.
           </p>
         </header>
-        <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
-          <FilterChip
-            active={!place}
-            onClick={() => {
-              filter(undefined, photosOnly);
-            }}
-          >
-            All places
-          </FilterChip>
-          {channels.map((channel) => (
-            <FilterChip
-              key={channel.id}
-              active={place === channel.slug}
-              onClick={() => {
-                filter(channel.slug, photosOnly);
-              }}
-            >
-              {channel.name}
-            </FilterChip>
-          ))}
-        </div>
-        <div className="mt-3 flex items-center justify-between gap-3">
+        <div className="stories-toolbar">
+          <label className="stories-place-filter"><span>Explore stories from</span>
+            <select value={place || ""} onChange={event => filter(event.target.value || undefined, photosOnly)} aria-label="Filter stories by place">
+              <option value="">All places</option>
+              {channels.map(channel => <option key={channel.id} value={channel.slug}>{channel.name}</option>)}
+            </select>
+          </label>
           <FilterChip
             active={photosOnly}
             onClick={() => {
@@ -101,7 +86,7 @@ export function LivePage() {
             {place || photosOnly ? <button type="button" onClick={() => filter(undefined, false)} className="mt-3 min-h-11 rounded-full bg-cool px-5 font-semibold text-teal">Clear filters</button> : null}
           </div>
         ) : (
-          <ul className="mt-6 grid items-start gap-5 lg:grid-cols-2">
+          <ul className="stories-feed">
             {roots.map((item) => {
               const channel = channels.find((c) => c.id === item.channelId);
               return (

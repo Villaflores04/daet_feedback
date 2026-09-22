@@ -93,7 +93,7 @@ export function HomePage() {
                 ))}
               </div>
               <p className="mt-4 text-xs text-muted">
-                {tally.total} visitor ratings on this device · Your next visit
+                {tally.total} visitor ratings shared · Your next visit
                 could be the first story.
               </p>
             </div>

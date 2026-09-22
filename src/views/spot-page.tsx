@@ -32,26 +32,28 @@ export function SpotPage() {
   return (
     <PublicChrome>
       <main id="main-content">
-        <div className="relative h-72 sm:h-96 lg:h-[30rem]">
+        <div className="spot-hero page-width">
           <StoredPhoto
             id={channel.cover}
             alt={channel.name}
-            className="h-full w-full object-cover object-[center_72%]"
+            className="spot-hero-image"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/55 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 px-4 pb-5 sm:px-6">
-            <div className="page-width">
-              <p className="text-xs uppercase tracking-[0.16em] text-plate/80">
+          <div className="spot-hero-copy">
+            <div>
+              <Link href="/spots" className="text-link mb-6"><ArrowLeft size={16} /> All places</Link>
+              <p className="eyebrow">
                 {channel.category}
               </p>
-              <h1 className="mt-1 font-display text-4xl tracking-tight text-plate sm:text-6xl">
+              <h1 className="mt-3 font-display tracking-tight">
                 {channel.name}
               </h1>
+              <p className="mt-4 leading-relaxed text-muted">{channel.blurb}</p>
+              <Button type="button" className="mt-6 h-12" onClick={() => setRate(true)}>Share your experience</Button>
             </div>
           </div>
         </div>
 
-        <div className="page-width grid grid-cols-1 gap-10 py-8 lg:py-12 lg:grid-cols-[1.3fr_0.7fr] lg:items-start">
+        <div className="spot-body page-width">
           <div>
             <Link
               href="/spots"
@@ -63,13 +65,6 @@ export function SpotPage() {
             <p className="mt-4 text-[0.95rem] leading-relaxed text-muted">
               {channel.about}
             </p>
-            <Button
-              type="button"
-              className="mt-6 h-12 w-full lg:w-auto"
-              onClick={() => setRate(true)}
-            >
-              Rate this spot
-            </Button>
             <section className="mt-10">
               <h2 className="font-display text-2xl tracking-tight">
                 Visitor stories

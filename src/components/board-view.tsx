@@ -93,7 +93,7 @@ export function BoardView({
   const textCount = pulses.filter(p => p.body.trim()).length;
 
   return (
-    <div className="page-width pb-12">
+    <div className={desk ? "sentiment-page sentiment-desk pb-12" : "sentiment-page page-width pb-12"}>
       <header className="page-intro">
         <p className="text-xs uppercase tracking-[0.18em] text-muted">
           Town pulse
@@ -110,7 +110,7 @@ export function BoardView({
       <BoardTabs active={mode} desk={desk} />
       {mode === "words" ? <p className="mt-4 text-sm text-muted" role="status">{textCount} notes and replies checked · {townWords.total} classified · {textCount - townWords.total} without a clear sentiment match. Empty notes are excluded.</p> : null}
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+      <div className="sentiment-layout">
         {mode === "faces" ? (
           <FaceGauge tally={townFaces} className="lg:sticky lg:top-20" />
         ) : (
@@ -191,7 +191,7 @@ export function BoardView({
                           scanned.map((note) => (
                             <li
                               key={note.pulse.id}
-                              className="rounded-xl bg-cool px-3 py-2 text-sm"
+                              className="break-words rounded-xl bg-cool px-3 py-2 text-sm"
                             >
                               <span
                                 className={cn(

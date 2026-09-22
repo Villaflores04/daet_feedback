@@ -55,6 +55,7 @@ export function PulseCard({
       id={`pulse-${pulse.id}`}
       className={cn(
         reply ? "rounded-lg bg-plate px-3 py-2" : "rounded-xl bg-plate p-5 shadow-plate",
+        !reply && "story-card",
         highlight && "ring-2 ring-teal",
       )}
     >
@@ -99,6 +100,7 @@ export function PulseCard({
           aria-label={`Enlarge photo from ${pulse.callsign}`}
           className={cn(
             "mt-3 overflow-hidden rounded-xl",
+            !reply && !compactPhoto && "story-photo",
             reply ? "h-20 w-28" : compactPhoto ? "h-28 w-40" : "w-full",
           )}
         >
