@@ -75,6 +75,9 @@ export function acceptSharedWish(id: string) {
 }
 
 export async function uploadSharedPhoto(id: string, file: Blob) {
+  if (!file.size || file.size > 4 * 1024 * 1024) {
+    return { ok: false as const, error: "Use a nonempty image smaller than 4 MB. Your changes have not been lost." };
+  }
   try {
     const form = new FormData();
     form.set("id", id);
@@ -87,7 +90,9 @@ export async function uploadSharedPhoto(id: string, file: Blob) {
     if (!response.ok || typeof data.url !== "string") {
       return {
         ok: false as const,
-        error: String(data.error || "Could not save the image."),
+        error: String(data.error || (response.status === 413
+          ? "This image is too large to upload. Try a smaller JPG or PNG."
+          : "The image service is temporarily unavailable. Please save again.")),
       };
     }
     return { ok: true as const, data: data.url };

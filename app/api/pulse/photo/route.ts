@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { supabaseStorageServer } from "@/lib/supabase-server";
+import { storageFailure, storageDiagnostic } from "@/lib/storage-fetch";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+export const runtime = "nodejs";
+export const maxDuration = 30;
 
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+// Leave room for multipart overhead below the hosting request-body limit.
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 
 export async function POST(request: Request) {
   try {
@@ -17,9 +21,9 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    if (!file.type.startsWith("image/") || file.size > MAX_UPLOAD_BYTES) {
+    if (!file.type.startsWith("image/") || !file.size || file.size > MAX_UPLOAD_BYTES) {
       return NextResponse.json(
-        { error: "Use an image smaller than 5 MB." },
+        { error: "Use a nonempty image smaller than 4 MB." },
         { status: 400 },
       );
     }
@@ -36,11 +40,10 @@ export async function POST(request: Request) {
     const { data } = db.storage.from("pulse-photos").getPublicUrl(path);
     return NextResponse.json({ url: data.publicUrl }, { status: 201 });
   } catch (error) {
+    const failure = storageFailure(error);
+    console.error("Photo upload failed", { code: failure.code, cause: storageDiagnostic(error) });
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Could not save the image.",
-      },
+      failure,
       { status: 503 },
     );
   }
