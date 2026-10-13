@@ -2,7 +2,7 @@
 
 ## Implemented in this repository
 
-- `/feedback` is the module entry. `/` redirects there; `/transmit` remains compatible.
+- `/` is the restored layered coastal parallax landing page with feedback messaging. `/feedback` stays the direct module entry, and `/transmit` remains compatible.
 - Direct place / overall-trip selection, four emoji ratings, optional public note/photo/nickname.
 - A successful submission is shown only after photo upload and database confirmation. The draft remains on errors; retries reuse the submission ID.
 - Overall feedback uses reserved channel `feedback-overall-daet`. The server creates it on first submission. It is excluded from place discovery/editing and protected from administrative channel deletion. Existing foreign keys, replies, photos and moderation continue working. Existing records are not renamed or removed.
@@ -12,7 +12,7 @@
 
 ## Integration status — do not mistake navigation for shared authentication
 
-The faculty repository, authentication/session contract, Team 1 destination schema and Team 11 reward implementation have not been supplied. No shared wallet balance, point award, central login, destination synchronization or crisis dispatch is claimed by this module. The rewards panel explicitly communicates this state. No arbitrary 15-point rule has been enabled.
+The faculty repository, authentication/session contract, Team 1 destination schema and Team 11 reward implementation have not been supplied. No shared wallet balance, point award, central login, destination synchronization or crisis dispatch is claimed by this module. A 15-point placeholder is now enabled for demonstrations at the user’s request. The amount lives in `src/lib/rewards.ts` as `FEEDBACK_PREVIEW_POINTS`. The header, landing page and feedback form identify it as demo points. It is not an approved production reward rule.
 
 `NEXT_PUBLIC_DAET_CONNECT_URL` adds an HTTPS return link to the main dashboard. The main dashboard can link to `/feedback`, or `/feedback?place=<existing-channel-id>`. This query selects a place only; it never authorizes a user or changes points.
 
@@ -45,3 +45,13 @@ Existing Supabase URL/key and service-role configuration remain required. Overal
 Review on a Vercel preview before merge. Check 375px and desktop layouts; place and overall submissions; photo processing/upload failure; duplicate retry; stories/replies/lightbox; admin sign-in and moderation; sentiment scope separation. Test persistence from a second browser against the configured database. Build/unit checks alone do not verify production Supabase policies or actual cross-device operation.
 
 Use a `team-9/...` feature branch and faculty-reviewed pull request for shared-platform integration.
+
+## Reward placeholder implementation
+
+`recordPreviewReward` runs only after a root feedback save is confirmed. It keeps unique feedback IDs in the browser's `daet-connect:feedback-reward-preview:v1` storage; retries do not add the same award twice and replies do not earn demo points. Failed saves do not award anything. Storage failure cannot fail or undo a saved feedback submission. This local preview can reset when browser data is cleared and is not shared across devices or users. It is not a secure ledger.
+
+For Team 11 integration, replace this preview boundary with the authenticated server award service described above. The reference fields are feedback ID, source `feedback`, and point value. Do not migrate demo balances or trust browser events as evidence of eligibility. The central service must own real point rules, transaction history, deduplication and wallet totals.
+
+## UI standards applied
+
+Primary actions use blue-600 (#2563eb); semantic success, warning and error colors use green-500 (#22c55e), yellow-500 (#eab308) and red-600 (#dc2626). Darker semantic text shades preserve readability on white. Cards use 16px rounded-2xl corners, primary buttons are pill-shaped, and button targets have a 44px minimum. The coastal teal scenery remains decorative. Parallax remains landing-only with reduced-motion support.

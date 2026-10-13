@@ -1,5 +1,6 @@
 "use client";
 
+import { OVERALL_ID } from "@/lib/pulse/scope";
 import Link from "next/link";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { PublicChrome } from "@/components/public-chrome";
@@ -12,12 +13,13 @@ import { usePulse } from "@/lib/pulse/store";
 export function HomePage() {
   const channels = usePulse((s) => s.channels);
   const pulses = usePulse((s) => s.pulses);
-  const tally = tallyFaces(pulses);
+  const placePulses = pulses.filter(p => p.channelId !== OVERALL_ID);
+  const tally = tallyFaces(placePulses);
   const latest = pulses
     .filter((p) => !p.parentId)
     .sort((a, b) => b.createdAt - a.createdAt)
     .slice(0, 3);
-  const featured = [...channels]
+  const featured = channels.filter(c => c.id !== OVERALL_ID)
     .sort((a, b) => Number(b.featured) - Number(a.featured))
     .slice(0, 3);
   return (
@@ -27,17 +29,16 @@ export function HomePage() {
         <section id="discover" className="page-width section-space">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">01 / A place for every feeling</p>
+              <p className="eyebrow">01 / Feedback by destination</p>
               <h2>
-                Come for the coast.
+                A place you visited.
                 <br />
-                <em>Stay for the discovery.</em>
+                <em>An experience to share.</em>
               </h2>
             </div>
             <div className="max-w-sm">
               <p className="text-muted leading-relaxed">
-                From slow mornings by the sea to familiar streets with a story.
-                Find a corner of Daet to call your own.
+                Choose a destination to see visitor ratings and share your own experience. Overall-trip feedback is kept separate.
               </p>
               <Link href="/spots" className="text-link mt-4">
                 View all places <ArrowUpRight size={18} />
@@ -55,7 +56,7 @@ export function HomePage() {
         <section className="mood-section">
           <div className="page-width mood-layout">
             <div>
-              <p className="eyebrow">02 / The town, through you</p>
+              <p className="eyebrow">02 / Visitor sentiment</p>
               <h2>
                 Every visit
                 <br />
@@ -76,7 +77,7 @@ export function HomePage() {
                     href="/board"
                     key={face.id}
                     className="mood-tile"
-                    aria-label={`${face.label}: ${pulses.filter((p) => !p.parentId && p.face === face.id).length} ratings. View sentiment.`}
+                    aria-label={`${face.label}: ${placePulses.filter((p) => !p.parentId && p.face === face.id).length} ratings. View sentiment.`}
                   >
                     <span className="mood-emoji" aria-hidden>
                       {face.glyph}
@@ -84,7 +85,7 @@ export function HomePage() {
                     <span className="font-medium">{face.label}</span>
                     <span className="text-sm text-muted tabular-nums">
                       {
-                        pulses.filter((p) => !p.parentId && p.face === face.id)
+                        placePulses.filter((p) => !p.parentId && p.face === face.id)
                           .length
                       }{" "}
                       ratings
@@ -93,8 +94,7 @@ export function HomePage() {
                 ))}
               </div>
               <p className="mt-4 text-xs text-muted">
-                {tally.total} visitor ratings shared · Your next visit
-                could be the first story.
+                {tally.total} place ratings in the latest shared entries · Overall-trip ratings are shown separately in Sentiment.
               </p>
             </div>
           </div>
@@ -132,7 +132,7 @@ export function HomePage() {
               <p className="mt-2 text-muted">
                 Be the first to share a moment from your visit.
               </p>
-              <Link href="/transmit" className="text-link mt-5">
+              <Link href="/feedback" className="text-link mt-5">
                 Share your experience <ArrowUpRight size={17} />
               </Link>
             </div>
@@ -142,13 +142,13 @@ export function HomePage() {
           <div className="share-banner">
             <div>
               <p className="eyebrow">Your perspective belongs here</p>
-              <h2>Been somewhere lovely?</h2>
+              <h2>How was your Daet experience?</h2>
               <p className="mt-3">
-                A feeling, a photo, a little note. Help someone discover their
-                next stop.
+                A feeling, a photo, a little note. Share what went well and what
+                needs attention.
               </p>
             </div>
-            <Link href="/transmit" className="primary-link">
+            <Link href="/feedback" className="primary-link">
               Share your experience <ArrowUpRight size={18} />
             </Link>
           </div>

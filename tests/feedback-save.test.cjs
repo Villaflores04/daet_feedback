@@ -3,8 +3,10 @@ const fs = require('node:fs');
 const ts = require('typescript');
 let savedResult = { ok: false, error: 'Offline' };
 let saves = 0;
+const previewCalls = [];
 let uploadResult = { ok: false, error: 'Upload failed' };
 const mocks = {
+ '../rewards': { recordPreviewReward: pulse => previewCalls.push(pulse.id) },
  'zustand': require('zustand'),
  'zustand/middleware': { persist: fn => fn, createJSONStorage: () => ({}) },
  './ids': { uid: () => 'generated-id', slugify: s => s },
@@ -23,15 +25,19 @@ const store = mod.exports.usePulse;
  const draft={id:'stable-retry-id',channelId:'place',callsign:'Visitor',face:'happy',body:'Good'};
  await assert.rejects(store.getState().addPulse(draft),/Offline/);
  assert.equal(store.getState().pulses.length,0,'failed requests must not create local success');
+ assert.equal(previewCalls.length,0,'failed saves must not trigger reward previews');
  savedResult={ok:true};
  const saved=await store.getState().addPulse(draft);
  assert.equal(saved.id,draft.id);
+ assert.deepEqual(previewCalls,[draft.id]);
  assert.equal(store.getState().pulses.length,1);
  await store.getState().addPulse(draft);
  assert.equal(store.getState().pulses.length,1,'retry must not duplicate cached row');
  const previousSaves=saves;
+ const previousRewards=previewCalls.length;
  await assert.rejects(store.getState().addPulse({...draft,id:'photo-failure',photo:'local-photo'}),/Upload failed/);
  assert.equal(saves,previousSaves,'failed uploads must not publish missing photos');
+ assert.equal(previewCalls.length,previousRewards,'failed uploads must not trigger rewards');
  uploadResult={ok:true,data:'https://example.test/photo.jpg'};
  const photo=await store.getState().addPulse({...draft,id:'photo-success',photo:'local-photo'});
  assert.equal(photo.photo,uploadResult.data);

@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { RewardBalanceLink } from "@/components/reward-preview";
 import { Wordmark } from "@/components/mark";
 import { cn } from "@/lib/utils";
 const LINKS = [
@@ -49,9 +50,10 @@ export function SiteHeader({
             </Link>
           ))}
         </nav>
+        <div className="flex items-center gap-2"><RewardBalanceLink />
         <Link href="/feedback" className="header-share">
           Give feedback <ArrowUpRight size={16} />
-        </Link>
+        </Link></div>
       </div>
     </header>
   );

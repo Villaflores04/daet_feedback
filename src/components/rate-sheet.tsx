@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { FEEDBACK_PREVIEW_POINTS } from "@/lib/rewards";
 import { uid } from "@/lib/pulse/ids";
 import { toast } from "sonner";
 import { FacePicker } from "@/components/face-picker";
@@ -64,7 +65,7 @@ export function RateSheet({
       setPhoto(undefined);
       onClose();
       onSent?.(pulse.id);
-      toast(parentId ? "Reply sent" : "Your experience has been shared.");
+      toast(parentId ? "Reply sent" : `Feedback saved · +${FEEDBACK_PREVIEW_POINTS} demo points (preview only).`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not save. Your draft is still here.");
     } finally { setSending(false); }

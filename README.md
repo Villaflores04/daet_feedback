@@ -1,6 +1,6 @@
 # DAET-CONNECT · Team 9 Feedback
 
-The entry point is `/feedback`: direct destination or overall-trip emoji feedback, optional notes/photos, visitor stories and separate sentiment summaries. The previous large landing page is no longer the entry flow.
+The parallax landing page is restored at `/`, with feedback-focused messaging and emoji shortcuts. `/feedback` remains the direct module entry for the future main dashboard. Saved feedback adds 15 clearly labeled demo points to a browser-only preview; this is not a real wallet.
 
 See [integration status and faculty handoff](docs/DAET-CONNECT-INTEGRATION.md) before connecting shared authentication, the Team 1 destination catalogue or Team 11 rewards. These central services are not connected by this standalone update.
 
