@@ -10,19 +10,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-teal text-plate hover:bg-teal-bright",
+        primary: "rounded-full bg-blue-600 text-white hover:bg-blue-700",
         action: "bg-action text-plate hover:opacity-90",
         inverse: "bg-plate text-ink hover:bg-cool",
         ghost: "bg-transparent text-ink hover:bg-cool",
         outline:
           "border border-line bg-plate text-ink hover:border-ink/20 hover:bg-cool",
-        danger: "bg-neg text-plate hover:opacity-90",
+        danger: "bg-red-600 text-white hover:opacity-90",
         ink: "bg-ink text-plate hover:opacity-90",
       },
       size: {
-        sm: "h-10 rounded-md px-4 text-sm",
-        md: "h-11 rounded-lg px-5 text-sm",
-        lg: "h-12 rounded-lg px-6 text-base",
+        sm: "h-11 rounded-full px-4 text-sm",
+        md: "h-11 rounded-full px-5 text-sm",
+        lg: "h-12 rounded-full px-6 text-base",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },

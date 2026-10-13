@@ -1,0 +1,16 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const ts = require('typescript');
+const mod={exports:{}};
+new Function('exports','require','module',ts.transpileModule(fs.readFileSync('src/lib/rewards.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(mod.exports,require,mod);
+const {nextPreviewRewards,FEEDBACK_PREVIEW_POINTS,recordPreviewReward,previewPoints}=mod.exports;
+const once=nextPreviewRewards([],{id:'feedback-1',parentId:null});
+assert.equal(once[0].points,15);
+assert.equal(once[0].mode,'preview');
+assert.equal(nextPreviewRewards(once,{id:'feedback-1',parentId:null}).length,1);
+assert.equal(nextPreviewRewards(once,{id:'reply',parentId:'feedback-1'}).length,1);
+assert.equal(nextPreviewRewards(once,{id:'feedback-2',parentId:null}).length,2);
+assert.equal(FEEDBACK_PREVIEW_POINTS,15);
+assert.doesNotThrow(()=>recordPreviewReward({id:'server',parentId:null}));
+assert.equal(previewPoints(),0);
+console.log('PASS: 15-point demo award, duplicate protection, reply exclusion and SSR safety');

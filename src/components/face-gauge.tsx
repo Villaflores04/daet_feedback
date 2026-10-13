@@ -22,7 +22,7 @@ export function FaceGauge({
   className?: string;
 }) {
   const segments = [
-    { key: "pos", value: tally.pos, color: "#84cc16" },
+    { key: "pos", value: tally.pos, color: "var(--color-pos)" },
     { key: "mix", value: tally.mix, color: "var(--color-mix)" },
     { key: "neg", value: tally.neg, color: "var(--color-neg)" },
   ].filter((seg) => seg.value > 0);

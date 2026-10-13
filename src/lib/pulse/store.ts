@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { OVERALL_CHANNEL, OVERALL_ID } from "./scope";
+import { recordPreviewReward } from "../rewards";
 import { uid, slugify } from "./ids";
 import { getPhotoBlob, ingestDataUrl, isRemotePhoto } from "./photos";
 import { SEED_CHANNELS, SEED_PULSES } from "./seed";
@@ -118,6 +119,7 @@ export const usePulse = create<PulseState>()(
           channels: saved.data.channelId === OVERALL_ID && !state.channels.some(c => c.id === OVERALL_ID)
             ? [...state.channels, OVERALL_CHANNEL] : state.channels,
         }));
+        recordPreviewReward(saved.data);
         return saved.data;
       },
       sendReply: async (draft) => {

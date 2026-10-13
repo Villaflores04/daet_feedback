@@ -1,5 +1,7 @@
 "use client";
 
+import { RewardPreview } from "@/components/reward-preview";
+import { FACES } from "@/lib/pulse/faces";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { ArrowDown, ArrowUpRight, Waves } from "lucide-react";
@@ -48,7 +50,7 @@ export function CoastalHero() {
     <section
       ref={root}
       className="coastal-journey"
-      aria-label="Welcome to Daet"
+      aria-label="DAET-CONNECT visitor feedback"
     >
       <div className="coastal-stage">
         <div className="coastal-sky" aria-hidden="true" />
@@ -125,31 +127,34 @@ export function CoastalHero() {
             Norte
           </p>
           <h1>
-            Find your
+            Your visit.
             <br />
-            kind of <em>Daet.</em>
+            Your <em>voice.</em>
           </h1>
           <p className="hero-description">
-            Salt in the air. Stories in every corner.
-            <br className="hidden sm:block" /> Discover the places, and the way
-            they make you feel.
+            Rate a place or your whole Daet experience.
+            <br className="hidden sm:block" /> Choose an emoji. Share what could be better.
           </p>
+          <div className="hero-feelings" aria-label="Choose a feeling to start feedback">
+            {FACES.map(face => <Link key={face.id} href={`/feedback?feeling=${face.id}`} aria-label={`Give ${face.label.toLowerCase()} feedback`}><span aria-hidden="true">{face.glyph}</span><small>{face.label}</small></Link>)}
+          </div>
           <div className="hero-actions">
-            <Link href="/spots" className="primary-link">
-              Explore the places <ArrowUpRight size={18} />
+            <Link href="/feedback" className="primary-link">
+              Give feedback <ArrowUpRight size={18} />
             </Link>
-            <Link href="/transmit" className="text-link">
-              Share an experience <ArrowUpRight size={16} />
+            <Link href="/board" className="text-link">
+              See visitor sentiment <ArrowUpRight size={16} />
             </Link>
           </div>
         </div>
-        <div className="coastal-location" aria-hidden="true"><span>THE PACIFIC SIDE OF LIFE</span><p>A little closer<br />to the <em>coast.</em></p><small>Daet · Camarines Norte · Philippines</small></div>
+        <div className="hero-reward-panel"><RewardPreview compact /></div>
+        <div className="coastal-location" aria-hidden="true"><span>YOUR FEEDBACK MATTERS</span><p>A better visit<br />starts with <em>you.</em></p><small>Daet · Camarines Norte · Philippines</small></div>
         <div className="coastal-caption page-width">
           <a href="#discover" className="scroll-cue">
-            <ArrowDown size={16} /> Scroll to discover
+            <ArrowDown size={16} /> Visitor experiences
           </a>
           <span className="hidden items-center gap-2 sm:flex">
-            <Waves size={18} /> A town best experienced.
+            <Waves size={18} /> Emoji feedback · Sentiment · Rewards preview
           </span>
         </div>
         <div className="journey-progress" aria-hidden="true"><span /></div>
