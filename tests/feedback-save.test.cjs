@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const ts = require('typescript');
+let snapshotResult = { ok: false, error: "Offline" };
 let savedResult = { ok: false, error: 'Offline' };
 let saves = 0;
 const previewCalls = [];
@@ -14,6 +15,7 @@ const mocks = {
  './photos': { isRemotePhoto: s => s.startsWith('https://'), getPhotoBlob: async () => new Blob(['photo']), ingestDataUrl: async s => s },
  './seed': { SEED_CHANNELS: [], SEED_PULSES: [] },
  './remote': {
+   fetchPulseSnapshot: async () => snapshotResult,
    saveSharedPulse: async pulse => { saves++; return savedResult.ok ? {ok:true,data:pulse} : savedResult; },
    uploadSharedPhoto: async () => uploadResult,
  },
@@ -41,5 +43,21 @@ const store = mod.exports.usePulse;
  uploadResult={ok:true,data:'https://example.test/photo.jpg'};
  const photo=await store.getState().addPulse({...draft,id:'photo-success',photo:'local-photo'});
  assert.equal(photo.photo,uploadResult.data);
+ store.setState({ channels: [{id:'existing-place'}], pulses: [{id:'existing-feedback'}], wishes:[{id:'cached-wish'}] });
+ await store.getState().syncShared();
+ assert.equal(store.getState().syncStatus,'error');
+ assert.equal(store.getState().pulses[0].id,'existing-feedback');
+ snapshotResult={ok:true,data:{channels:[{id:'cloud-place'}],pulses:null,wishes:[],issues:['Feedback unavailable']}};
+ await store.getState().syncShared();
+ assert.equal(store.getState().syncStatus,'partial');
+ assert.equal(store.getState().channels[0].id,'cloud-place');
+ assert.equal(store.getState().pulses[0].id,'existing-feedback');
+ assert.equal(store.getState().wishes.length,0,'a successful empty collection is authoritative');
+ snapshotResult={ok:true,data:{channels:[],pulses:[],wishes:[],issues:[]}};
+ await store.getState().syncShared();
+ assert.equal(store.getState().syncStatus,'connected');
+ assert.equal(store.getState().syncError,'');
+ assert.equal(store.getState().pulses.length,0,'real deletions must not be resurrected');
+ console.log('PASS: failed/partial sync preservation and recovery');
  console.log('PASS: confirmed saves, failed-save state, retry identity, no duplicate cache, upload failure and shared photo URL');
 })().catch(e=>{console.error(e);process.exit(1)});

@@ -51,6 +51,8 @@ type PulseState = {
   wishes: Wish[];
   myReacts: Record<string, "up" | "down">;
   hydrated: boolean;
+  syncStatus: "idle" | "connected" | "partial" | "error";
+  syncError: string;
   addPulse: (draft: DraftPulse) => Promise<Pulse>;
   sendReply: (draft: DraftPulse) => Promise<Pulse>;
   reactPulse: (id: string, side: "up" | "down") => void;
@@ -88,16 +90,24 @@ export const usePulse = create<PulseState>()(
       wishes: [],
       myReacts: {},
       hydrated: false,
+      syncStatus: "idle",
+      syncError: "",
       setHydrated: () => set({ hydrated: true }),
       syncShared: async () => {
         const snapshot = await fetchPulseSnapshot();
-        if (!snapshot.ok) return false;
-        set({
-          channels: [...snapshot.data.channels.filter(c => c.id !== OVERALL_ID), OVERALL_CHANNEL],
-          pulses: snapshot.data.pulses,
-          wishes: snapshot.data.wishes,
-        });
-        return true;
+        if (!snapshot.ok) {
+          set({ syncStatus: "error", syncError: snapshot.error });
+          return false;
+        }
+        const { channels, pulses, wishes, issues = [] } = snapshot.data;
+        set(state => ({
+          channels: channels === null ? state.channels : [...channels.filter(c => c.id !== OVERALL_ID), OVERALL_CHANNEL],
+          pulses: pulses === null ? state.pulses : pulses,
+          wishes: wishes === null ? state.wishes : wishes,
+          syncStatus: issues.length ? "partial" : "connected",
+          syncError: issues.join(" "),
+        }));
+        return !issues.length;
       },
       addPulse: async (draft) => {
         const photo = await sharedCover(draft.photo);
