@@ -1,4 +1,4 @@
-import { majority, type MoodTally } from "@/lib/pulse/faces";
+import { type MoodTally } from "@/lib/pulse/faces";
 import { cn } from "@/lib/utils";
 
 function arc(cx: number, cy: number, r: number, start: number, end: number) {
@@ -21,9 +21,8 @@ export function FaceGauge({
   title?: string;
   className?: string;
 }) {
-  const mood = majority(tally);
   const segments = [
-    { key: "pos", value: tally.pos, color: "var(--color-pos)" },
+    { key: "pos", value: tally.pos, color: "#84cc16" },
     { key: "mix", value: tally.mix, color: "var(--color-mix)" },
     { key: "neg", value: tally.neg, color: "var(--color-neg)" },
   ].filter((seg) => seg.value > 0);
@@ -40,11 +39,11 @@ export function FaceGauge({
   const label =
     tally.total === 0
       ? "No ratings yet"
-      : mood === "POS"
+      : tally.pos > tally.total / 2
         ? "Mostly positive"
-        : mood === "NEG"
-          ? "Needs care"
-          : "Mixed";
+        : tally.neg > tally.total / 2
+          ? "Mostly negative"
+          : "Mixed visitor feelings";
 
   return (
     <figure className={cn("rounded-2xl bg-plate p-5 shadow-plate", className)}>

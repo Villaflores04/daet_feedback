@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="page-width">
         <div className="flex flex-col justify-between gap-8 sm:flex-row">
           <div>
-            <Link href="/" aria-label="Daet Pulse home">
+            <Link href="/" aria-label="DAET-CONNECT home">
               <Wordmark />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted">
@@ -19,8 +19,10 @@ export function SiteFooter() {
             className="flex flex-wrap gap-x-8 gap-y-4 text-sm"
             aria-label="Footer"
           >
-            <Link href="/spots">Explore Daet</Link>
-            <Link href="/board">Town pulse</Link>
+            {process.env.NEXT_PUBLIC_DAET_CONNECT_URL?.startsWith("https://") && <a href={process.env.NEXT_PUBLIC_DAET_CONNECT_URL}>Main dashboard ↗</a>}
+            <Link href="/feedback">Give feedback</Link>
+            <Link href="/spots">Places</Link>
+            <Link href="/board">Sentiment</Link>
             <Link href="/desk" className="inline-flex items-center gap-2">
               Municipal desk <ArrowUpRight size={14} />
             </Link>

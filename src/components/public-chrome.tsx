@@ -27,10 +27,9 @@ export function PublicChrome({
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
-      <SiteHeader landing={landing} scrolled={scrolled} />
+      {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" && <SiteHeader landing={landing} scrolled={scrolled} />}
       {children}
-      <SiteFooter />
-      <SiteDock />
+      {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" && <><SiteFooter /><SiteDock /></>}
     </div>
   );
 }

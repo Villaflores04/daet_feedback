@@ -1,5 +1,2 @@
-"use client";
-
-import { HomePage } from "@/views/home-page";
-
-export default HomePage;
+import { redirect } from "next/navigation";
+export default function Home() { redirect("/feedback"); }

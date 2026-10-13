@@ -1,3 +1,13 @@
+# DAET-CONNECT · Team 9 Feedback
+
+The entry point is `/feedback`: direct destination or overall-trip emoji feedback, optional notes/photos, visitor stories and separate sentiment summaries. The previous large landing page is no longer the entry flow.
+
+See [integration status and faculty handoff](docs/DAET-CONNECT-INTEGRATION.md) before connecting shared authentication, the Team 1 destination catalogue or Team 11 rewards. These central services are not connected by this standalone update.
+
+Validation: `npm run build`, `node tests/words.test.cjs`, `node tests/storage-upload.test.cjs`, `node tests/feedback-scope.test.cjs`, and `node tests/feedback-save.test.cjs`.
+
+---
+
 # DAET Pulse
 
 Municipality of Daet, Camarines Norte — a public tourism feedback desk.

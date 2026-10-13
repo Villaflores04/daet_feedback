@@ -5,9 +5,10 @@ import { ArrowUpRight } from "lucide-react";
 import { Wordmark } from "@/components/mark";
 import { cn } from "@/lib/utils";
 const LINKS = [
-  { to: "/spots", label: "Explore" },
+  { to: "/feedback", label: "Feedback" },
+  { to: "/spots", label: "Places" },
   { to: "/live", label: "Visitor stories" },
-  { to: "/board", label: "Town pulse" },
+  { to: "/board", label: "Sentiment" },
 ];
 export function SiteHeader({
   landing = false,
@@ -26,13 +27,14 @@ export function SiteHeader({
       )}
     >
       <div className="page-width flex h-[76px] items-center justify-between gap-4">
-        <Link href="/" aria-label="DAET Pulse home">
+        <Link href="/" aria-label="DAET-CONNECT home">
           <Wordmark />
         </Link>
         <nav
           className="hidden items-center gap-1 lg:flex"
           aria-label="Main navigation"
         >
+          {process.env.NEXT_PUBLIC_DAET_CONNECT_URL?.startsWith("https://") && <a className="header-link" href={process.env.NEXT_PUBLIC_DAET_CONNECT_URL}>Main dashboard ↗</a>}
           {LINKS.map((link) => (
             <Link
               href={link.to}
@@ -47,8 +49,8 @@ export function SiteHeader({
             </Link>
           ))}
         </nav>
-        <Link href="/transmit" className="header-share">
-          Share a moment <ArrowUpRight size={16} />
+        <Link href="/feedback" className="header-share">
+          Give feedback <ArrowUpRight size={16} />
         </Link>
       </div>
     </header>

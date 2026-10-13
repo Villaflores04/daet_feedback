@@ -1,3 +1,4 @@
+import { OVERALL_ID } from "@/lib/pulse/scope";
 import { NextResponse } from "next/server";
 import { hasDeskSession, sameOrigin } from "@/lib/desk-session";
 import { supabaseStorageServer } from "@/lib/supabase-server";
@@ -7,6 +8,7 @@ async function mutate(request: Request) {
   if (!sameOrigin(request) || !await hasDeskSession()) return NextResponse.json({ error: "Please sign in to the admin desk again." }, { status: 401 });
   const body = await request.json().catch(() => null);
   if (!body || typeof body.id !== "string" || !/^[a-zA-Z0-9_-]{1,120}$/.test(body.id)) return NextResponse.json({ error: "Invalid place ID." }, { status: 400 });
+  if (body.id === OVERALL_ID) return NextResponse.json({ error: "Overall Daet feedback is a reserved feedback category." }, { status: 400 });
   try {
     const db = supabaseStorageServer();
     if (request.method === "DELETE") {

@@ -32,11 +32,11 @@ export function Wordmark({
       <PulseMark className="size-9 text-teal" />
       <span className="leading-none">
         <span className="block font-display text-[1.2rem] font-semibold tracking-[-0.03em]">
-          DAET Pulse
+          DAET-CONNECT
         </span>
         {compact ? null : (
           <span className="mt-0.5 block text-[0.65rem] uppercase tracking-[0.18em] text-muted">
-            Places. People. Perspective.
+            Visitor feedback & sentiment
           </span>
         )}
       </span>

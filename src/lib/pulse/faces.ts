@@ -5,7 +5,7 @@ export type { FaceId, Mood, MoodTally };
 export const FACES = [
   { id: "wow" as const, glyph: "🤩", label: "Wow", mood: "POS" as const },
   { id: "happy" as const, glyph: "😊", label: "Happy", mood: "POS" as const },
-  { id: "medium" as const, glyph: "😐", label: "Medium", mood: "MIX" as const },
+  { id: "medium" as const, glyph: "😐", label: "Okay", mood: "MIX" as const },
   { id: "sad" as const, glyph: "😢", label: "Sad", mood: "NEG" as const },
 ];
 

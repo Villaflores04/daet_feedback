@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { OVERALL_CHANNEL, OVERALL_ID } from "./scope";
 import { uid, slugify } from "./ids";
 import { getPhotoBlob, ingestDataUrl, isRemotePhoto } from "./photos";
 import { SEED_CHANNELS, SEED_PULSES } from "./seed";
@@ -16,6 +17,7 @@ import type { Category, Channel, FaceId, Pulse, Wish } from "./types";
 export const PULSE_KEY = "daet-pulse-v6";
 
 type DraftPulse = {
+  id?: string;
   channelId: string;
   parentId?: string | null;
   callsign: string;
@@ -48,7 +50,7 @@ type PulseState = {
   wishes: Wish[];
   myReacts: Record<string, "up" | "down">;
   hydrated: boolean;
-  addPulse: (draft: DraftPulse) => Pulse;
+  addPulse: (draft: DraftPulse) => Promise<Pulse>;
   sendReply: (draft: DraftPulse) => Promise<Pulse>;
   reactPulse: (id: string, side: "up" | "down") => void;
   addWish: (draft: DraftWish) => Wish;
@@ -77,23 +79,10 @@ async function sharedCover(photo?: string) {
   return uploaded.data;
 }
 
-async function publishPulse(pulse: Pulse, get: () => PulseState) {
-  let shared = pulse;
-  if (pulse.photo && !isRemotePhoto(pulse.photo)) {
-    const blob = await getPhotoBlob(pulse.photo);
-    if (blob) {
-      const uploaded = await uploadSharedPhoto(pulse.photo, blob);
-      if (uploaded.ok) shared = { ...pulse, photo: uploaded.data };
-    }
-  }
-  const saved = await saveSharedPulse(shared);
-  if (saved.ok) void get().syncShared();
-}
-
 export const usePulse = create<PulseState>()(
   persist(
     (set, get) => ({
-      channels: SEED_CHANNELS,
+      channels: [...SEED_CHANNELS, OVERALL_CHANNEL],
       pulses: SEED_PULSES,
       wishes: [],
       myReacts: {},
@@ -103,27 +92,33 @@ export const usePulse = create<PulseState>()(
         const snapshot = await fetchPulseSnapshot();
         if (!snapshot.ok) return false;
         set({
-          channels: snapshot.data.channels,
+          channels: [...snapshot.data.channels.filter(c => c.id !== OVERALL_ID), OVERALL_CHANNEL],
           pulses: snapshot.data.pulses,
           wishes: snapshot.data.wishes,
         });
         return true;
       },
-      addPulse: (draft) => {
+      addPulse: async (draft) => {
+        const photo = await sharedCover(draft.photo);
         const pulse: Pulse = {
-          id: uid("p"),
+          id: draft.id ?? uid("p"),
           channelId: draft.channelId,
           parentId: draft.parentId ?? null,
           callsign: draft.callsign.trim() || "Visitor",
           face: draft.face,
           body: (draft.body ?? "").trim(),
-          photo: draft.photo,
+          photo: photo || undefined,
           createdAt: Date.now(),
           reacts: { up: 0, down: 0 },
         };
-        set((state) => ({ pulses: [pulse, ...state.pulses] }));
-        void publishPulse(pulse, get);
-        return pulse;
+        const saved = await saveSharedPulse(pulse);
+        if (!saved.ok) throw new Error(saved.error);
+        set((state) => ({
+          pulses: [saved.data, ...state.pulses.filter(p => p.id !== saved.data.id)],
+          channels: saved.data.channelId === OVERALL_ID && !state.channels.some(c => c.id === OVERALL_ID)
+            ? [...state.channels, OVERALL_CHANNEL] : state.channels,
+        }));
+        return saved.data;
       },
       sendReply: async (draft) => {
         if (!draft.parentId) throw new Error("Choose a story to reply to.");

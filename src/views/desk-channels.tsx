@@ -1,5 +1,6 @@
 "use client";
 
+import { OVERALL_ID } from "@/lib/pulse/scope";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PhotoField } from "@/components/photo-field";
@@ -34,7 +35,7 @@ export function DeskChannels() {
       </div>
 
       <ul className="mt-6 grid gap-4 xl:grid-cols-2">
-        {channels.map((channel) => (
+        {channels.filter(c => c.id !== OVERALL_ID).map((channel) => (
           <li
             key={channel.id}
             className="flex gap-3 overflow-hidden rounded-2xl bg-plate p-3 shadow-plate"
