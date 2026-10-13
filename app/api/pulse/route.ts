@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { OVERALL_CHANNEL, OVERALL_ID } from "@/lib/pulse/scope";
 import { supabaseServer } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
@@ -113,14 +114,23 @@ export async function POST(request: Request) {
         !faces.has(pulse.face) ||
         typeof pulse.channelId !== "string" ||
         !pulse.channelId ||
-        typeof pulse.id !== "string"
+        typeof pulse.id !== "string" ||
+        !/^[a-zA-Z0-9_-]{1,120}$/.test(pulse.id)
       ) {
         return NextResponse.json(
           { error: "Invalid feedback." },
           { status: 400 },
         );
       }
-      const { data, error } = await db
+      if (pulse.channelId === OVERALL_ID) {
+        const c = OVERALL_CHANNEL;
+        const { error } = await db.from("channels").upsert({
+          id: c.id, slug: c.slug, name: c.name, category: c.category,
+          featured: false, cover: c.cover, blurb: c.blurb, about: c.about,
+        }, { onConflict: "id", ignoreDuplicates: true });
+        if (error) throw error;
+      }
+      const { error } = await db
         .from("pulses")
         .upsert(
           {
@@ -146,11 +156,12 @@ export async function POST(request: Request) {
             ).toISOString(),
           },
           { onConflict: "id", ignoreDuplicates: true },
-        )
-        .select()
-        .single();
+        );
       if (error) throw error;
-      return NextResponse.json(pulseFromRow(data), { status: 201 });
+      // A retry after a lost response returns the original row without duplicating it.
+      const saved = await db.from("pulses").select("*").eq("id", pulse.id).single();
+      if (saved.error) throw saved.error;
+      return NextResponse.json(pulseFromRow(saved.data), { status: 201 });
     }
     if (payload.action === "wish") {
       const wish = payload.wish || {};

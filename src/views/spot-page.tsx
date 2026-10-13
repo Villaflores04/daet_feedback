@@ -48,12 +48,13 @@ export function SpotPage() {
                 {channel.name}
               </h1>
               <p className="mt-4 leading-relaxed text-muted">{channel.blurb}</p>
+              <FaceGauge tally={tally} title="Visitor feelings · latest shared entries" className="mt-5" />
               <Button type="button" className="mt-6 h-12" onClick={() => setRate(true)}>Share your experience</Button>
             </div>
           </div>
         </div>
 
-        <div className="spot-body page-width">
+        <div className="spot-body page-width feedback-spot-body">
           <div>
             <Link
               href="/spots"
@@ -77,11 +78,7 @@ export function SpotPage() {
               </div>
             </section>
           </div>
-          <FaceGauge
-            tally={tally}
-            title="How this place feels"
-            className="lg:sticky lg:top-20"
-          />
+
         </div>
       </main>
       {rate ? (

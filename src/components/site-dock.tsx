@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 const ITEMS = [
-  { to: "/spots", label: "Explore", icon: Compass },
+  { to: "/spots", label: "Places", icon: Compass },
   { to: "/live", label: "Stories", icon: MessagesSquare },
-  { to: "/board", label: "Town pulse", icon: ChartNoAxesCombined },
-  { to: "/transmit", label: "Share", icon: Plus },
+  { to: "/board", label: "Sentiment", icon: ChartNoAxesCombined },
+  { to: "/feedback", label: "Feedback", icon: Plus },
 ];
 export function SiteDock() {
   const pathname = usePathname();

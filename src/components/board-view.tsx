@@ -9,6 +9,7 @@ import { WordMeter } from "@/components/word-meter";
 import { FACES, tallyFaces } from "@/lib/pulse/faces";
 import { usePulse } from "@/lib/pulse/store";
 import { scanPulses, tallyScans } from "@/lib/pulse/words";
+import { OVERALL_ID } from "@/lib/pulse/scope";
 import { cn } from "@/lib/utils";
 
 export function BoardTabs({
@@ -88,15 +89,18 @@ export function BoardView({
     if (openSlug) setOpen(openSlug);
   }, [openSlug]);
 
-  const townFaces = tallyFaces(pulses);
-  const townWords = tallyScans(scanPulses(pulses));
-  const textCount = pulses.filter(p => p.body.trim()).length;
+  const [scope, setScope] = useState<"places" | "trip">("places");
+  const scopedPulses = pulses.filter(p => scope === "trip" ? p.channelId === OVERALL_ID : p.channelId !== OVERALL_ID);
+  const scopedChannels = channels.filter(c => scope === "trip" ? c.id === OVERALL_ID : c.id !== OVERALL_ID);
+  const townFaces = tallyFaces(scopedPulses);
+  const townWords = tallyScans(scanPulses(scopedPulses));
+  const textCount = scopedPulses.filter(p => p.body.trim()).length;
 
   return (
     <div className={desk ? "sentiment-page sentiment-desk pb-12" : "sentiment-page page-width pb-12"}>
       <header className="page-intro">
         <p className="text-xs uppercase tracking-[0.18em] text-muted">
-          Town pulse
+          Sentiment
         </p>
         <h1 className="mt-1 font-display text-3xl tracking-tight text-ink">
           {mode === "faces" ? "The feeling of Daet" : "Between the lines"}
@@ -107,6 +111,11 @@ export function BoardView({
             : "Explore the estimated sentiment in visitor notes."}
         </p>
       </header>
+      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Sentiment scope">
+        <button className="filter-chip min-h-11" aria-pressed={scope === "places"} onClick={() => setScope("places")}>Individual places</button>
+        <button className="filter-chip min-h-11" aria-pressed={scope === "trip"} onClick={() => setScope("trip")}>Overall Daet visit</button>
+      </div>
+      <p className="mb-4 text-xs text-muted">Summaries cover the latest 500 shared entries. Overall visits and individual place ratings are calculated separately.</p>
       <BoardTabs active={mode} desk={desk} />
       {mode === "words" ? <p className="mt-4 text-sm text-muted" role="status">{textCount} notes and replies checked · {townWords.total} classified · {textCount - townWords.total} without a clear sentiment match. Empty notes are excluded.</p> : null}
 
@@ -118,7 +127,7 @@ export function BoardView({
         )}
 
         <ul className="space-y-2">
-          {channels.map((channel) => {
+          {scopedChannels.map((channel) => {
             const placePulses = pulses.filter(
               (p) => p.channelId === channel.id,
             );

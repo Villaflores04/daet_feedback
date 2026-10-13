@@ -1,4 +1,5 @@
 "use client";
+import { OVERALL_ID } from "@/lib/pulse/scope";
 import { useState } from "react";
 import { Search, Plus, X } from "lucide-react";
 import { PublicChrome } from "@/components/public-chrome";
@@ -13,7 +14,7 @@ export function SpotsPage() {
   const [wish, setWish] = useState(false);
   const visible = channels.filter(
     (c) =>
-      (filter === "All" || c.category === filter) &&
+      c.id !== OVERALL_ID && (filter === "All" || c.category === filter) &&
       `${c.name} ${c.blurb} ${c.category}`
         .toLowerCase()
         .includes(query.trim().toLowerCase()),

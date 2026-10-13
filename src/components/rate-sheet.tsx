@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { uid } from "@/lib/pulse/ids";
 import { toast } from "sonner";
 import { FacePicker } from "@/components/face-picker";
 import { PhotoField } from "@/components/photo-field";
@@ -23,8 +24,11 @@ export function RateSheet({
   parentId?: string | null;
   onSent?: (pulseId: string) => void;
 }) {
+  const draftId = useRef<string | null>(null);
   const { callsign, setCallsign } = useCallsign();
   const addPulse = usePulse((s) => s.addPulse);
+  const [sending, setSending] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [face, setFace] = useState<FaceId | null>(null);
   const [body, setBody] = useState("");
   const [photo, setPhoto] = useState<string | undefined>();
@@ -34,36 +38,45 @@ export function RateSheet({
     if (callsign) setName((current) => current || callsign);
   }, [callsign]);
 
-  const submit = () => {
+  const submit = async () => {
+    if (sending || photoBusy) return;
     if (!face) {
       toast("Choose how your visit felt.");
       return;
     }
     const nextName = name.trim() || callsign || "Visitor";
     setCallsign(nextName);
-    const pulse = addPulse({
-      channelId: channel.id,
-      parentId,
-      callsign: nextName,
-      face,
-      body,
-      photo,
-    });
-    setFace(null);
-    setBody("");
-    setPhoto(undefined);
-    onClose();
-    onSent?.(pulse.id);
-    toast(parentId ? "Reply sent" : "Your experience has been shared.");
+    setSending(true);
+    try {
+      draftId.current ??= uid("p");
+      const pulse = await addPulse({
+        id: draftId.current,
+        channelId: channel.id,
+        parentId,
+        callsign: nextName,
+        face,
+        body,
+        photo,
+      });
+      draftId.current = null;
+      setFace(null);
+      setBody("");
+      setPhoto(undefined);
+      onClose();
+      onSent?.(pulse.id);
+      toast(parentId ? "Reply sent" : "Your experience has been shared.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save. Your draft is still here.");
+    } finally { setSending(false); }
   };
 
   return (
     <SheetFrame
       open={open}
-      onClose={onClose}
+      onClose={() => { if (!sending && !photoBusy) onClose(); }}
       title={parentId ? "Reply" : "Rate this spot"}
     >
-      <div className="space-y-4">
+      <fieldset className="space-y-4" disabled={sending}>
         <p className="text-sm text-muted">{channel.name}</p>
         <FacePicker value={face} onChange={setFace} />
         <label className="block">
@@ -89,16 +102,16 @@ export function RateSheet({
             className="w-full rounded-xl border border-line bg-plate px-3 py-3 text-ink outline-none focus:border-teal"
           />
         </label>
-        <PhotoField value={photo} onChange={setPhoto} />
+        <PhotoField value={photo} onChange={setPhoto} onBusyChange={setPhotoBusy} />
         <Button
           type="button"
           className="h-12 w-full"
-          disabled={!face}
+          disabled={!face || sending || photoBusy}
           onClick={submit}
         >
-          Share experience
+          {sending ? "Saving…" : "Share experience"}
         </Button>
-      </div>
+      </fieldset>
     </SheetFrame>
   );
 }

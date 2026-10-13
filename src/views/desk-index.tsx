@@ -1,5 +1,6 @@
 "use client";
 
+import { OVERALL_ID } from "@/lib/pulse/scope";
 import Link from "next/link";
 import { useState } from "react";
 import { Inbox, LayoutList, MapPinned, ScrollText } from "lucide-react";
@@ -34,7 +35,7 @@ function DeskLogin() {
             Municipal desk
           </h1>
           <p className="mt-3 text-base text-muted">
-            Manage the guide and review visitor feedback on this device.
+            Review shared visitor feedback and manage the standalone place guide.
           </p>
           <form
             className="mt-6 rounded-2xl bg-plate p-5 shadow-plate"
@@ -95,7 +96,7 @@ function DeskHome() {
   const ticketCount = usePulse((s) =>
     s.pulses.reduce((n, pulse) => n + (pulse.parentId ? 0 : 1), 0),
   );
-  const placeCount = usePulse((s) => s.channels.length);
+  const placeCount = usePulse((s) => s.channels.filter(c => c.id !== OVERALL_ID).length);
 
   const cards = [
     {

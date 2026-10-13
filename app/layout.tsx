@@ -3,7 +3,7 @@ import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DAET Pulse",
+  title: "DAET-CONNECT",
   description:
     "See Daet through the eyes of its visitors. A public tourism feedback desk for the Municipality of Daet, Camarines Norte.",
   icons: { icon: "/favicon.svg" },
