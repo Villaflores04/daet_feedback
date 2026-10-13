@@ -11,6 +11,7 @@ import {
   LockKeyhole,
   ArrowUpRight,
 } from "lucide-react";
+import { SyncNotice } from "@/components/sync-notice";
 import { Wordmark } from "@/components/mark";
 import { useDesk } from "@/lib/pulse/desk";
 import { toast } from "sonner";
@@ -63,6 +64,7 @@ export function DeskShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <main id="main-content" className="desk-content">
+        <SyncNotice />
         {children}
       </main>
     </div>

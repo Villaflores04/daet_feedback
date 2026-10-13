@@ -55,3 +55,11 @@ For Team 11 integration, replace this preview boundary with the authenticated se
 ## UI standards applied
 
 Primary actions use blue-600 (#2563eb); semantic success, warning and error colors use green-500 (#22c55e), yellow-500 (#eab308) and red-600 (#dc2626). Darker semantic text shades preserve readability on white. Cards use 16px rounded-2xl corners, primary buttons are pill-shaped, and button targets have a 44px minimum. The coastal teal scenery remains decorative. Parallax remains landing-only with reduced-motion support.
+
+## Shared-data troubleshooting and mobile layout repair
+
+The public loader now handles table failures independently: a failed collection is returned as `null`, successful collections remain usable, and the client keeps the cached version of a failed collection. Fully successful empty results remain authoritative so deleted records are not resurrected. Invalid/non-JSON responses cannot overwrite the cache. Both visitor and admin pages show a connection notice and retry control instead of silently presenting a failed load as an empty system.
+
+The mobile hero no longer contains a large floating reward panel. The compact balance remains in the header and a one-line demo reward hint sits with the feedback controls. The hero spacing and typography are reduced, and its height accounts for the fixed mobile dock.
+
+If old records remain unavailable: check the actual production URL and its `/api/pulse` response, confirm Vercel Production and Preview point to the intended original Supabase project, confirm the project is running and server credentials/policies allow the existing `channels`, `pulses`, and `wishes` reads. Different deployment domains also have separate local browser caches. Do not reset the database or recreate tables to diagnose a display failure. These changes do not delete, reseed, rename or migrate any database records.

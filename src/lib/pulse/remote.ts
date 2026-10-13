@@ -2,9 +2,10 @@ import type { Channel, Pulse, Wish } from "./types";
 import { useDesk } from "./desk";
 
 export type PulseSnapshot = {
-  channels: Channel[];
-  pulses: Pulse[];
-  wishes: Wish[];
+  channels: Channel[] | null;
+  pulses: Pulse[] | null;
+  wishes: Wish[] | null;
+  issues?: string[];
 };
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -33,8 +34,15 @@ async function request<T>(
   }
 }
 
-export function fetchPulseSnapshot() {
-  return request<PulseSnapshot>("/api/pulse");
+export async function fetchPulseSnapshot() {
+  const result = await request<PulseSnapshot>("/api/pulse");
+  if (!result.ok) return result;
+  const data = result.data;
+  if (!data || ![data.channels, data.pulses, data.wishes].every(value => value === null || Array.isArray(value)) ||
+      [data.channels, data.pulses, data.wishes].every(value => value === null)) {
+    return { ok: false as const, error: "The feedback service returned an invalid response. Saved data has not been replaced." };
+  }
+  return result;
 }
 
 export function saveSharedChannel(channel: Channel, creating: boolean) {

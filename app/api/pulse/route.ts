@@ -58,6 +58,18 @@ function channelFromRow(row: Record<string, unknown>) {
   };
 }
 
+function readFailure(resource: string, error: unknown) {
+  const value = error as { code?: string; message?: string } | null;
+  const code = value?.code;
+  if (code === "42P01" || code === "42703" || ["PGRST200", "PGRST204", "PGRST205"].includes(code || ""))
+    return `${resource} could not load: the database schema does not match this deployment (${code}).`;
+  if (code === "42501" || code === "PGRST301" || /jwt|api key/i.test(value?.message || ""))
+    return `${resource} could not load: check the deployment's Supabase credentials and access policies.`;
+  if (/not configured/i.test(value?.message || ""))
+    return "Supabase is not configured for this deployment. Check the Vercel environment variables for the environment you opened.";
+  return `${resource} could not load from Supabase. Check the project connection and retry.`;
+}
+
 export async function GET() {
   try {
     const db = supabaseServer();
@@ -81,27 +93,24 @@ export async function GET() {
         .order("created_at", { ascending: false })
         .limit(500),
     ]);
-    const error = channels.error || pulses.error || wishes.error;
-    if (error) throw error;
-    return NextResponse.json(
-      {
-        channels: (channels.data || []).map(channelFromRow),
-        pulses: (pulses.data || []).map(pulseFromRow),
-        wishes: (wishes.data || []).map(wishFromRow),
-      },
-      { headers: { "cache-control": "no-store" } },
-    );
+    const issues = [
+      channels.error && readFailure("Places", channels.error),
+      pulses.error && readFailure("Feedback", pulses.error),
+      wishes.error && readFailure("Suggestions", wishes.error),
+    ].filter(Boolean);
+    const allFailed = Boolean(channels.error && pulses.error && wishes.error);
+    return NextResponse.json({
+      channels: channels.error ? null : (channels.data || []).map(channelFromRow),
+      pulses: pulses.error ? null : (pulses.data || []).map(pulseFromRow),
+      wishes: wishes.error ? null : (wishes.data || []).map(wishFromRow),
+      issues,
+      ...(allFailed ? { error: issues.join(" ") } : {}),
+    }, { status: allFailed ? 503 : 200, headers: { "cache-control": "no-store" } });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Shared feedback is unavailable.",
-      },
-      { status: 503 },
-    );
+    return NextResponse.json({ error: readFailure("Shared data", error) },
+      { status: 503, headers: { "cache-control": "no-store" } });
   }
+
 }
 
 export async function POST(request: Request) {

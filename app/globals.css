@@ -1311,3 +1311,44 @@ button, [role="button"] { min-width:44px; min-height:44px; }
  .site-header .page-width { gap:8px; }
  .reward-balance-link { min-width:80px; padding-inline:9px; gap:5px; }
 }
+
+/* Mobile repair: keep the scenery visible and reward details out of the hero. */
+.hero-reward-note { margin-top:14px; color:#1d4ed8; font-size:.72rem; font-weight:500; }
+.hero-reward-note span { color:#475569; font-weight:400; }
+.sync-notice { position:relative; z-index:41; display:flex; align-items:center; gap:16px; justify-content:space-between; background:#fefce8; border:1px solid #fde047; border-radius:16px; padding:14px 18px; margin:12px auto; width:calc(100% - 40px); max-width:1200px; color:#713f12; font-size:.8rem; }
+.sync-notice p { margin-top:4px; font-size:.75rem; line-height:1.5; max-width:80ch; }
+.sync-notice button { display:flex; align-items:center; gap:7px; flex-shrink:0; padding:8px 12px; border:1px solid #ca8a04; border-radius:999px; }
+.public-shell:has(.sync-notice) .site-header-landing { position:relative; background:#f8fcff; }
+@media(max-width:767px) {
+ .site-header .page-width { height:64px; }
+ .coastal-journey { height:145svh; }
+ .coastal-stage { height:calc(100svh - 68px - env(safe-area-inset-bottom)); min-height:610px; }
+ .coastal-content { padding-top:92px; transform:translate3d(0,calc(var(--journey) * -20px),0); }
+ .coastal-content .eyebrow { font-size:8px; letter-spacing:.14em; }
+ .coastal-content h1 { font-size:clamp(43px,12vw,60px); line-height:1.02; margin-top:16px; }
+ .coastal-content .hero-description { font-size:13px; line-height:1.6; max-width:270px; margin-top:16px; }
+ .hero-feelings { gap:8px; margin-top:18px; }
+ .hero-feelings a { width:54px; min-height:60px; border-radius:16px; background:#ffffffd9; }
+ .hero-feelings span { font-size:1.5rem; }
+ .hero-feelings small { font-size:.6rem; }
+ .hero-reward-note { font-size:.64rem; margin-top:12px; }
+ .coastal-content .hero-actions { flex-direction:row; align-items:center; flex-wrap:wrap; gap:6px 14px; margin-top:14px; }
+ .hero-actions .primary-link { padding-inline:18px; min-height:46px; font-size:.82rem; }
+ .hero-actions .text-link { font-size:.7rem; gap:4px; min-height:44px; }
+ .hero-actions .text-link svg { width:13px; }
+ .coastal-town { height:72%; bottom:-2%; mask-image:linear-gradient(transparent,black 34%); }
+ .coastal-wash { background:linear-gradient(#f8fcff 0%,#f7fbfdf0 22%,#f7fbfd85 46%,transparent 72%); }
+ .coastal-caption { bottom:18px; }
+ .coastal-caption .scroll-cue { font-size:10px; background:#ffffffe0; border-radius:999px; padding:0 12px; }
+ .reward-balance-link { min-width:72px; padding:5px 9px; }
+ .reward-balance-link strong { font-size:.7rem; }
+ .reward-balance-link small { font-size:.5rem; }
+ .site-dock { padding-bottom:env(safe-area-inset-bottom); }
+ .sync-notice { align-items:flex-start; gap:8px; width:calc(100% - 24px); padding:12px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .coastal-journey { height:auto; }
+}
+@media(max-width:767px) {
+ .coastal-caption .scroll-cue { color:#16475a; }
+}

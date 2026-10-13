@@ -34,7 +34,8 @@ export function TransmitPage() {
   const [photoBusy, setPhotoBusy] = useState(false);
   const [error, setError] = useState("");
   const [sentId, setSentId] = useState<string>();
-  const [connected, setConnected] = useState<boolean | null>(null);
+  const syncStatus = usePulse(s => s.syncStatus);
+  const connected = syncStatus === "connected";
   const channel = scope === "trip" ? OVERALL_CHANNEL : channels.find(c => c.id === placeId);
   const tally = tallyFaces(pulses.filter(p => p.channelId === channel?.id));
   useEffect(() => { if (callsign) setName(current => current || callsign); }, [callsign]);
@@ -44,7 +45,6 @@ export function TransmitPage() {
     if (["wow", "happy", "medium", "sad"].includes(feeling || "")) setFace(feeling as FaceId);
     const id = params.get("place");
     if (id) setPlaceId(id);
-    void usePulse.getState().syncShared().then(setConnected);
   }, []);
 
   async function send(e: React.FormEvent) {
@@ -56,7 +56,7 @@ export function TransmitPage() {
       draftId.current ??= uid("p");
       const saved = await addPulse({ id: draftId.current, channelId: channel.id, callsign: nickname, face, body, photo });
       draftId.current = null;
-      setCallsign(nickname); setConnected(true); setSentId(saved.id);
+      setCallsign(nickname); setSentId(saved.id);
       setBody(""); setPhoto(undefined); setFace(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save your feedback. Please try again.");
@@ -124,7 +124,7 @@ export function TransmitPage() {
                 {([{ label: "Positive", count: tally.pos, color: "#22c55e" }, { label: "Okay / neutral", count: tally.mix, color: "#eab308" }, { label: "Negative", count: tally.neg, color: "#dc2626" }]).map(item => <div className="feedback-stat" key={item.label}><span>{item.label}</span><div><i style={{width: `${tally.total ? item.count / tally.total * 100 : 0}%`, background: item.color}} /></div><b>{tally.total ? Math.round(item.count / tally.total * 100) : 0}%</b></div>)}
                 <p className="feedback-helper">*From the latest 500 shared entries. Replies do not count as visit ratings. Text sentiment is analyzed separately.</p>
               </div>}
-              {connected === false && <p className="feedback-helper" role="status">Live sentiment is temporarily unavailable. You can still prepare your feedback and retry submitting.</p>}
+              {(syncStatus === "error" || syncStatus === "partial") && <p className="feedback-helper" role="status">Live sentiment is temporarily unavailable. You can still prepare your feedback and retry submitting.</p>}
             </div>
           </section>
           <RewardPreview />

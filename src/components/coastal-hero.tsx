@@ -1,6 +1,6 @@
 "use client";
 
-import { RewardPreview } from "@/components/reward-preview";
+import { FEEDBACK_PREVIEW_POINTS } from "@/lib/rewards";
 import { FACES } from "@/lib/pulse/faces";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
@@ -132,12 +132,13 @@ export function CoastalHero() {
             Your <em>voice.</em>
           </h1>
           <p className="hero-description">
-            Rate a place or your whole Daet experience.
-            <br className="hidden sm:block" /> Choose an emoji. Share what could be better.
+            How was your time in Daet?
+            <br className="hidden sm:block" /> Choose a feeling. Help shape a better visit.
           </p>
           <div className="hero-feelings" aria-label="Choose a feeling to start feedback">
             {FACES.map(face => <Link key={face.id} href={`/feedback?feeling=${face.id}`} aria-label={`Give ${face.label.toLowerCase()} feedback`}><span aria-hidden="true">{face.glyph}</span><small>{face.label}</small></Link>)}
           </div>
+          <p className="hero-reward-note">+{FEEDBACK_PREVIEW_POINTS} demo points with saved feedback <span>· Preview only</span></p>
           <div className="hero-actions">
             <Link href="/feedback" className="primary-link">
               Give feedback <ArrowUpRight size={18} />
@@ -147,7 +148,6 @@ export function CoastalHero() {
             </Link>
           </div>
         </div>
-        <div className="hero-reward-panel"><RewardPreview compact /></div>
         <div className="coastal-location" aria-hidden="true"><span>YOUR FEEDBACK MATTERS</span><p>A better visit<br />starts with <em>you.</em></p><small>Daet · Camarines Norte · Philippines</small></div>
         <div className="coastal-caption page-width">
           <a href="#discover" className="scroll-cue">
