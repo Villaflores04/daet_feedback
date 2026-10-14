@@ -1380,7 +1380,19 @@ button, [role="button"] { min-width:44px; min-height:44px; }
  .sentiment-layout { margin-top:12px; gap:12px; }
  .sentiment-overview { position:static; }
  .sentiment-chart { padding:16px; }
- .sentiment-chart > div { height:120px; }
+ .sentiment-chart .face-gauge-arc { height:90px; }
  .sentiment-chart .font-display { font-size:21px; }
  .sentiment-layout > ul > li > button { min-height:68px; padding:12px 16px; }
 }
+
+/* Keep the rating summary inside the tourism photo panel. */
+.place-card-photo { width:100%; min-width:0; min-height:270px; }
+.place-card-photo .place-arrow { top:14px; bottom:auto; right:14px; }
+.place-card-photo .place-emoji-summary { position:absolute; inset:auto 10px 10px; margin:0; padding:10px; background:rgb(255 255 255 / 96%); border-color:rgb(255 255 255 / 80%); box-shadow:0 4px 20px #1234491a; }
+.place-card-photo .place-emoji-counts { gap:4px; margin-top:7px; }
+.place-card-photo .place-emoji-counts li { flex-direction:row; justify-content:center; flex-wrap:wrap; column-gap:5px; padding:5px 2px; background:#eff6ff; }
+.place-card-photo .place-emoji-counts li > span:first-child { font-size:21px; }
+.place-card-photo .place-emoji-counts li > span:nth-child(2) { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+.place-card-photo .place-emoji-summary small { margin-top:5px; font-size:9px; }
+.face-gauge-label { height:auto; }
+.face-gauge-label p:first-child { overflow-wrap:break-word; line-height:1.2; }

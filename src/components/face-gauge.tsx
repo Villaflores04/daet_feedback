@@ -48,7 +48,7 @@ export function FaceGauge({
   return (
     <figure className={cn("rounded-2xl bg-plate p-5 shadow-plate", className)}>
       <figcaption className="text-sm font-medium text-ink">{title}</figcaption>
-      <div className="relative mx-auto mt-2 h-36 w-64 max-w-full">
+      <div className="face-gauge-arc mx-auto mt-2 h-28 w-52 max-w-full">
         <svg viewBox="0 0 200 120" className="h-full w-full" aria-hidden>
           <path
             d={arc(100, 108, 78, 0, 180)}
@@ -76,14 +76,14 @@ export function FaceGauge({
               ))
             : null}
         </svg>
-        <div className="absolute inset-x-0 bottom-1 text-center">
+      </div>
+      <div className="face-gauge-label mt-2 text-center">
           <p className="font-display text-2xl tracking-tight text-ink">
             {label}
           </p>
           <p className="text-xs tabular-nums text-muted">
             {tally.total} {tally.total === 1 ? "rating" : "ratings"}
           </p>
-        </div>
       </div>
       <ul className="mt-3 flex justify-center gap-4 text-xs tabular-nums text-muted">
         <li>
