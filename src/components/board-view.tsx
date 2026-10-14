@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Smile, MessageSquareText } from "lucide-react";
 import { FaceGauge } from "@/components/face-gauge";
 import { MoodBar } from "@/components/mood-bar";
 import { WordMeter } from "@/components/word-meter";
@@ -32,7 +32,7 @@ export function BoardTabs({ active, desk = false, scope = "places" }: {
 }
 
 export function BoardView({
-  mode,
+  mode: initialMode,
   openSlug,
   desk = false,
 }: {
@@ -49,7 +49,22 @@ export function BoardView({
   }, [openSlug]);
 
   const search = useSearchParams();
+  const [mode, setMode] = useState<"faces" | "words">(search.get("analysis") === "words" ? "words" : search.get("analysis") === "faces" ? "faces" : initialMode);
   const [scope, setScope] = useState<"places" | "trip">(search.get("scope") === "trip" ? "trip" : "places");
+  function selectAnalysis(next: "faces" | "words") {
+    setMode(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set("analysis", next);
+    url.searchParams.set("scope", scope);
+    window.history.replaceState(null, "", url);
+  }
+  function selectScope(next: "places" | "trip") {
+    setScope(next);
+    setOpen(null);
+    const url = new URL(window.location.href);
+    url.searchParams.set("scope", next);
+    window.history.replaceState(null, "", url);
+  }
   const scopedPulses = pulses.filter(p => scope === "trip" ? p.channelId === OVERALL_ID : p.channelId !== OVERALL_ID);
   const scopedChannels = channels.filter(c => scope === "trip" ? c.id === OVERALL_ID : c.id !== OVERALL_ID);
   const townFaces = tallyFaces(scopedPulses);
@@ -62,18 +77,29 @@ export function BoardView({
         <h1 className="font-display text-ink">Visitor sentiment</h1>
         <p>See how visitors feel about Daet.</p>
       </header>
-      <div className="sentiment-controls">
-      <div className="sentiment-control-group">
-      <p className="sentiment-control-label">1. Choose feedback scope</p>
-      <div className="sentiment-scope" role="group" aria-label="Sentiment scope">
-        <button className="filter-chip min-h-11" aria-pressed={scope === "places"} onClick={() => setScope("places")}><span aria-hidden>{scope === "places" ? "●" : "○"}</span> Individual places</button>
-        <button className="filter-chip min-h-11" aria-pressed={scope === "trip"} onClick={() => setScope("trip")}><span aria-hidden>{scope === "trip" ? "●" : "○"}</span> Overall Daet visit</button>
+      <div className="sentiment-navigation">
+        <div className="analysis-primary" role="group" aria-label="Analysis type">
+          <button type="button" aria-pressed={mode === "faces"} onClick={() => selectAnalysis("faces")}>
+            <Smile aria-hidden="true" />
+            <span><strong>Emoji ratings</strong><small>How visitors rated their visit</small></span>
+          </button>
+          <button type="button" aria-pressed={mode === "words"} onClick={() => selectAnalysis("words")}>
+            <MessageSquareText aria-hidden="true" />
+            <span><strong>Text sentiment</strong><small>What visitors say in comments</small></span>
+          </button>
+        </div>
+        <fieldset className="analysis-scope">
+          <legend>Show feedback for</legend>
+          <div>
+            <label><input type="radio" name="feedback-scope" value="places" checked={scope === "places"} onChange={() => selectScope("places")} /><span>Individual places</span></label>
+            <label><input type="radio" name="feedback-scope" value="trip" checked={scope === "trip"} onChange={() => selectScope("trip")} /><span>Overall Daet visit</span></label>
+          </div>
+        </fieldset>
       </div>
-      </div>
-      <div className="sentiment-control-group">
-        <p className="sentiment-control-label">2. Choose analysis</p>
-        <BoardTabs active={mode} desk={desk} scope={scope} />
-      </div>
+      <div className="sentiment-results-heading" aria-live="polite" aria-atomic="true">
+        <div><h2>{mode === "faces" ? "Emoji rating overview" : "Comment sentiment overview"}</h2>
+        <p>{scope === "places" ? "Individual places" : "Overall Daet visit"} · {mode === "faces" ? "Original visitor ratings" : "Written comments and replies"}</p></div>
+        <span>{mode === "faces" ? `${townFaces.total} ratings` : `${townWords.total} classified · ${textCount - townWords.total} unclassified`}</span>
       </div>
 
       <div className="sentiment-layout">
@@ -90,7 +116,7 @@ export function BoardView({
           {mode === "words" ? <p>{textCount} notes and replies checked · {townWords.total} classified · {textCount - townWords.total} without a clear sentiment match. Empty notes are excluded. Word-based estimates may misunderstand local expressions and sarcasm.</p> : null}
         </details>
         </div>
-        <ul className="space-y-2">
+        <ul className="space-y-2" aria-label={scope === "places" ? "Results by place" : "Overall visit results"}>
           {scopedChannels.map((channel) => {
             const placePulses = pulses.filter(
               (p) => p.channelId === channel.id,
@@ -120,7 +146,7 @@ export function BoardView({
                       {channel.name}
                     </p>
                     <p className="text-xs tabular-nums text-muted">
-                      {count} {mode === "faces" ? "ratings" : "scanned notes"}
+                      {count} {mode === "faces" ? (count === 1 ? "rating" : "ratings") : "classified comments"} · {expanded ? "Hide details" : "View details"}
                     </p>
                   </div>
                   <MoodBar tally={tally} className="hidden w-28 sm:block" />

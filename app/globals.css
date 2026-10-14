@@ -1628,3 +1628,38 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .sentiment-page .sentiment-controls { gap: 12px; padding: 12px; }
   .sentiment-page .sentiment-scope button, .sentiment-page .sentiment-tabs a { font-size: 12px; gap: 5px; }
 }
+
+/* Analysis is the primary navigation; scope is a subordinate radio filter. */
+.sentiment-navigation { border-bottom: 1px solid var(--color-line); padding-bottom: 18px; }
+.analysis-primary { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 760px; }
+.analysis-primary button { display: flex; align-items: center; gap: 14px; min-height: 84px; padding: 18px 22px; border: 1px solid #d9e3f0; border-radius: 16px; background: white; text-align: left; color: #52647b; }
+.analysis-primary button > svg { width: 28px; height: 28px; flex-shrink: 0; }
+.analysis-primary strong { display: block; font-size: 17px; line-height: 1.4; }
+.analysis-primary small { display: block; margin-top: 3px; font-size: 12px; font-weight: 400; }
+.analysis-primary button[aria-pressed="true"] { color: white; background: #2563eb; border-color: #2563eb; box-shadow: 0 3px 10px #2563eb1a; }
+.analysis-primary button:focus-visible { outline: 3px solid #93c5fd; outline-offset: 3px; }
+.analysis-scope { margin: 18px 0 0; padding: 0; border: 0; }
+.analysis-scope legend { font-size: 12px; font-weight: 600; color: var(--color-muted); margin-bottom: 2px; }
+.analysis-scope > div { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.analysis-scope label { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; color: var(--color-muted); cursor: pointer; }
+.analysis-scope input { width: 17px; height: 17px; accent-color: #2563eb; flex-shrink: 0; }
+.analysis-scope input:checked + span { color: #1d4ed8; font-weight: 600; }
+.sentiment-results-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.sentiment-results-heading h2 { font-size: 17px; line-height: 1.4; font-weight: 600; }
+.sentiment-results-heading p { font-size: 12px; color: var(--color-muted); margin-top: 4px; }
+.sentiment-results-heading > span { font-size: 12px; color: #52647b; background: #eff6ff; border: 1px solid #dbeafe; padding: 7px 12px; border-radius: 999px; }
+.sentiment-page .sentiment-layout, .sentiment-page:not(.sentiment-desk) .sentiment-layout { margin-top: 16px; align-items: start; }
+.sentiment-overview { min-width: 0; }
+@media (max-width: 639px) {
+  .analysis-primary { gap: 8px; }
+  .analysis-primary button { min-height: 76px; padding: 12px; gap: 8px; }
+  .analysis-primary button > svg { width: 22px; height: 22px; }
+  .analysis-primary strong { font-size: 14px; }
+  .analysis-primary small { display: none; }
+  .analysis-scope { margin-top: 12px; }
+  .analysis-scope > div { gap: 4px 16px; }
+  .analysis-scope label { font-size: 12px; }
+  .sentiment-navigation { padding-bottom: 10px; }
+  .sentiment-results-heading { margin-top: 16px; gap: 8px; }
+  .sentiment-results-heading h2 { font-size: 15px; }
+}

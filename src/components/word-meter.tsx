@@ -15,7 +15,7 @@ export function WordMeter({
     { key: "mix", label: "Mixed / OK", value: tally.mix, color: "bg-mix" },
     { key: "neg", label: "Negative", value: tally.neg, color: "bg-neg" },
   ];
-  const max = Math.max(1, tally.pos, tally.mix, tally.neg);
+  const total = Math.max(1, tally.total);
 
   return (
     <figure className={cn("rounded-2xl bg-plate p-5 shadow-plate", className)}>
@@ -28,23 +28,23 @@ export function WordMeter({
         {rows.map((row) => (
           <li
             key={row.key}
-            className="grid grid-cols-[4.5rem_1fr_2rem] items-center gap-2"
+            className="grid grid-cols-[5rem_1fr_4rem] items-center gap-2"
           >
             <span className="text-sm text-muted">{row.label}</span>
             <div className="h-3 overflow-hidden rounded-full bg-cool">
               <span
                 className={cn("block h-full rounded-full", row.color)}
-                style={{ width: `${(row.value / max) * 100}%` }}
+                style={{ width: `${(row.value / total) * 100}%` }}
               />
             </div>
             <span className="text-right text-sm tabular-nums text-ink">
-              {row.value}
+              {row.value} · {Math.round(row.value / total * 100)}%
             </span>
           </li>
         ))}
       </ul>
       <p className="mt-4 text-xs tabular-nums text-muted">
-        {tally.total} classified {tally.total === 1 ? "note" : "notes"}
+        {tally.total === 0 ? "No classified comments in this scope yet." : `${tally.total} classified comments · bars show their percentage share`}
       </p>
     </figure>
   );
