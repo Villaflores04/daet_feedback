@@ -1,5 +1,6 @@
 "use client";
-import { useId, type ReactNode } from "react";
+import { useEffect, useState, useId, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { useDialogFocus } from "@/hooks/use-dialog-focus";
 import { cn } from "@/lib/utils";
@@ -9,18 +10,22 @@ export function SheetFrame({
   title,
   children,
   wide = false,
+  footer,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
   wide?: boolean;
+  footer?: ReactNode;
 }) {
-  const ref = useDialogFocus(open, onClose);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const ref = useDialogFocus(open && mounted, onClose);
   const titleId = useId();
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
+  if (!open || !mounted) return null;
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-6">
       <div
         className="sheet-backdrop absolute inset-0 bg-ink/45 backdrop-blur-sm"
         onClick={onClose}
@@ -50,10 +55,12 @@ export function SheetFrame({
             <X size={19} />
           </button>
         </header>
-        <div className="overflow-y-auto overscroll-contain px-5 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {children}
         </div>
+        {footer ? <footer className="shrink-0 border-t border-line bg-page px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">{footer}</footer> : null}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

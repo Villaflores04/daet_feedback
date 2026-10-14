@@ -50,7 +50,9 @@ export function WishSheet({
   };
 
   return (
-    <SheetFrame open={open} onClose={onClose} title="Suggest a place">
+    <SheetFrame open={open} onClose={onClose} title="Suggest a place" footer={<Button type="button" className="h-12 w-full" onClick={submit}>
+          Send suggestion
+        </Button>}>
       <div className="space-y-4">
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-ink">
@@ -117,9 +119,7 @@ export function WishSheet({
           />
         </label>
         <PhotoField value={photo} onChange={setPhoto} />
-        <Button type="button" className="h-12 w-full" onClick={submit}>
-          Send suggestion
-        </Button>
+
       </div>
     </SheetFrame>
   );
