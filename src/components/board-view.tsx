@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { FaceGauge } from "@/components/face-gauge";
 import { MoodBar } from "@/components/mood-bar";
@@ -12,64 +13,22 @@ import { scanPulses, tallyScans } from "@/lib/pulse/words";
 import { OVERALL_ID } from "@/lib/pulse/scope";
 import { cn } from "@/lib/utils";
 
-export function BoardTabs({
-  active,
-  desk = false,
-}: {
-  active: "faces" | "words";
-  desk?: boolean;
+export function BoardTabs({ active, desk = false, scope = "places" }: {
+  active: "faces" | "words"; desk?: boolean; scope?: "places" | "trip";
 }) {
-  if (desk) {
-    return (
-      <div className="sentiment-tabs flex rounded-xl bg-cool p-1">
-        <Link
-          href="/desk/board"
-          className={cn(
-            "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
-            active === "faces"
-              ? "bg-plate text-ink shadow-plate"
-              : "text-muted",
-          )}
-        >
-          Emoji ratings
-        </Link>
-        <Link
-          href="/desk/board?tab=words"
-          className={cn(
-            "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
-            active === "words"
-              ? "bg-plate text-ink shadow-plate"
-              : "text-muted",
-          )}
-        >
-          Text sentiment
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className="sentiment-tabs flex rounded-xl bg-cool p-1">
-      <Link
-        href="/board"
-        className={cn(
-          "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
-          active === "faces" ? "bg-plate text-ink shadow-plate" : "text-muted",
-        )}
-      >
-        Emoji ratings
-      </Link>
-      <Link
-        href="/board/words"
-        className={cn(
-          "flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-medium",
-          active === "words" ? "bg-plate text-ink shadow-plate" : "text-muted",
-        )}
-      >
-        Text sentiment
-      </Link>
-    </div>
-  );
+  return <nav className="sentiment-tabs" aria-label="Analysis type">
+    {(["faces", "words"] as const).map(value => {
+      const params = new URLSearchParams();
+      if (scope === "trip") params.set("scope", "trip");
+      if (desk && value === "words") params.set("tab", "words");
+      const path = desk ? "/desk/board" : value === "faces" ? "/board" : "/board/words";
+      return <Link key={value} href={`${path}${params.size ? `?${params}` : ""}`} scroll={false}
+        aria-current={active === value ? "page" : undefined}>
+        <span aria-hidden>{value === "faces" ? "☺" : "Aa"}</span>
+        {value === "faces" ? "Emoji ratings" : "Text sentiment"}
+      </Link>;
+    })}
+  </nav>;
 }
 
 export function BoardView({
@@ -89,7 +48,8 @@ export function BoardView({
     if (openSlug) setOpen(openSlug);
   }, [openSlug]);
 
-  const [scope, setScope] = useState<"places" | "trip">("places");
+  const search = useSearchParams();
+  const [scope, setScope] = useState<"places" | "trip">(search.get("scope") === "trip" ? "trip" : "places");
   const scopedPulses = pulses.filter(p => scope === "trip" ? p.channelId === OVERALL_ID : p.channelId !== OVERALL_ID);
   const scopedChannels = channels.filter(c => scope === "trip" ? c.id === OVERALL_ID : c.id !== OVERALL_ID);
   const townFaces = tallyFaces(scopedPulses);
@@ -104,15 +64,15 @@ export function BoardView({
       </header>
       <div className="sentiment-controls">
       <div className="sentiment-control-group">
-      <p className="sentiment-control-label">Feedback scope</p>
+      <p className="sentiment-control-label">1. Choose feedback scope</p>
       <div className="sentiment-scope" role="group" aria-label="Sentiment scope">
-        <button className="filter-chip min-h-11" aria-pressed={scope === "places"} onClick={() => setScope("places")}>Individual places</button>
-        <button className="filter-chip min-h-11" aria-pressed={scope === "trip"} onClick={() => setScope("trip")}>Overall Daet visit</button>
+        <button className="filter-chip min-h-11" aria-pressed={scope === "places"} onClick={() => setScope("places")}><span aria-hidden>{scope === "places" ? "●" : "○"}</span> Individual places</button>
+        <button className="filter-chip min-h-11" aria-pressed={scope === "trip"} onClick={() => setScope("trip")}><span aria-hidden>{scope === "trip" ? "●" : "○"}</span> Overall Daet visit</button>
       </div>
       </div>
       <div className="sentiment-control-group">
-        <p className="sentiment-control-label">Analysis</p>
-        <BoardTabs active={mode} desk={desk} />
+        <p className="sentiment-control-label">2. Choose analysis</p>
+        <BoardTabs active={mode} desk={desk} scope={scope} />
       </div>
       </div>
 

@@ -27,6 +27,7 @@ export function PulseCard({
   hidePlace = false,
   highlight = false,
   onReply,
+  onCompose,
   compactPhoto = true,
   replyLabel = "Reply",
   repliesOpen,
@@ -37,6 +38,7 @@ export function PulseCard({
   hidePlace?: boolean;
   highlight?: boolean;
   onReply?: () => void;
+  onCompose?: () => void;
   compactPhoto?: boolean;
   replyLabel?: string;
   repliesOpen?: boolean;
@@ -56,10 +58,11 @@ export function PulseCard({
       className={cn(
         reply ? "rounded-lg bg-plate px-3 py-2" : "rounded-xl bg-plate p-5 shadow-plate",
         !reply && "story-card",
+        reply && "conversation-reply",
         highlight && "ring-2 ring-teal",
       )}
     >
-      <header className="flex items-start gap-2">
+      <header className="story-author flex items-start gap-2">
         <span className={reply ? "text-lg leading-none" : "text-2xl leading-none"} aria-hidden>
           {face.glyph}
         </span>
@@ -115,7 +118,7 @@ export function PulseCard({
         </button>
       ) : null}
 
-      <footer className={cn("flex items-center gap-1", reply ? "mt-1" : "mt-4 border-t border-line pt-2")}>
+      <footer className={cn("story-actions flex items-center gap-1", reply ? "mt-1" : "mt-4 border-t border-line pt-2")}>
         <button
           type="button"
           onClick={() => reactPulse(pulse.id, "up")}
@@ -142,6 +145,7 @@ export function PulseCard({
           <span className="tabular-nums">{pulse.reacts.down}</span>
           <span className="sr-only">Disagree</span>
         </button>
+        <div className="story-reply-actions">
         {onReply ? (
           <button
             type="button"
@@ -154,6 +158,8 @@ export function PulseCard({
             {replyLabel}
           </button>
         ) : null}
+        {onCompose ? <button type="button" onClick={onCompose} className="story-compose-button"><MessageCircle className="size-4" />Reply</button> : null}
+        </div>
       </footer>
 
       {openPhoto && pulse.photo ? (

@@ -40,11 +40,13 @@ export function ReplyForm({
   return (
     <div
       ref={boxRef}
-      className="mt-2 rounded-2xl border border-line bg-cool/60 p-3"
+      className="reply-composer mt-2 rounded-2xl border border-line bg-cool/60 p-3"
     >
       <p className="mb-2 text-xs text-muted">
-        Replying to {parent.callsign}
+        Reply to {parent.callsign}
       </p>
+      <p className="reply-context">{parent.body || "Emoji rating"}</p>
+      <p className="mb-2 text-xs font-semibold text-muted">Choose an emoji for your reply (required)</p>
       <fieldset disabled={sending}>
         <FacePicker value={face} onChange={setFace} caption={false} />
       </fieldset>
@@ -54,7 +56,7 @@ export function ReplyForm({
         disabled={sending}
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Callsign"
+        placeholder="Nickname (optional)"
         className="mt-3 h-11 w-full rounded-xl border border-line bg-plate px-3 text-sm text-ink outline-none focus:border-teal"
       />
       <textarea
@@ -64,7 +66,7 @@ export function ReplyForm({
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={3}
-        placeholder="Add a note (optional)"
+        placeholder="Write your reply… (optional)"
         className="mt-2 w-full rounded-xl border border-line bg-plate px-3 py-2 text-sm text-ink outline-none focus:border-teal"
       />
       <fieldset disabled={sending} className="mt-2">
