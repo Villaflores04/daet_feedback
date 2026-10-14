@@ -1389,3 +1389,47 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .place-rating-copy { display:flex; flex-direction:column; min-width:0; gap:1px; }
 .place-rating-copy strong { font-size:11px; font-weight:600; line-height:1.3; }
 .place-rating-copy small { font-size:10px; line-height:1.3; color:#526579; font-variant-numeric:tabular-nums; }
+
+
+/* Keep the task, rather than introductory copy, in the first mobile screen. */
+@media (max-width: 767px) {
+  .stories-main, .feedback-main { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+  .stories-intro { padding: 20px 0 16px; margin-bottom: 0; border-bottom: 0; }
+  .stories-intro h1, .feedback-heading h1 { font-size: 28px; line-height: 1.15; margin: 0; }
+  .stories-intro > p:last-child { font-size: 13px; line-height: 1.5; margin-top: 6px; }
+  .stories-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; padding: 12px; align-items: end; }
+  .stories-place-filter { width: 100%; gap: 5px; }
+  .stories-place-filter span { font-size: 10px; letter-spacing: .06em; }
+  .stories-place-filter select { border-radius: 10px; font-size: 16px; padding: 0 8px; }
+  .stories-toolbar > button { min-height: 44px; padding: 0 12px; font-size: 12px; }
+  .stories-toolbar > p { grid-column: 1 / -1; margin: 0; text-align: left; font-size: 11px; line-height: 1.5; }
+  .stories-feed { margin-top: 12px; gap: 12px; }
+  .stories-feed .story-card { padding: 14px; }
+  .stories-feed .story-card > p { margin-top: 10px; font-size: 14px; }
+  .stories-feed .story-card > footer { margin-top: 12px; padding-top: 4px; }
+  .stories-feed .story-card { overflow-wrap: anywhere; scroll-margin-top: 100px; }
+  .feedback-main { padding-top: 20px; }
+  .feedback-heading { margin-bottom: 12px; }
+  .feedback-heading p:not(.eyebrow) { font-size: 13px; line-height: 1.5; margin-top: 6px; }
+  .feedback-insights-link { margin-top: 2px; min-height: 44px; width: fit-content; font-size: 12px; }
+  .feedback-compose { padding: 14px; box-shadow: none; min-width: 0; }
+  .feedback-section-heading { gap: 8px; margin-bottom: 10px; }
+  .feedback-section-heading:not(:first-child) { margin-top: 16px; }
+  .feedback-section-heading h2 { font-size: 14px; }
+  .feedback-step { width: 24px; height: 24px; flex-shrink: 0; font-size: 10px; }
+  .feedback-scope { gap: 8px; }
+  .feedback-scope button { min-height: 44px; padding: 10px; gap: 8px; font-size: 13px; border-radius: 12px; }
+  .feedback-scope small { display: none; }
+  .feedback-field { margin-top: 12px; font-size: 12px; }
+  .feedback-field select, .feedback-field input { min-height: 44px; padding: 10px; margin-top: 6px; }
+  .feedback-feelings, .feedback-feelings fieldset { min-width: 0; }
+  .feedback-feelings button { min-height: 72px; border-radius: 12px; box-shadow: none; background: #f8fafc; }
+  .feedback-feelings button[aria-pressed="true"] { background: #eff6ff; border-color: #2563eb; }
+  .feedback-feelings button > span:first-child { font-size: 28px; }
+  .feedback-helper { font-size: 11px; line-height: 1.5; margin: 8px 0; }
+  .feedback-details { margin-top: 12px; padding: 0; }
+  .feedback-details summary { font-size: 13px; }
+  .feedback-primary { min-height: 48px; margin-top: 12px; font-size: 14px; }
+  .feedback-privacy { flex-wrap: wrap; font-size: 11px; margin-top: 10px; }
+  .feedback-grid { gap: 20px; }
+}
