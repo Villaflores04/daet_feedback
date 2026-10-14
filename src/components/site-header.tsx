@@ -6,10 +6,10 @@ import { RewardBalanceLink } from "@/components/reward-preview";
 import { Wordmark } from "@/components/mark";
 import { cn } from "@/lib/utils";
 const LINKS = [
-  { to: "/feedback", label: "Feedback" },
   { to: "/spots", label: "Places" },
   { to: "/live", label: "Visitor stories" },
   { to: "/board", label: "Sentiment" },
+  { to: "/feedback", label: "Feedback" },
 ];
 export function SiteHeader({
   landing = false,

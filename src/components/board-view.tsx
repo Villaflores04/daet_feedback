@@ -21,7 +21,7 @@ export function BoardTabs({
 }) {
   if (desk) {
     return (
-      <div className="flex rounded-xl bg-cool p-1">
+      <div className="sentiment-tabs flex rounded-xl bg-cool p-1">
         <Link
           href="/desk/board"
           className={cn(
@@ -49,7 +49,7 @@ export function BoardTabs({
   }
 
   return (
-    <div className="flex rounded-xl bg-cool p-1">
+    <div className="sentiment-tabs flex rounded-xl bg-cool p-1">
       <Link
         href="/board"
         className={cn(
@@ -102,11 +102,19 @@ export function BoardView({
         <h1 className="font-display text-ink">Visitor sentiment</h1>
         <p>See how visitors feel about Daet.</p>
       </header>
+      <div className="sentiment-controls">
+      <div className="sentiment-control-group">
+      <p className="sentiment-control-label">Feedback scope</p>
       <div className="sentiment-scope" role="group" aria-label="Sentiment scope">
         <button className="filter-chip min-h-11" aria-pressed={scope === "places"} onClick={() => setScope("places")}>Individual places</button>
         <button className="filter-chip min-h-11" aria-pressed={scope === "trip"} onClick={() => setScope("trip")}>Overall Daet visit</button>
       </div>
-      <BoardTabs active={mode} desk={desk} />
+      </div>
+      <div className="sentiment-control-group">
+        <p className="sentiment-control-label">Analysis</p>
+        <BoardTabs active={mode} desk={desk} />
+      </div>
+      </div>
 
       <div className="sentiment-layout">
         <div className="sentiment-overview">

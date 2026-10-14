@@ -1471,3 +1471,101 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @media (prefers-reduced-motion: reduce) {
   .coastal-stage > * { will-change: auto !important; }
 }
+
+/* Desktop task layouts: aligned content, readable columns, grouped controls. */
+.stories-desktop-guide, .sentiment-control-label { display: none; }
+.stories-results { min-width: 0; }
+@media (min-width: 1024px) {
+  .site-header nav { gap: 4px; }
+  .site-header .header-link { border-radius: 999px; padding: 10px 14px; min-height: 44px; }
+  .site-header .header-link::after { display: none; }
+  .site-header .header-link.is-active { background: #eff6ff; color: #1d4ed8; }
+  .places-main, .stories-main, .feedback-main, .sentiment-page:not(.sentiment-desk) {
+    width: min(100% - 80px, 1184px); padding-bottom: 64px;
+  }
+  .places-intro, .stories-intro, .feedback-heading, .sentiment-page:not(.sentiment-desk) .sentiment-intro {
+    padding: 32px 0 24px; margin: 0; border: 0;
+  }
+  .places-intro h1, .stories-intro h1, .feedback-heading h1, .sentiment-page:not(.sentiment-desk) .sentiment-intro h1 {
+    font-family: var(--font-display); font-size: 44px; font-weight: 500;
+    line-height: 1.15; letter-spacing: -.035em; margin: 0;
+  }
+  .places-intro > p:last-child, .stories-intro > p:last-child, .feedback-heading p, .sentiment-page:not(.sentiment-desk) .sentiment-intro p {
+    font-size: 15px; line-height: 1.6; margin-top: 10px; max-width: 60ch;
+  }
+  .places-main .explore-toolbar {
+    display: grid; grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+    align-items: center; gap: 20px; margin-bottom: 16px;
+    padding: 16px; background: white; border: 1px solid var(--color-line); border-radius: 16px;
+  }
+  .places-main .filter-row { justify-content: flex-end; flex-wrap: wrap; overflow: visible; padding: 0; gap: 6px; }
+  .places-main .filter-chip { border-radius: 999px; padding-inline: 15px; }
+  .places-main .search-field { min-width: 0; border-radius: 12px; background: #f8fafc; }
+  .places-main .places-result-count { margin-bottom: 16px; font-size: 11px; letter-spacing: .1em; }
+  .places-main .place-grid { gap: 24px; align-items: stretch; }
+  .places-main .place-grid > li { min-width: 0; display: flex; }
+  .places-main .place-card { width: 100%; overflow: hidden; background: white; border: 1px solid var(--color-line); border-radius: 16px; }
+  .places-main .place-card-photo { border-radius: 0; aspect-ratio: 16/10; }
+  .places-main .place-card-copy { min-height: 0; padding: 18px 20px 22px; border: 0; }
+  .places-main .place-card h3 { font-size: 24px; line-height: 1.25; overflow-wrap: anywhere; }
+  .places-main .place-card p { font-size: 13px; line-height: 1.65; }
+  .places-main .place-card-copy .text-xs { padding-top: 5px; }
+  .stories-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); align-items: start; gap: 28px; }
+  .stories-main .stories-toolbar {
+    position: sticky; top: 100px; display: flex; flex-direction: column; align-items: stretch;
+    padding: 22px; gap: 16px; border-radius: 16px;
+  }
+  .stories-main .stories-place-filter { width: 100%; gap: 8px; }
+  .stories-main .stories-place-filter select { border-radius: 10px; font-size: 14px; }
+  .stories-main .stories-toolbar > button { width: 100%; border: 1px solid var(--color-line); }
+  .stories-main .stories-toolbar > p { margin: 0; align-self: auto; text-align: left; font-size: 12px; }
+  .stories-desktop-guide { display: block; border-top: 1px solid var(--color-line); padding-top: 20px; }
+  .stories-desktop-guide h2 { font-weight: 600; font-size: 15px; line-height: 1.4; }
+  .stories-desktop-guide p { font-size: 13px; color: var(--color-muted); line-height: 1.65; margin-top: 8px; }
+  .stories-desktop-guide .primary-link { width: 100%; justify-content: center; margin-top: 18px; font-size: 13px; padding-inline: 12px; }
+  .stories-main .stories-feed { width: 100%; margin: 0; gap: 18px; }
+  .stories-main .stories-feed .story-card { padding: 24px; }
+  .stories-results > .mt-8 { margin-top: 0; }
+  .sentiment-page:not(.sentiment-desk) .sentiment-controls {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px;
+    padding: 16px 20px; border: 1px solid var(--color-line); border-radius: 16px; background: white;
+  }
+  .sentiment-page:not(.sentiment-desk) .sentiment-control-label {
+    display: block; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--color-muted); margin-bottom: 8px;
+  }
+  .sentiment-page:not(.sentiment-desk) .sentiment-scope { margin: 0; gap: 6px; }
+  .sentiment-page:not(.sentiment-desk) .sentiment-scope button { border-radius: 999px; min-height: 48px; }
+  .sentiment-page:not(.sentiment-desk) .sentiment-tabs { border-radius: 999px; }
+  .sentiment-page:not(.sentiment-desk) .sentiment-tabs a { border-radius: 999px; }
+  .sentiment-page:not(.sentiment-desk) .sentiment-layout { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 24px; margin-top: 24px; }
+  .sentiment-page:not(.sentiment-desk) .sentiment-chart { padding: 28px; border: 1px solid var(--color-line); box-shadow: none; }
+  .sentiment-page:not(.sentiment-desk) .face-gauge-arc { width: 260px; height: 144px; margin-top: 16px; }
+  .sentiment-page:not(.sentiment-desk) .face-gauge-label { margin-top: 14px; }
+  .sentiment-page:not(.sentiment-desk) .face-gauge-label p:first-child { font-size: 28px; }
+  .sentiment-page:not(.sentiment-desk) .sentiment-layout > ul > li > button { min-height: 76px; padding: 16px 20px; }
+  .sentiment-page:not(.sentiment-desk) .sentiment-method { margin-top: 12px; }
+  .feedback-main { max-width: 1104px; padding-top: 0; }
+  .feedback-heading { align-items: center; }
+  .feedback-heading h1 { font-size: 44px; }
+  .feedback-insights-link { padding: 0 16px; border: 1px solid var(--color-line); border-radius: 999px; background: white; }
+  .feedback-grid { grid-template-columns: minmax(0, 1fr) 340px; max-width: none; margin: 0; gap: 28px; }
+  .feedback-compose { padding: 28px; box-shadow: none; }
+  .feedback-context { gap: 16px; }
+  .feedback-cover { height: 164px; }
+  .feedback-place-body { padding: 20px; }
+  .feedback-place-body h2 { font-size: 26px; line-height: 1.2; }
+  .feedback-place-body > p:not(.eyebrow) { font-size: 13px; }
+  .feedback-section-heading:not(:first-child) { margin-top: 24px; }
+  .feedback-details { margin-top: 20px; padding-block: 8px; }
+  .feedback-context .reward-preview { padding: 18px; }
+  .feedback-stories-link { padding: 14px 18px; background: white; border: 1px solid var(--color-line); border-radius: 16px; font-size: 13px; }
+}
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .places-main .explore-toolbar { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .places-main .filter-row { justify-content: flex-start; }
+  .places-main .place-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stories-layout { grid-template-columns: 248px minmax(0, 1fr); gap: 20px; }
+  .feedback-grid { grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; }
+  .site-header .header-link { padding-inline: 10px; font-size: 12px; }
+}

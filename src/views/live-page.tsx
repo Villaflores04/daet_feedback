@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { PublicChrome } from "@/components/public-chrome";
@@ -61,7 +62,8 @@ export function LivePage() {
             Real experiences from visitors to Daet.
           </p>
         </header>
-        <div className="stories-toolbar">
+        <div className="stories-layout">
+        <aside className="stories-toolbar" aria-label="Story filters">
           <label className="stories-place-filter"><span>Filter by place</span>
             <select value={place || ""} onChange={event => filter(event.target.value || undefined, photosOnly)} aria-label="Filter stories by place">
               <option value="">All places</option>
@@ -77,8 +79,13 @@ export function LivePage() {
             Photos only
           </FilterChip>
           <p className="text-right text-xs text-muted" role="status">{roots.length} {roots.length === 1 ? "story" : "stories"} · Newest first</p>
-        </div>
-
+          <div className="stories-desktop-guide">
+            <h2>Every visit has a story.</h2>
+            <p>Browse visitor experiences, open a conversation, or share your own.</p>
+            <Link href="/feedback" className="primary-link">Share an experience</Link>
+          </div>
+        </aside>
+        <div className="stories-results">
         {roots.length === 0 ? (
           <div className="mt-8 rounded-2xl bg-plate px-4 py-10 text-center text-sm text-muted shadow-plate">
             <p>No stories match these filters yet.</p>
@@ -102,6 +109,8 @@ export function LivePage() {
             })}
           </ul>
         )}
+        </div>
+        </div>
       </main>
     </PublicChrome>
   );
