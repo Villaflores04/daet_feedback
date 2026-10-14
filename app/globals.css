@@ -1355,14 +1355,6 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 /* Place-level ratings and compact, mobile-first sentiment overview. */
 .filter-chip[aria-pressed="true"] { background:var(--color-action); color:white; }
-.place-emoji-summary { margin:14px 0; padding:12px; border:1px solid #dbeafe; border-radius:16px; background:#eff6ff; }
-.place-emoji-heading { display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 10px; font-size:12px; color:#1d4ed8; }
-.place-emoji-heading > span { color:var(--color-muted); }
-.place-emoji-counts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; margin-top:10px; }
-.place-emoji-counts li { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 2px; border-radius:10px; background:white; font-size:11px; }
-.place-emoji-counts li > span:first-child { font-size:23px; font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif; }
-.place-emoji-counts b { font-size:13px; font-variant-numeric:tabular-nums; }
-.place-emoji-summary small { display:block; margin-top:8px; font-size:10px; color:var(--color-muted); }
 .sentiment-intro { padding:28px 0 18px; }
 .sentiment-intro h1 { font-size:36px; line-height:1.15; }
 .sentiment-intro p { margin-top:6px; font-size:14px; color:var(--color-muted); }
@@ -1386,13 +1378,14 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 }
 
 /* Keep the rating summary inside the tourism photo panel. */
-.place-card-photo { width:100%; min-width:0; min-height:270px; }
+.place-card-photo { width:100%; min-width:0; }
 .place-card-photo .place-arrow { top:14px; bottom:auto; right:14px; }
-.place-card-photo .place-emoji-summary { position:absolute; inset:auto 10px 10px; margin:0; padding:10px; background:rgb(255 255 255 / 96%); border-color:rgb(255 255 255 / 80%); box-shadow:0 4px 20px #1234491a; }
-.place-card-photo .place-emoji-counts { gap:4px; margin-top:7px; }
-.place-card-photo .place-emoji-counts li { flex-direction:row; justify-content:center; flex-wrap:wrap; column-gap:5px; padding:5px 2px; background:#eff6ff; }
-.place-card-photo .place-emoji-counts li > span:first-child { font-size:21px; }
-.place-card-photo .place-emoji-counts li > span:nth-child(2) { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
-.place-card-photo .place-emoji-summary small { margin-top:5px; font-size:9px; }
 .face-gauge-label { height:auto; }
 .face-gauge-label p:first-child { overflow-wrap:break-word; line-height:1.2; }
+
+/* Small editorial rating badge: leave the destination photo in view. */
+.place-rating-badge { position:absolute; bottom:12px; left:12px; display:inline-flex; align-items:center; gap:8px; width:max-content; max-width:calc(100% - 24px); padding:7px 12px 7px 8px; border:1px solid rgb(255 255 255 / 80%); border-radius:999px; background:rgb(255 255 255 / 95%); box-shadow:0 3px 12px #1234491a; color:#173554; }
+.place-rating-emoji { font-size:23px; line-height:1; flex-shrink:0; font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif; }
+.place-rating-copy { display:flex; flex-direction:column; min-width:0; gap:1px; }
+.place-rating-copy strong { font-size:11px; font-weight:600; line-height:1.3; }
+.place-rating-copy small { font-size:10px; line-height:1.3; color:#526579; font-variant-numeric:tabular-nums; }

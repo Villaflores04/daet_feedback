@@ -17,7 +17,9 @@ export function PlaceCard({
   const hydrated = usePulse(s => s.hydrated);
   const ratings = pulses.filter(p => p.channelId === channel.id && !p.parentId);
   const tally = tallyFaces(ratings);
-  const summary = !hydrated ? "Loading ratings…" : !tally.total ? "No ratings yet" : tally.pos > tally.total / 2 ? "Mostly positive" : tally.neg > tally.total / 2 ? "Mostly negative" : "Mixed visitor feelings";
+  const summary = !hydrated ? "Loading ratings…" : !tally.total ? "No ratings yet" : tally.pos > tally.total / 2 ? "Mostly positive" : tally.neg > tally.total / 2 ? "Mostly negative" : "Mixed feelings";
+  const glyph = !hydrated || !tally.total ? "😐" : tally.pos > tally.total / 2 ? "😊" : tally.neg > tally.total / 2 ? "😢" : "😐";
+  const breakdown = FACES.map(face => `${face.label}: ${ratings.filter(p => p.face === face.id).length}`).join(", ");
   return (
     <Link href={`/spots/${channel.slug}`} className="place-card group">
       <div className="place-card-photo">
@@ -26,12 +28,16 @@ export function PlaceCard({
           alt={channel.name}
           className="h-full w-full object-cover object-[center_65%]"
         />
-        <div className="place-emoji-summary" aria-label={`Emoji ratings for ${channel.name}`}>
-          <div className="place-emoji-heading"><strong>{summary}</strong><span>{hydrated ? `${tally.total} ${tally.total === 1 ? "rating" : "ratings"}` : ""}</span></div>
-          <ul className="place-emoji-counts">
-            {FACES.map(face => <li key={face.id} aria-label={`${face.label}: ${ratings.filter(p => p.face === face.id).length}`}><span aria-hidden="true">{face.glyph}</span><span>{face.label}</span><b>{hydrated ? ratings.filter(p => p.face === face.id).length : "–"}</b></li>)}
-          </ul>
-          <small>Emoji feedback · latest shared entries</small>
+        <div
+          className="place-rating-badge"
+          aria-label={`${channel.name}: ${summary}${hydrated ? `, ${tally.total} ratings. ${breakdown}` : ""}`}
+          title={hydrated ? `Latest shared emoji ratings · ${breakdown}` : summary}
+        >
+          <span className="place-rating-emoji" aria-hidden="true">{glyph}</span>
+          <span className="place-rating-copy">
+            <strong>{summary}</strong>
+            {hydrated ? <small>{tally.total} {tally.total === 1 ? "rating" : "ratings"}</small> : null}
+          </span>
         </div>
         <span className="place-category">{channel.category}</span>
         <span className="place-arrow">
