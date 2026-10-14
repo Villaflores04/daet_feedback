@@ -34,6 +34,8 @@
 
 @layer base {
   html {
+    /* Keep centered content stable when a shorter view removes the scrollbar. */
+    scrollbar-gutter: stable;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -1568,4 +1570,9 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .stories-layout { grid-template-columns: 248px minmax(0, 1fr); gap: 20px; }
   .feedback-grid { grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; }
   .site-header .header-link { padding-inline: 10px; font-size: 12px; }
+}
+
+/* Compatibility fallback for browsers without stable scrollbar gutters. */
+@supports not (scrollbar-gutter: stable) {
+  html { overflow-y: scroll; }
 }
