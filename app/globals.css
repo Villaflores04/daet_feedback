@@ -1433,3 +1433,25 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .feedback-privacy { flex-wrap: wrap; font-size: 11px; margin-top: 10px; }
   .feedback-grid { gap: 20px; }
 }
+
+
+.places-clear-search { display: grid; place-items: center; flex-shrink: 0; min-width: 44px; min-height: 44px; }
+@media (max-width: 767px) {
+  .places-main { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+  .places-intro { padding: 20px 0 16px; margin-bottom: 0; border-bottom: 0; }
+  .places-intro h1 { font-size: 28px; line-height: 1.15; margin: 0; }
+  .places-intro > p:last-child { font-size: 13px; line-height: 1.5; margin-top: 6px; }
+  .places-main .explore-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-bottom: 10px; }
+  .places-main .search-field { width: 100%; min-width: 0; border-radius: 12px; padding-inline: 12px 4px; gap: 8px; }
+  .places-main .search-field > svg { flex-shrink: 0; }
+  .places-main .search-field input { height: 44px; font-size: 16px; }
+  .places-main .filter-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 0; overflow: visible; }
+  .places-main .filter-chip { min-height: 44px; padding: 0 8px; border-radius: 999px; font-size: 12px; }
+  .places-main .filter-chip[aria-pressed="true"] { background: #2563eb; }
+  .places-main .places-result-count { margin-bottom: 12px; font-size: 11px; letter-spacing: 0; text-transform: none; }
+  .places-main .place-grid { gap: 20px; }
+  .places-main .place-card-photo { aspect-ratio: 16 / 9; }
+  .places-main .place-card-copy { padding-top: 12px; }
+  .places-main .place-card-copy h3 { font-size: 24px; line-height: 1.2; }
+  .places-main .place-card-copy > p { font-size: 13px; line-height: 1.6; margin-top: 8px; }
+}

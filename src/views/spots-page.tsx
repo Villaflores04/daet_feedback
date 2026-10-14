@@ -21,13 +21,11 @@ export function SpotsPage() {
   );
   return (
     <PublicChrome>
-      <main id="main-content" className="page-width pb-16">
-        <header className="page-intro">
-          <p className="eyebrow">The Daet field guide</p>
-          <h1>A change of scenery.</h1>
+      <main id="main-content" className="page-width pb-16 places-main">
+        <header className="page-intro places-intro">
+          <h1>Explore places</h1>
           <p>
-            Follow the coastline, wander through history, or find a quiet
-            corner. Your next stop starts here.
+            Find your next stop and see how visitors felt.
           </p>
         </header>
         <div className="explore-toolbar">
@@ -42,7 +40,7 @@ export function SpotsPage() {
             />
             {query && (
               <button
-                className="p-2"
+                className="places-clear-search"
                 onClick={() => setQuery("")}
                 aria-label="Clear search"
               >
@@ -50,7 +48,7 @@ export function SpotsPage() {
               </button>
             )}
           </label>
-          <div className="filter-row" aria-label="Place categories">
+          <div className="filter-row" role="group" aria-label="Place categories">
             {(["All", ...CATEGORIES] as const).map((item) => (
               <button
                 key={item}
@@ -64,7 +62,7 @@ export function SpotsPage() {
           </div>
         </div>
         <p
-          className="mb-6 text-xs uppercase tracking-widest text-muted"
+          className="places-result-count mb-6 text-xs uppercase tracking-widest text-muted"
           role="status"
         >
           {visible.length} {visible.length === 1 ? "place" : "places"} to
@@ -87,7 +85,7 @@ export function SpotsPage() {
                 setQuery("");
                 setFilter("All");
               }}
-              className="text-link mt-4"
+              className="text-link mt-4 min-h-11"
             >
               Clear filters
             </button>
