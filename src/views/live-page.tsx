@@ -52,18 +52,17 @@ export function LivePage() {
 
   return (
     <PublicChrome>
-      <main id="main-content" className="page-width pb-16">
-        <header className="page-intro">
-          <p className="eyebrow">From the community</p>
+      <main id="main-content" className="page-width pb-16 stories-main">
+        <header className="page-intro stories-intro">
           <h1 className="mt-1 font-display text-3xl tracking-tight">
-            Visitor voices
+            Visitor stories
           </h1>
           <p className="mt-2 text-sm text-muted">
-            A collection of visits, discoveries, and honest impressions.
+            Real experiences from visitors to Daet.
           </p>
         </header>
         <div className="stories-toolbar">
-          <label className="stories-place-filter"><span>Explore stories from</span>
+          <label className="stories-place-filter"><span>Filter by place</span>
             <select value={place || ""} onChange={event => filter(event.target.value || undefined, photosOnly)} aria-label="Filter stories by place">
               <option value="">All places</option>
               {channels.map(channel => <option key={channel.id} value={channel.slug}>{channel.name}</option>)}
@@ -123,7 +122,7 @@ function FilterChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "h-10 shrink-0 rounded-full px-4 text-sm font-medium",
+        "min-h-11 shrink-0 rounded-full px-4 text-sm font-medium",
         active ? "bg-teal text-plate" : "bg-cool text-ink",
       )}
     >

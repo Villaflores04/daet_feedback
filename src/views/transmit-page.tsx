@@ -66,11 +66,11 @@ export function TransmitPage() {
   return <PublicChrome>
     <main id="main-content" className="feedback-main page-width">
       <header className="feedback-heading">
-        <div><p className="eyebrow">DAET-CONNECT / Visitor feedback</p>
-          <h1>Your visit. Your voice.</h1>
-          <p>A feeling, a moment, an idea. Help make the next Daet experience better.</p>
+        <div>
+          <h1>Share your experience</h1>
+          <p>Choose a place or your whole visit, then an emoji.</p>
         </div>
-        <Link href="/board" className="feedback-insights-link">See visitor sentiment <ArrowUpRight size={16} /></Link>
+        <Link href="/board" className="feedback-insights-link">View sentiment <ArrowUpRight size={16} /></Link>
       </header>
       <div className="feedback-grid">
         <section className="feedback-compose" aria-label="Share feedback">
@@ -84,19 +84,19 @@ export function TransmitPage() {
             <Link className="feedback-primary" href={`/live?pulse=${sentId}`}>View my feedback <ArrowUpRight size={18} /></Link>
             <button className="feedback-secondary" onClick={() => setSentId(undefined)}>Share another experience</button>
           </div> : <form onSubmit={send}>
-            <div className="feedback-section-heading"><span className="feedback-step">01</span><h2>What are you sharing about?</h2></div>
+            <div className="feedback-section-heading"><span className="feedback-step">01</span><h2>What are you rating?</h2></div>
             <div className="feedback-scope" role="group" aria-label="Feedback scope">
-              <button type="button" aria-pressed={scope === "place"} onClick={() => setScope("place")} disabled={sending}><MapPin size={19} /><span>A place I visited<small>A specific destination</small></span></button>
-              <button type="button" aria-pressed={scope === "trip"} onClick={() => setScope("trip")} disabled={sending}><MessageCircle size={19} /><span>My overall visit<small>My Daet experience</small></span></button>
+              <button type="button" aria-pressed={scope === "place"} onClick={() => setScope("place")} disabled={sending}><MapPin size={19} /><span>A place<small>A specific destination</small></span></button>
+              <button type="button" aria-pressed={scope === "trip"} onClick={() => setScope("trip")} disabled={sending}><MessageCircle size={19} /><span>Overall visit<small>My Daet experience</small></span></button>
             </div>
             {scope === "place" && <label className="feedback-field">Destination
               <select required value={placeId} disabled={sending} onChange={e => setPlaceId(e.target.value)}>
-                <option value="">Select the place you visited</option>
+                <option value="">Choose a destination</option>
                 {channels.filter(c => c.id !== OVERALL_ID).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </label>}
             <div className="feedback-section-heading"><span className="feedback-step">02</span><h2>How did it feel?</h2></div>
-            <fieldset disabled={sending}><FacePicker value={face} onChange={setFace} caption={false} /></fieldset>
+            <fieldset className="feedback-feelings" disabled={sending}><FacePicker value={face} onChange={setFace} caption={false} /></fieldset>
             <p className="feedback-helper">Choose the feeling that best represents your experience.</p>
             <details className="feedback-details">
               <summary>Add a note or photo <span>Optional</span></summary>
