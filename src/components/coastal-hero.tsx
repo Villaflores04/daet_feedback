@@ -12,37 +12,85 @@ export function CoastalHero() {
   useEffect(() => {
     const node = root.current;
     if (!node) return;
+    const stage = node.querySelector<HTMLElement>(".coastal-stage");
+    if (!stage) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const selectors = ["sun", "orbit", "clouds", "town", "water", "surf", "frond-left", "frond-right", "content", "location"];
+    const layers = selectors.map(name => node.querySelector<HTMLElement | SVGElement>(`.coastal-${name}`));
+    const progressBar = node.querySelector<HTMLElement>(".journey-progress span");
     let frame = 0;
+    let top = 0;
+    let travel = 1;
+    let visible = true;
+    let dirty = true;
+    let previous = -1;
+
     const draw = () => {
       frame = 0;
-      const rect = node.getBoundingClientRect();
-      const stage = node.querySelector<HTMLElement>(".coastal-stage");
-      const travel = Math.max(1, node.offsetHeight - (stage?.offsetHeight || window.innerHeight));
-      const progress = reduced.matches
-        ? 0
-        : Math.min(1, Math.max(0, -rect.top / travel));
-      node.style.setProperty("--journey", String(progress));
+      if (document.hidden) return;
+      // Geometry is read only after resize, never during ordinary scrolling.
+      if (dirty) {
+        top = node.getBoundingClientRect().top + window.scrollY;
+        travel = Math.max(0, node.offsetHeight - stage.offsetHeight);
+        dirty = false;
+        previous = -1;
+      }
+      const p = reduced.matches || !travel ? 0 : Math.min(1, Math.max(0, (window.scrollY - top) / travel));
+      if (p === previous) return;
+      previous = p;
+      const m = mobile.matches;
+      const d = p * (m ? 0.55 : 1);
+      const move = (x: number, y: number) => `translate3d(${x * d}px, ${y * d}px, 0)`;
+      const transforms = [
+        move(0, -60), move(0, -100), move(-160, -45),
+        `${move(-22, -65)} scale(${1 + d * 0.2})`,
+        `${move(-80, 70)} scale(${1 + d * 0.15})`,
+        `${move(100, -35)} scale(${1 + d * 0.3})`,
+        `rotate(18deg) ${move(-170, 150)} scale(${1 + d * 0.35})`,
+        `scaleX(-1) rotate(5deg) ${move(-170, 180)} scale(${1 + d * 0.4})`,
+        m ? `translate3d(0, ${p * -20}px, 0)` : move(-25, -85),
+        `translate3d(0, ${45 - p * 45}px, 0)`,
+      ];
+      layers.forEach((layer, i) => { if (layer) layer.style.transform = transforms[i]; });
+      if (layers[9]) layers[9].style.opacity = String(p);
+      if (progressBar) progressBar.style.transform = `scaleX(${p})`;
     };
     const update = () => {
-      if (!frame) frame = requestAnimationFrame(draw);
+      if (!frame && !document.hidden) frame = requestAnimationFrame(draw);
     };
-    const observer = new IntersectionObserver(([entry]) => {
+    const subscribe = () => {
       window.removeEventListener("scroll", update);
-      if (entry.isIntersecting)
-        window.addEventListener("scroll", update, { passive: true });
+      const active = visible && !reduced.matches && !document.hidden;
+      node.classList.toggle("parallax-active", active);
+      if (active) window.addEventListener("scroll", update, { passive: true });
+      if (!active) { cancelAnimationFrame(frame); frame = 0; }
       update();
+    };
+    const measure = () => { dirty = true; update(); };
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      subscribe();
     });
+    const sizes = new ResizeObserver(measure);
     observer.observe(node);
-    window.addEventListener("resize", update);
-    reduced.addEventListener("change", update);
-    draw();
+    sizes.observe(node);
+    sizes.observe(stage);
+    window.addEventListener("resize", measure, { passive: true });
+    mobile.addEventListener("change", measure);
+    reduced.addEventListener("change", subscribe);
+    document.addEventListener("visibilitychange", subscribe);
+    subscribe();
     return () => {
       observer.disconnect();
+      sizes.disconnect();
       cancelAnimationFrame(frame);
+      node.classList.remove("parallax-active");
       window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-      reduced.removeEventListener("change", update);
+      window.removeEventListener("resize", measure);
+      mobile.removeEventListener("change", measure);
+      reduced.removeEventListener("change", subscribe);
+      document.removeEventListener("visibilitychange", subscribe);
     };
   }, []);
 
@@ -66,7 +114,10 @@ export function CoastalHero() {
           </svg>
         </div>
         <img
-          src="/hero.jpg"
+          src="/hero-desktop.webp"
+          srcSet="/hero-mobile.webp 960w, /hero-desktop.webp 1920w"
+          sizes="(max-width: 767px) 160vw, 100vw"
+          decoding="async"
           alt=""
           className="coastal-town"
           fetchPriority="high"

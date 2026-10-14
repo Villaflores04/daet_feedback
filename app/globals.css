@@ -1455,3 +1455,19 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .places-main .place-card-copy h3 { font-size: 24px; line-height: 1.2; }
   .places-main .place-card-copy > p { font-size: 13px; line-height: 1.6; margin-top: 8px; }
 }
+
+/* Promote only visible scenery; avoid repaint-heavy SVG shadows during scroll. */
+.coastal-stage { contain: paint; }
+.coastal-frond { filter: none; }
+.parallax-active .coastal-town,
+.parallax-active .coastal-water,
+.parallax-active .coastal-surf,
+.parallax-active .coastal-frond,
+.parallax-active .coastal-clouds { will-change: transform; }
+@media (max-width: 767px) {
+  .coastal-orbit { display: none; }
+  .coastal-sun { box-shadow: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coastal-stage > * { will-change: auto !important; }
+}
