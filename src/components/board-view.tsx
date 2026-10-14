@@ -98,34 +98,30 @@ export function BoardView({
 
   return (
     <div className={desk ? "sentiment-page sentiment-desk pb-12" : "sentiment-page page-width pb-12"}>
-      <header className="page-intro">
-        <p className="text-xs uppercase tracking-[0.18em] text-muted">
-          Sentiment
-        </p>
-        <h1 className="mt-1 font-display text-3xl tracking-tight text-ink">
-          {mode === "faces" ? "The feeling of Daet" : "Between the lines"}
-        </h1>
-        <p className="mt-2 text-sm text-muted">
-          {mode === "faces"
-            ? "How visitors rated their experience, one emoji at a time."
-            : "Explore the estimated sentiment in visitor notes."}
-        </p>
+      <header className="sentiment-intro">
+        <h1 className="font-display text-ink">Visitor sentiment</h1>
+        <p>See how visitors feel about Daet.</p>
       </header>
-      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Sentiment scope">
+      <div className="sentiment-scope" role="group" aria-label="Sentiment scope">
         <button className="filter-chip min-h-11" aria-pressed={scope === "places"} onClick={() => setScope("places")}>Individual places</button>
         <button className="filter-chip min-h-11" aria-pressed={scope === "trip"} onClick={() => setScope("trip")}>Overall Daet visit</button>
       </div>
-      <p className="mb-4 text-xs text-muted">Summaries cover the latest 500 shared entries. Overall visits and individual place ratings are calculated separately.</p>
       <BoardTabs active={mode} desk={desk} />
-      {mode === "words" ? <p className="mt-4 text-sm text-muted" role="status">{textCount} notes and replies checked · {townWords.total} classified · {textCount - townWords.total} without a clear sentiment match. Empty notes are excluded.</p> : null}
 
       <div className="sentiment-layout">
+        <div className="sentiment-overview">
         {mode === "faces" ? (
-          <FaceGauge tally={townFaces} className="lg:sticky lg:top-20" />
+          <FaceGauge tally={townFaces} className="sentiment-chart" />
         ) : (
-          <WordMeter tally={townWords} className="lg:sticky lg:top-20" />
+          <WordMeter tally={townWords} className="sentiment-chart" />
         )}
 
+        <details className="sentiment-method">
+          <summary>About these results{mode === "words" ? ` · ${townWords.total} classified notes` : ` · ${townFaces.total} ratings`}</summary>
+          <p>Summaries cover the latest 500 shared entries. Overall visits and individual place ratings are calculated separately. Emoji ratings exclude replies.</p>
+          {mode === "words" ? <p>{textCount} notes and replies checked · {townWords.total} classified · {textCount - townWords.total} without a clear sentiment match. Empty notes are excluded. Word-based estimates may misunderstand local expressions and sarcasm.</p> : null}
+        </details>
+        </div>
         <ul className="space-y-2">
           {scopedChannels.map((channel) => {
             const placePulses = pulses.filter(
