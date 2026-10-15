@@ -1675,3 +1675,33 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .sentiment-results-heading { margin-top: 16px; gap: 8px; }
   .sentiment-results-heading h2 { font-size: 15px; }
 }
+
+/* Compact destination detail page for phones. */
+.spot-mobile-back, .spot-mobile-ratings { display: none; }
+.spot-about-heading { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+@media (max-width: 767px) {
+  .spot-detail-page { padding-bottom: 24px; }
+  .spot-mobile-back { display: block; }
+  .spot-mobile-back a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding-block: 8px; font-size: 13px; font-weight: 600; color: #2563eb; }
+  .spot-detail-page .spot-hero { padding-top: 0; padding-bottom: 20px; gap: 16px; }
+  .spot-detail-page .spot-hero-image { aspect-ratio: 16 / 9; max-height: 220px; border-radius: 16px; }
+  .spot-detail-page .spot-hero-copy { padding: 0; }
+  .spot-detail-page .spot-desktop-back, .spot-detail-page .spot-desktop-gauge { display: none; }
+  .spot-intro-content { display: flex; flex-direction: column; }
+  .spot-detail-page .eyebrow { font-size: 10px; letter-spacing: .16em; line-height: 1.4; }
+  .spot-detail-page .spot-hero-copy h1 { font-size: clamp(27px, 7vw, 34px); line-height: 1.15; margin-top: 6px; }
+  .spot-detail-page .spot-description { margin-top: 10px; font-size: 14px; line-height: 1.6; }
+  .spot-detail-page .spot-rate-button { order: 1; width: 100%; min-height: 44px; height: 44px; margin-top: 16px; border-radius: 999px; font-size: 14px; }
+  .spot-mobile-ratings { order: 2; display: block; margin-top: 14px; padding: 12px 14px; border: 1px solid #dbeafe; background: white; border-radius: 16px; }
+  .spot-mobile-ratings > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+  .spot-mobile-ratings > div > strong { color: #1d4ed8; font-weight: 600; }
+  .spot-mobile-ratings > div > span { color: var(--color-muted); white-space: nowrap; }
+  .spot-mobile-ratings ul { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); margin-top: 10px; gap: 8px; }
+  .spot-mobile-ratings li { display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 13px; background: #f8faff; border-radius: 8px; padding: 5px 0; }
+  .spot-mobile-ratings li > span:first-child { font-size: 21px; }
+  .spot-detail-page .spot-body { padding-top: 18px; padding-bottom: 32px; gap: 20px; }
+  .spot-detail-page .spot-body > div > p { margin-top: 0; font-size: 14px; line-height: 1.65; }
+  .spot-detail-page .spot-body section { margin-top: 24px; }
+  .spot-detail-page .spot-body section > h2 { font-size: 24px; }
+  .spot-detail-page .spot-body section > p { font-size: 12px; }
+}

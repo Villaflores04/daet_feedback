@@ -10,7 +10,7 @@ import { RateSheet } from "@/components/rate-sheet";
 import { StoredPhoto } from "@/components/stored-photo";
 import { PlaceThread } from "@/components/thread";
 import { Button } from "@/components/ui/button";
-import { tallyFaces } from "@/lib/pulse/faces";
+import { FACES, tallyFaces } from "@/lib/pulse/faces";
 import { usePulse } from "@/lib/pulse/store";
 
 export function SpotPage() {
@@ -31,7 +31,8 @@ export function SpotPage() {
 
   return (
     <PublicChrome>
-      <main id="main-content">
+      <main id="main-content" className="spot-detail-page">
+        <div className="spot-mobile-back page-width"><Link href="/spots"><ArrowLeft size={18} aria-hidden="true" />All places</Link></div>
         <div className="spot-hero page-width">
           <StoredPhoto
             id={channel.cover}
@@ -39,17 +40,21 @@ export function SpotPage() {
             className="spot-hero-image"
           />
           <div className="spot-hero-copy">
-            <div>
-              <Link href="/spots" className="text-link mb-6"><ArrowLeft size={16} /> All places</Link>
+            <div className="spot-intro-content">
+              <Link href="/spots" className="spot-desktop-back text-link mb-6"><ArrowLeft size={16} /> All places</Link>
               <p className="eyebrow">
                 {channel.category}
               </p>
               <h1 className="mt-3 font-display tracking-tight">
                 {channel.name}
               </h1>
-              <p className="mt-4 leading-relaxed text-muted">{channel.blurb}</p>
-              <FaceGauge tally={tally} title="Visitor feelings · latest shared entries" className="mt-5" />
-              <Button type="button" className="mt-6 h-12" onClick={() => setRate(true)}>Share your experience</Button>
+              <p className="spot-description mt-4 leading-relaxed text-muted">{channel.blurb}</p>
+              <FaceGauge tally={tally} title="Visitor feelings · latest shared entries" className="spot-desktop-gauge mt-5" />
+              <div className="spot-mobile-ratings" aria-label="Visitor emoji ratings">
+                <div><strong>{tally.total === 0 ? "No ratings yet" : tally.pos > tally.total / 2 ? "Mostly positive" : tally.neg > tally.total / 2 ? "Mostly negative" : "Mixed visitor feelings"}</strong><span>{tally.total} {tally.total === 1 ? "rating" : "ratings"}</span></div>
+                <ul>{FACES.map(face => <li key={face.id}><span aria-hidden="true">{face.glyph}</span><span className="sr-only">{face.label}: </span><strong>{pulses.filter(p => p.channelId === channel.id && !p.parentId && p.face === face.id).length}</strong></li>)}</ul>
+              </div>
+              <Button type="button" className="spot-rate-button mt-6 h-12" onClick={() => setRate(true)}>Share your experience</Button>
             </div>
           </div>
         </div>
@@ -63,6 +68,7 @@ export function SpotPage() {
               <ArrowLeft className="size-4" />
               All places
             </Link>
+            <h2 className="spot-about-heading">About this place</h2>
             <p className="mt-4 text-[0.95rem] leading-relaxed text-muted">
               {channel.about}
             </p>
