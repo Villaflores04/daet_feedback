@@ -4,6 +4,8 @@ import { useParams, useSearchParams, notFound } from "next/navigation";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { WordMeter } from "@/components/word-meter";
+import { scanPulses, tallyScans } from "@/lib/pulse/words";
 import { FaceGauge } from "@/components/face-gauge";
 import { PublicChrome } from "@/components/public-chrome";
 import { RateSheet } from "@/components/rate-sheet";
@@ -26,6 +28,21 @@ export function SpotPage() {
     () => tallyFaces(pulses.filter((p) => p.channelId === channel?.id)),
     [pulses, channel?.id],
   );
+
+  const commentSentiment = useMemo(() => {
+    const comments = pulses.filter((p) => p.channelId === channel?.id && p.body.trim());
+    const words = tallyScans(scanPulses(comments));
+    const summary = comments.length === 0
+      ? "No written comments yet"
+      : words.total === 0
+        ? "No clear sentiment detected yet"
+        : words.pos > words.total / 2
+          ? "Mostly positive comments"
+          : words.neg > words.total / 2
+            ? "Mostly negative comments"
+            : "Mixed / OK comments";
+    return { words, summary, unclassified: comments.length - words.total };
+  }, [pulses, channel?.id]);
 
   if (!channel) throw notFound();
 
@@ -53,6 +70,14 @@ export function SpotPage() {
               <div className="spot-mobile-ratings" aria-label="Visitor emoji ratings">
                 <div><strong>{tally.total === 0 ? "No ratings yet" : tally.pos > tally.total / 2 ? "Mostly positive" : tally.neg > tally.total / 2 ? "Mostly negative" : "Mixed visitor feelings"}</strong><span>{tally.total} {tally.total === 1 ? "rating" : "ratings"}</span></div>
                 <ul>{FACES.map(face => <li key={face.id}><span aria-hidden="true">{face.glyph}</span><span className="sr-only">{face.label}: </span><strong>{pulses.filter(p => p.channelId === channel.id && !p.parentId && p.face === face.id).length}</strong></li>)}</ul>
+              </div>
+              <div className="order-3 mt-4 min-w-0" aria-label="Comment sentiment for this place">
+                <WordMeter tally={commentSentiment.words} title="Comment sentiment analysis" className="border border-line !p-4" />
+                <p className="mt-2 text-sm font-medium text-ink">{commentSentiment.summary}</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted">
+                  Written comments and replies for {channel.name} only.
+                  {commentSentiment.unclassified > 0 ? ` ${commentSentiment.unclassified} unclassified — no clear word match.` : ""}
+                </p>
               </div>
               <Button type="button" className="spot-rate-button mt-6 h-12" onClick={() => setRate(true)}>Share your experience</Button>
             </div>
