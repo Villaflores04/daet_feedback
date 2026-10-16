@@ -23,7 +23,8 @@ export function DeskLog() {
   }, [pulses, spot, mood]);
 
   return (
-    <div>
+    <div className="desk-activity">
+      <header className="desk-page-heading">
       <p className="text-xs uppercase tracking-[0.18em] text-muted">Log</p>
       <h1 className="mt-1 font-display text-3xl tracking-tight">
         Visitor activity
@@ -33,7 +34,8 @@ export function DeskLog() {
         restored.
       </p>
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      </header>
+      <div className="activity-filters">
         <select
           aria-label="Filter feedback by place"
           value={spot}
@@ -47,6 +49,7 @@ export function DeskLog() {
             </option>
           ))}
         </select>
+        <div className="activity-rating-filters" role="group" aria-label="Filter by emoji rating">
         {(["all", "POS", "MIX", "NEG"] as const).map((item) => (
           <button
             key={item}
@@ -67,35 +70,37 @@ export function DeskLog() {
                   : "Negative"}
           </button>
         ))}
+        </div>
       </div>
 
-      <ul className="mt-5 space-y-2">
+      <p className="activity-count" aria-live="polite">{tickets.length} entries · Newest first</p>
+      <ul className="activity-list">
         {tickets.map((pulse) => {
           const channel = channels.find((c) => c.id === pulse.channelId);
           const face = faceById(pulse.face);
           return (
             <li
               key={pulse.id}
-              className="flex items-start gap-3 rounded-2xl bg-plate p-4 shadow-plate"
+              className="activity-card rounded-2xl bg-plate shadow-plate"
             >
-              <span className="text-xl" aria-hidden>
+              <span className="activity-face text-xl" aria-hidden>
                 {face.glyph}
               </span>
-              <div className="min-w-0 flex-1">
+              <div className="activity-meta min-w-0">
                 <p className="font-medium">
                   {pulse.callsign}
                   <span className="ml-2 text-xs text-teal">{pulse.parentId ? "Reply" : "Comment"}</span>
-                  <span className="ml-2 text-xs font-normal text-muted">
-                    {channel?.name}
-                  </span>
                 </p>
-                <p className="mt-1 break-words text-sm text-muted">
+                  <p className="activity-place text-xs font-normal text-muted">
+                    {channel?.name}
+                  </p>
+              </div>
+                <p className="activity-body text-sm text-muted">
                   {pulse.body || `${face.label} — face only`}
                 </p>
-              </div>
               <button
                 type="button"
-                className="h-11 shrink-0 px-2 text-sm text-neg"
+                className="activity-delete h-11 shrink-0 px-2 text-sm text-neg"
                 disabled={Boolean(deleting)}
                 onClick={async () => {
                   if (!confirm(pulse.parentId ? "Delete this reply?" : "Delete this comment and its replies?")) return;

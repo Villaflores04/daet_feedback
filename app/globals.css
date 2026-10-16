@@ -1722,3 +1722,66 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @media (min-width: 1024px) and (max-width: 1279px) {
   .site-header .header-share { display: none; }
 }
+
+/* Admin: content must shrink below native select's intrinsic option width. */
+.desk-shell, .desk-sidebar, .desk-content, .desk-content > * { min-width: 0; }
+.desk-summary-details summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: 13px; font-weight: 600; color: #1d4ed8; }
+.desk-summary-details summary::before { content: '+'; margin-right: 8px; }
+.desk-summary-details[open] summary::before { content: '−'; }
+.activity-filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 18px; }
+.activity-filters select { width: 100%; min-width: 0; max-width: 100%; text-overflow: ellipsis; }
+.activity-rating-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.activity-rating-filters button { min-width: 0; padding-inline: 6px; }
+.activity-count { margin: 14px 0 10px; font-size: 12px; color: var(--color-muted); }
+.activity-list { display: grid; gap: 10px; }
+.activity-card { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 8px 10px; padding: 16px; }
+.activity-face { grid-column: 1; grid-row: 1; padding-top: 6px; }
+.activity-meta { grid-column: 2; grid-row: 1; align-self: center; overflow-wrap: anywhere; }
+.activity-place { margin-top: 3px; line-height: 1.45; }
+.activity-body { grid-column: 1 / -1; grid-row: 2; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.activity-delete { grid-column: 3; grid-row: 1; align-self: start; min-width: 44px; border-radius: 10px; }
+.activity-delete:hover { background: #fef2f2; }
+@media (min-width: 768px) {
+  .activity-filters { grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr); }
+}
+@media (max-width: 767px) {
+  .desk-shell { display: block; }
+  .desk-sidebar { padding: 8px 12px 0; width: 100%; height: auto; }
+  .desk-sidebar > a { display: flex; align-items: center; min-height: 44px; width: fit-content; max-width: calc(100% - 86px); }
+  .desk-sidebar > a > span { gap: 6px; }
+  .desk-sidebar > a svg { width: 28px; height: 28px; flex-shrink: 0; }
+  .desk-sidebar > a .font-display { font-size: 17px; }
+  .desk-sidebar .desk-actions { top: 8px; right: 12px; }
+  .desk-sidebar .desk-actions button { padding-inline: 4px; min-height: 44px; font-size: 11px; }
+  .desk-sidebar nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); overflow: visible; gap: 2px; margin-top: 5px; padding-bottom: 7px; }
+  .desk-sidebar nav .desk-nav-link { flex-direction: column; justify-content: center; gap: 3px; min-height: 48px; padding: 4px 0; font-size: 10px; border-radius: 10px; white-space: normal; }
+  .desk-sidebar nav .desk-nav-link svg { width: 17px; height: 17px; }
+  .desk-content { width: 100%; padding: 16px 14px 28px; }
+  .desk-content h1 { font-size: 26px; line-height: 1.15; }
+  .desk-page-heading > p:first-child { display: none; }
+  .desk-page-heading > p:last-child { margin-top: 6px; font-size: 12px; line-height: 1.5; }
+  .desk-overview { margin-top: 12px; }
+  .desk-overview > * + * { margin-top: 12px; }
+  .desk-data-status { gap: 8px; font-size: 11px; }
+  .desk-data-status p { min-width: 0; line-height: 1.4; }
+  .desk-data-status button { flex-shrink: 0; padding-inline: 12px; font-size: 12px; }
+  .desk-stat-grid { gap: 8px; }
+  .desk-stat-grid > div { padding: 10px 12px; }
+  .desk-stat-grid > div > p:first-child { font-size: 11px; }
+  .desk-stat-grid > div > p:last-child { font-size: 24px; line-height: 1.15; margin-top: 4px; }
+  .desk-overview section, .desk-chart-grid > figure { padding: 14px; min-width: 0; }
+  .desk-overview h2 { font-size: 16px; line-height: 1.3; }
+  .desk-summary > p:first-child { font-size: 10px; letter-spacing: .06em; }
+  .desk-summary > p, .desk-summary-details li { font-size: 12px; line-height: 1.5; }
+  .desk-summary-details summary { font-size: 12px; }
+  .desk-chart-grid { gap: 12px; }
+  .desk-overview .primary-link { font-size: 13px; min-height: 44px; padding: 10px 16px; }
+  .activity-filters { margin-top: 12px; gap: 8px; }
+  .activity-filters select { font-size: 16px; }
+  .activity-rating-filters button { font-size: 12px; }
+  .activity-card { padding: 12px; gap: 6px 8px; }
+  .activity-meta > p:first-child { font-size: 13px; }
+  .activity-place { font-size: 11px; }
+  .activity-body { font-size: 13px; line-height: 1.55; }
+  .activity-delete { font-size: 12px; }
+}

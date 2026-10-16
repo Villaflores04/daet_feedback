@@ -127,15 +127,16 @@ function DeskHome() {
   ];
 
   return (
-    <div>
+    <div className="desk-home">
+      <header className="desk-page-heading">
       <p className="text-xs uppercase tracking-[0.18em] text-muted">Officer</p>
       <h1 className="mt-1 font-display text-3xl tracking-tight">
-        A view of the town.
+        Overview
       </h1>
       <p className="mt-2 max-w-lg text-sm text-muted">
-        Manage places, review visitor feedback, and follow up on suggestions.
-        Suggestion approvals and removals are saved to the shared database.
+        Visitor feedback, trends, and priorities at a glance.
       </p>
+      </header>
       <DeskOverview />
       <h2 className="mt-8 font-semibold">Manage the subsystem</h2>
       <ul className="mt-3 grid gap-3 sm:grid-cols-2">
