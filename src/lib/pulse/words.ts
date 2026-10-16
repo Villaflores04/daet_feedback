@@ -1,7 +1,7 @@
 import type { Mood, Pulse } from "./types";
 
 const POS = [
-  "good", "excellent", "enjoy", "enjoyed", "helpful", "recommend", "recommended", "comfortable", "affordable", "accommodating", "ganda", "magagandang", "mabait", "maayos", "presko", "panalo", "napakaganda", "nakakarelax",
+  "nice", "pleasant", "enjoyable", "good", "excellent", "enjoy", "enjoyed", "helpful", "recommend", "recommended", "comfortable", "affordable", "accommodating", "ganda", "magagandang", "mabait", "maayos", "presko", "panalo", "napakaganda", "nakakarelax",
   "beautiful",
   "stunning",
   "amazing",
@@ -80,9 +80,6 @@ const MIX = [
   "soso",
   "sige",
   "pwede",
-  "medyo",
-  "bit crowded",
-  "a bit",
 ];
 
 export type ScannedNote = {
@@ -115,8 +112,10 @@ export function scanBody(body: string): Mood | null {
   }
   if (pos === 0 && neg === 0 && mix === 0) return null;
   if (pos > 0 && neg > 0) return "MIX";
-  if (pos > neg && pos >= mix) return "POS";
-  if (neg > pos && neg >= mix) return "NEG";
+  // Neutral cues and the number of repeated cues must not override polarity.
+  // Any positive and negative expressions together make the comment mixed.
+  if (pos > 0) return "POS";
+  if (neg > 0) return "NEG";
   return "MIX";
 }
 
