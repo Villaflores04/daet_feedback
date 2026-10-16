@@ -55,8 +55,8 @@ type PulseState = {
   syncError: string;
   addPulse: (draft: DraftPulse) => Promise<Pulse>;
   sendReply: (draft: DraftPulse) => Promise<Pulse>;
-  reactPulse: (id: string, side: "up" | "down") => void;
-  addWish: (draft: DraftWish) => Wish;
+  reactPulse: (id: string, side: "up" | "down") => Promise<void>;
+  addWish: (draft: DraftWish) => Promise<Wish>;
   acceptWish: (id: string) => Promise<Channel>;
   burnWish: (id: string) => Promise<void>;
   addChannel: (draft: DraftChannel, id?: string) => Promise<Channel>;
@@ -153,29 +153,23 @@ export const usePulse = create<PulseState>()(
         set((state) => ({ pulses: [saved.data, ...state.pulses.filter((p) => p.id !== saved.data.id)] }));
         return saved.data;
       },
-      reactPulse: (id, side) => {
-        set((state) => {
-          const current = state.myReacts[id];
-          const pulses = state.pulses.map((pulse) => {
-            if (pulse.id !== id) return pulse;
-            const reacts = { ...pulse.reacts };
-            if (current === side) {
-              reacts[side] = Math.max(0, reacts[side] - 1);
-              return { ...pulse, reacts };
-            }
-            if (current) {
-              reacts[current] = Math.max(0, reacts[current] - 1);
-            }
-            reacts[side] += 1;
-            return { ...pulse, reacts };
+      reactPulse: async (id, side) => {
+        const save = async () => {
+          const next = get().myReacts[id] === side ? null : side;
+          const response = await fetch("/api/pulse/reaction", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, side: next }) });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "Could not save reaction.");
+          set(state => {
+            const myReacts = { ...state.myReacts };
+            if (data.side) myReacts[id] = data.side; else delete myReacts[id];
+            return { myReacts, pulses: state.pulses.map(p => p.id === id ? { ...p, reacts: data.reacts } : p) };
           });
-          const myReacts = { ...state.myReacts };
-          if (current === side) delete myReacts[id];
-          else myReacts[id] = side;
-          return { pulses, myReacts };
-        });
+        };
+        if (typeof navigator !== "undefined" && navigator.locks) await navigator.locks.request(`daet-reaction-${id}`, save);
+        else await save();
       },
-      addWish: (draft) => {
+      addWish: async (draft) => {
+        const photo = await sharedCover(draft.photo);
         const wish: Wish = {
           id: uid("w"),
           name: draft.name.trim(),
@@ -183,15 +177,14 @@ export const usePulse = create<PulseState>()(
           why: draft.why.trim(),
           category: draft.category,
           callsign: draft.callsign.trim() || "Visitor",
-          photo: draft.photo,
+          photo: photo || undefined,
           status: "open",
           createdAt: Date.now(),
         };
-        set((state) => ({ wishes: [wish, ...state.wishes] }));
-        void saveSharedWish(wish).then((saved) => {
-          if (saved.ok) void get().syncShared();
-        });
-        return wish;
+        const saved = await saveSharedWish(wish);
+        if (!saved.ok) throw new Error(saved.error);
+        set((state) => ({ wishes: [saved.data, ...state.wishes.filter(w => w.id !== saved.data.id)] }));
+        return saved.data;
       },
       acceptWish: async (id) => {
         const result = await acceptSharedWish(id);

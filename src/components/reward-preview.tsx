@@ -20,5 +20,5 @@ export function RewardPreview({ compact = false }: { compact?: boolean }) {
 
 export function RewardBalanceLink() {
   const total = useSyncExternalStore(subscribePreviewPoints, previewPoints, serverPoints);
-  return <Link href="/feedback" className="reward-balance-link" aria-label={`${total} demo reward points. Open feedback.`}><Gift size={16} /><span><strong>{total} pts</strong><small>Demo points</small></span></Link>;
+  return <Link href="/rewards" className="reward-balance-link" aria-label={`${total} demo reward points. View points and rewards information.`}><Gift size={16} /><span><strong>{total} pts</strong><small>Demo points</small></span></Link>;
 }

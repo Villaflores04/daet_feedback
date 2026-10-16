@@ -1,0 +1,36 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const ts = require('typescript');
+const cache = {};
+function load(file) {
+  file = path.resolve(file);
+  if (cache[file]) return cache[file].exports;
+  const mod = cache[file] = {exports:{}};
+  const code = ts.transpileModule(fs.readFileSync(file,'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+  new Function('exports','require','module',code)(mod.exports, id => id.startsWith('.') ? load(path.resolve(path.dirname(file), id+'.ts')) : require(id), mod);
+  return mod.exports;
+}
+const {buildInsights} = load('src/lib/pulse/insights.ts');
+const {reactionCounts} = load('src/lib/pulse/reactions.ts');
+const now = Date.parse('2026-10-16T12:00:00Z');
+const base = {channelId:'beach',parentId:null,callsign:'Test',createdAt:now,reacts:{up:2,down:1},body:'Good but dirty',face:'happy'};
+const rows = [{...base,id:'a'}, {...base,id:'reply',parentId:'a',face:'sad',body:'Bad service'}, {...base,id:'trip',channelId:'feedback-overall-daet',face:'sad',body:'',createdAt:now-86400000}, {...base,id:'unknown',body:'The book is on the table',face:'medium'}];
+const data = buildInsights(rows,[{id:'beach',name:'Beach',slug:'beach'}],now);
+assert.equal(data.originalCount,3);
+assert.equal(data.replyCount,1);
+assert.deepEqual(data.placeFaces,{pos:1,mix:1,neg:0,total:2});
+assert.deepEqual(data.tripFaces,{pos:0,mix:0,neg:1,total:1});
+assert.deepEqual(data.words,{pos:0,mix:1,neg:1,total:2});
+assert.equal(data.trend.at(-1).count,2);
+assert.equal(data.trend.at(-2).count,1);
+assert.equal(data.mentions.find(t=>t.label==='Cleanliness').review,1);
+assert.equal(data.reactions.down,4);
+assert.equal(buildInsights([],[],now).originalCount,0);
+assert.match(buildInsights([],[],now).lines[0],/No original/);
+assert.deepEqual(reactionCounts({up:2,down:1},null,'up'),{up:3,down:1});
+assert.deepEqual(reactionCounts({up:2,down:1},'up','down'),{up:1,down:2});
+assert.deepEqual(reactionCounts({up:2,down:1},'up',null),{up:1,down:1});
+assert.deepEqual(reactionCounts({up:2,down:1},'up','up'),{up:2,down:1});
+assert.deepEqual(reactionCounts({up:0,down:0},'up',null),{up:0,down:0});
+console.log('Dean review: scope, replies, mixed sentiment, dates, topics, empty data and reaction transitions passed.');

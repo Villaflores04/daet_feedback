@@ -97,7 +97,7 @@ export function CoastalHero() {
   return (
     <section
       ref={root}
-      className="coastal-journey"
+      className="coastal-journey daet-photo-hero"
       aria-label="DAET-CONNECT visitor feedback"
     >
       <div className="coastal-stage">
@@ -114,8 +114,8 @@ export function CoastalHero() {
           </svg>
         </div>
         <img
-          src="/hero-desktop.webp"
-          srcSet="/hero-mobile.webp 960w, /hero-desktop.webp 1920w"
+          src="/daet-hero-desktop.webp"
+          srcSet="/daet-hero-mobile.webp 960w, /daet-hero-desktop.webp 1920w"
           sizes="(max-width: 767px) 160vw, 100vw"
           decoding="async"
           alt=""
@@ -152,26 +152,6 @@ export function CoastalHero() {
           <path d="M-100 95C180 9 310 223 630 130S1120 40 1550 127" stroke="#efffff" strokeWidth="3" fill="none" />
           <path d="M-100 165C180 79 310 293 630 200S1120 110 1550 197" stroke="#efffff80" strokeWidth="1.5" fill="none" />
         </svg>
-        <svg
-          className="coastal-frond coastal-frond-left"
-          viewBox="0 0 360 500"
-          aria-hidden="true"
-        >
-          <g fill="#0a4e60">
-            <path d="M-10 510Q20 190 300 15Q80 215 25 510Z" />
-            <path d="M58 361Q-80 210 22 158Q20 275 58 361M92 283Q-25 116 87 84Q49 205 92 283M138 208Q67 49 177 18Q115 140 138 208M188 141Q164 15 271 0Q193 84 188 141M50 383Q218 218 267 315Q141 323 50 383M78 302Q264 123 306 217Q177 229 78 302M126 217Q295 79 339 162Q234 161 126 217M195 131Q329 39 357 107Q266 97 195 131" />
-          </g>
-        </svg>
-        <svg
-          className="coastal-frond coastal-frond-right"
-          viewBox="0 0 360 500"
-          aria-hidden="true"
-        >
-          <g fill="#126b73">
-            <path d="M0 510Q30 170 295 10Q98 226 26 510Z" />
-            <path d="M50 370Q-66 218 32 153Q7 283 50 370M96 266Q-8 102 107 65Q60 185 96 266M162 169Q105 28 220 4Q151 109 162 169M55 357Q241 192 289 291Q152 294 55 357M111 241Q286 85 328 184Q213 183 111 241M183 150Q311 16 360 111Q263 93 183 150" />
-          </g>
-        </svg>
         <div className="coastal-content page-width">
           <p className="eyebrow">
             <span className="inline-block h-px w-8 bg-teal" /> Daet, Camarines
@@ -199,7 +179,7 @@ export function CoastalHero() {
             </Link>
           </div>
         </div>
-        <div className="coastal-location" aria-hidden="true"><span>YOUR FEEDBACK MATTERS</span><p>A better visit<br />starts with <em>you.</em></p><small>Daet · Camarines Norte · Philippines</small></div>
+        <div className="coastal-location" aria-hidden="true"><span>BAGASBAS BEACH, DAET</span><p>A better visit<br />starts with <em>you.</em></p><small>Daet · Camarines Norte · Philippines</small></div>
         <div className="coastal-caption page-width">
           <a href="#discover" className="scroll-cue">
             <ArrowDown size={16} /> Visitor experiences

@@ -26,14 +26,19 @@ export function WishSheet({
   const [photo, setPhoto] = useState<string | undefined>();
   const [alias, setAlias] = useState(callsign);
 
-  const submit = () => {
+  const [saving, setSaving] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const submit = async () => {
+    if (saving || photoBusy) return;
     if (name.trim().length < 3) {
       toast("Name the place in at least 3 letters.");
       return;
     }
     const nextName = alias.trim() || callsign || "Visitor";
     setCallsign(nextName);
-    addWish({
+    setSaving(true);
+    try {
+    await addWish({
       name,
       where,
       why,
@@ -47,11 +52,13 @@ export function WishSheet({
     setPhoto(undefined);
     onClose();
     toast("Suggestion sent to the municipal desk");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save suggestion. Please retry."); }
+    finally { setSaving(false); }
   };
 
   return (
-    <SheetFrame open={open} onClose={onClose} title="Suggest a place" footer={<Button type="button" className="h-12 w-full" onClick={submit}>
-          Send suggestion
+    <SheetFrame open={open} onClose={onClose} title="Suggest a place" footer={<Button type="button" className="h-12 w-full" onClick={submit} disabled={saving || photoBusy}>
+          {saving ? "Saving…" : "Send suggestion"}
         </Button>}>
       <div className="space-y-4">
         <label className="block">
@@ -87,7 +94,7 @@ export function WishSheet({
                 type="button"
                 onClick={() => setCategory(item)}
                 className={cn(
-                  "h-10 rounded-full px-3 text-sm",
+                  "h-11 rounded-full px-3 text-sm",
                   category === item ? "bg-teal text-plate" : "bg-cool text-ink",
                 )}
               >
@@ -118,7 +125,7 @@ export function WishSheet({
             className="h-12 w-full rounded-xl border border-line bg-plate px-3 text-ink outline-none focus:border-teal"
           />
         </label>
-        <PhotoField value={photo} onChange={setPhoto} />
+        <PhotoField value={photo} onChange={setPhoto} onBusyChange={setPhotoBusy} />
 
       </div>
     </SheetFrame>

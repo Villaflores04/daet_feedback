@@ -1,5 +1,6 @@
 "use client";
 
+import { DeskOverview } from "@/components/desk-overview";
 import { OVERALL_ID } from "@/lib/pulse/scope";
 import Link from "next/link";
 import { useState } from "react";
@@ -135,7 +136,9 @@ function DeskHome() {
         Manage places, review visitor feedback, and follow up on suggestions.
         Suggestion approvals and removals are saved to the shared database.
       </p>
-      <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+      <DeskOverview />
+      <h2 className="mt-8 font-semibold">Manage the subsystem</h2>
+      <ul className="mt-3 grid gap-3 sm:grid-cols-2">
         {cards.map((card) => {
           const Icon = card.icon;
           return (

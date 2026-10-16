@@ -180,6 +180,8 @@ export function BoardView({
                           );
                         })}
                       </ul>
+                    ) : !desk ? (
+                      <WordMeter tally={words} title="Comment sentiment summary" />
                     ) : (
                       <ul className="space-y-2">
                         {scanned.length === 0 ? (
@@ -203,6 +205,7 @@ export function BoardView({
                                 {note.mood}
                               </span>
                               {note.pulse.body}
+                              <small className="mt-2 block text-muted">{note.pulse.parentId ? "Reply" : "Original feedback"} · {note.pulse.reacts.up} agree · {note.pulse.reacts.down} disagree</small>
                             </li>
                           ))
                         )}

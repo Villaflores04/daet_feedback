@@ -47,6 +47,15 @@ export function PulseCard({
   const face = faceById(pulse.face);
   const mine = usePulse((s) => s.myReacts[pulse.id]);
   const reactPulse = usePulse((s) => s.reactPulse);
+  const [reacting, setReacting] = useState(false);
+  const [reactionError, setReactionError] = useState("");
+  async function react(side: "up" | "down") {
+    if (reacting) return;
+    setReacting(true); setReactionError("");
+    try { await reactPulse(pulse.id, side); }
+    catch (error) { setReactionError(error instanceof Error ? error.message : "Could not save reaction. Please retry."); }
+    finally { setReacting(false); }
+  }
   const [openPhoto, setOpenPhoto] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const reply = Boolean(pulse.parentId);
@@ -121,7 +130,8 @@ export function PulseCard({
       <footer className={cn("story-actions flex items-center gap-1", reply ? "mt-1" : "mt-4 border-t border-line pt-2")}>
         <button
           type="button"
-          onClick={() => reactPulse(pulse.id, "up")}
+          disabled={reacting}
+          onClick={() => void react("up")}
           aria-pressed={mine === "up"}
           className={cn(
             "inline-flex h-11 min-w-11 items-center gap-1.5 rounded-lg px-2.5 text-sm",
@@ -134,7 +144,8 @@ export function PulseCard({
         </button>
         <button
           type="button"
-          onClick={() => reactPulse(pulse.id, "down")}
+          disabled={reacting}
+          onClick={() => void react("down")}
           aria-pressed={mine === "down"}
           className={cn(
             "inline-flex h-11 min-w-11 items-center gap-1.5 rounded-lg px-2.5 text-sm",
@@ -162,6 +173,7 @@ export function PulseCard({
         </div>
       </footer>
 
+      {reactionError && <p role="alert" className="mt-2 text-sm text-neg">{reactionError}</p>}
       {openPhoto && pulse.photo ? (
         <Lightbox
           id={pulse.photo}

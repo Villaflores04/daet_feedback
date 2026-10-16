@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
+  House,
   Compass,
   ChartNoAxesCombined,
   MessagesSquare,
@@ -9,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 const ITEMS = [
+  { to: "/", label: "Home", icon: House },
   { to: "/spots", label: "Places", icon: Compass },
   { to: "/live", label: "Stories", icon: MessagesSquare },
   { to: "/board", label: "Sentiment", icon: ChartNoAxesCombined },
@@ -21,7 +23,7 @@ export function SiteDock() {
       <ul>
         {ITEMS.map((item) => {
           const Icon = item.icon;
-          const active = pathname.startsWith(item.to);
+          const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
           return (
             <li key={item.to}>
               <Link

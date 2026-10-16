@@ -1,3 +1,4 @@
+import { photoConsent, PHOTO_CONSENT_VERSION } from "./photos";
 import type { Channel, Pulse, Wish } from "./types";
 import { useDesk } from "./desk";
 
@@ -88,6 +89,8 @@ export async function uploadSharedPhoto(id: string, file: Blob) {
   }
   try {
     const form = new FormData();
+    if (!photoConsent(id)) return { ok: false as const, error: "Please attach the photo again and confirm permission to share it." };
+    form.set("consent", PHOTO_CONSENT_VERSION);
     form.set("id", id);
     form.set("file", file, `${id}.jpg`);
     const response = await fetch("/api/pulse/photo", {

@@ -1705,3 +1705,20 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .spot-detail-page .spot-body section > h2 { font-size: 24px; }
   .spot-detail-page .spot-body section > p { font-size: 12px; }
 }
+
+/* Dean review: clear home navigation, genuine Daet scenery, compact mobile controls. */
+.site-dock ul { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.daet-photo-hero .coastal-town { mask-image: none; object-position: center; }
+.daet-photo-hero .coastal-water, .daet-photo-hero .coastal-surf,
+.daet-photo-hero .coastal-clouds, .daet-photo-hero .coastal-orbit { display: none; }
+.daet-photo-hero .coastal-wash { background: linear-gradient(90deg, #f8fbfff5 0%, #f8fbffe8 32%, #f8fbff55 65%, #f8fbff08 100%); }
+.daet-photo-hero .hero-reward-note { color: #713f12; background: #fef3c7; border-radius: 999px; padding: 6px 12px; width: fit-content; }
+.desk-overview .primary-link:disabled { cursor: not-allowed; }
+@media (max-width: 767px) {
+  .daet-photo-hero .coastal-wash { background: linear-gradient(#f8fbfff7 0%, #f8fbffed 49%, #f8fbff60 76%, #f8fbff05 100%); }
+  .site-dock a { font-size: 10px; }
+  .daet-photo-hero .hero-reward-note { font-size: 10px; }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .site-header .header-share { display: none; }
+}

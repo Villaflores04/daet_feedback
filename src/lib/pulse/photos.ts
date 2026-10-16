@@ -143,3 +143,12 @@ export async function deletePhoto(id: string) {
   if (prev) URL.revokeObjectURL(prev);
   urlCache.delete(id);
 }
+
+// Consent is tied to the selected photo, not automatically assumed for older drafts.
+export const PHOTO_CONSENT_VERSION = "daet-photo-v1";
+export function recordPhotoConsent(id: string) {
+  localStorage.setItem(`photo-consent:${id}`, PHOTO_CONSENT_VERSION);
+}
+export function photoConsent(id: string) {
+  try { return localStorage.getItem(`photo-consent:${id}`) === PHOTO_CONSENT_VERSION; } catch { return false; }
+}

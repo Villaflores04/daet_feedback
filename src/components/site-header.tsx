@@ -6,6 +6,7 @@ import { RewardBalanceLink } from "@/components/reward-preview";
 import { Wordmark } from "@/components/mark";
 import { cn } from "@/lib/utils";
 const LINKS = [
+  { to: "/", label: "Home" },
   { to: "/spots", label: "Places" },
   { to: "/live", label: "Visitor stories" },
   { to: "/board", label: "Sentiment" },
@@ -40,10 +41,10 @@ export function SiteHeader({
             <Link
               href={link.to}
               key={link.to}
-              aria-current={pathname.startsWith(link.to) ? "page" : undefined}
+              aria-current={(link.to === "/" ? pathname === "/" : pathname.startsWith(link.to)) ? "page" : undefined}
               className={cn(
                 "header-link",
-                pathname.startsWith(link.to) && "is-active",
+                (link.to === "/" ? pathname === "/" : pathname.startsWith(link.to)) && "is-active",
               )}
             >
               {link.label}

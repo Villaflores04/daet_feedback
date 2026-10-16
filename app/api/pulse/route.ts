@@ -131,6 +131,10 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
+      if (pulse.parentId) {
+        const parent = await db.from("pulses").select("id,channel_id,parent_id").eq("id", pulse.parentId).single();
+        if (parent.error || parent.data.parent_id || parent.data.channel_id !== pulse.channelId) return NextResponse.json({ error: "Choose an original story from this place to reply to." }, { status: 400 });
+      }
       if (pulse.channelId === OVERALL_ID) {
         const c = OVERALL_CHANNEL;
         const { error } = await db.from("channels").upsert({
@@ -201,7 +205,7 @@ export async function POST(request: Request) {
               String(wish.callsign || "Visitor")
                 .trim()
                 .slice(0, 40) || "Visitor",
-            photo: null,
+            photo: typeof wish.photo === "string" && /^https:\/\//.test(wish.photo) ? wish.photo : null,
             status: "open",
             created_at: new Date(
               Number(wish.createdAt) || Date.now(),

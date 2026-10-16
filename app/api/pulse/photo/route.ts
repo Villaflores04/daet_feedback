@@ -13,6 +13,7 @@ const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 export async function POST(request: Request) {
   try {
     const form = await request.formData();
+    if (form.get("consent") !== "daet-photo-v1") return NextResponse.json({ error: "Photo sharing permission is required." }, { status: 400 });
     const id = String(form.get("id") || "");
     const file = form.get("file");
     if (!/^[a-zA-Z0-9_-]{8,120}$/.test(id) || !(file instanceof File)) {
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
       .from("pulse-photos")
       .upload(path, await file.arrayBuffer(), {
         contentType: "image/jpeg",
+        metadata: { consent_version: "daet-photo-v1", consent_received_at: new Date().toISOString() },
         upsert: true,
         cacheControl: "31536000",
       });
