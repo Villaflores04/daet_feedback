@@ -1,52 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { AlertTriangle, Check, Copy, RefreshCw, Sparkles } from "lucide-react";
+import { AlertTriangle, Check, Copy, FileText, RefreshCw, Sparkles } from "lucide-react";
 import type { buildInsights } from "@/lib/pulse/insights";
+import type { Briefing } from "@/lib/pulse/briefing";
 import { cn } from "@/lib/utils";
 import { MoodBar } from "./mood-bar";
 import { MOOD_COLORS } from "./desk-charts";
 
 type Insights = ReturnType<typeof buildInsights>;
-type SectionKey = "obs" | "prio" | "next" | "other";
-type Block = { kind: "p"; text: string } | { kind: "li"; text: string; n?: number; proposal: boolean };
-type Section = { key: SectionKey; blocks: Block[] };
-
-const META: Record<SectionKey, { emoji: string; title: string; tone: string }> = {
-  obs: { emoji: "🔎", title: "Observations", tone: "border-blue-200 bg-blue-50/70" },
-  prio: { emoji: "⚠️", title: "Review priorities", tone: "border-amber-200 bg-amber-50/70" },
-  next: { emoji: "💡", title: "Suggested next steps", tone: "border-emerald-200 bg-emerald-50/70" },
-  other: { emoji: "📋", title: "Briefing", tone: "border-line bg-page" },
-};
-const HEADING = /^(?:#+\s*)?\*{0,2}(observations?|review priorities|priorities|suggested next steps|next steps|recommendations?)\*{0,2}\s*(?::\s*\*{0,2}\s*(.*))?$/i;
-const ITEM = /^\s*(?:[-*•]\s+|(\d+)[.)]\s+)(.*)$/;
-const clean = (s: string) => s.replace(/\*\*/g, "").replace(/(^|\s)_([^_]+)_(?=\s|$)/g, "$1$2").trim();
-const keyOf = (name: string): SectionKey => (/observ/i.test(name) ? "obs" : /priorit/i.test(name) ? "prio" : "next");
-
-/** Turns the model's plain-text briefing into labelled sections. Falls back to a single section for unexpected text. */
-export function parseBriefing(text: string): Section[] {
-  const sections: Section[] = [];
-  let current: Section | null = null;
-  const push = (key: SectionKey) => { current = { key, blocks: [] }; sections.push(current); return current; };
-  for (const raw of text.split(/\r?\n/)) {
-    const line = raw.trim();
-    if (!line) continue;
-    const heading = HEADING.exec(line);
-    if (heading) {
-      const section = push(keyOf(heading[1]));
-      const rest = clean(heading[2] ?? "");
-      if (rest) section.blocks.push({ kind: "p", text: rest });
-      continue;
-    }
-    const target: Section = current ?? push("other");
-    const item = ITEM.exec(line);
-    if (item) {
-      const body = clean(item[2]);
-      const proposal = /^proposal(?: for human review)?\s*:\s*/i.test(body);
-      target.blocks.push({ kind: "li", text: body.replace(/^proposal(?: for human review)?\s*:\s*/i, ""), n: item[1] ? Number(item[1]) : undefined, proposal });
-    } else target.blocks.push({ kind: "p", text: clean(line) });
-  }
-  return sections.filter(s => s.blocks.length);
-}
 
 function Ring({ pos, mix, neg }: { pos: number; mix: number; neg: number }) {
   const total = pos + mix + neg;
@@ -113,60 +74,171 @@ function Snapshot({ data }: { data: Insights }) {
   );
 }
 
-function BriefingText({ text }: { text: string }) {
-  const sections = parseBriefing(text);
+const TONE = {
+  positive: { emoji: "😊", label: "Positive", card: "border-emerald-200 bg-emerald-50/70", chip: "bg-emerald-100 text-emerald-800" },
+  mixed: { emoji: "😐", label: "Mixed", card: "border-amber-200 bg-amber-50/70", chip: "bg-amber-100 text-amber-900" },
+  negative: { emoji: "😢", label: "Negative", card: "border-red-200 bg-red-50/70", chip: "bg-red-100 text-red-800" },
+} as const;
+const LEVEL = { high: "bg-red-100 text-red-800", medium: "bg-amber-100 text-amber-900", low: "bg-slate-100 text-slate-700" } as const;
+
+export function briefingToText(b: Briefing) {
+  const lines = [b.headline, ""];
+  if (b.themes.length) lines.push("What visitors are saying", ...b.themes.map(t => `- ${t.place}: ${t.theme} (${t.tone}, ${t.mentions} comments) - ${t.detail}`), "");
+  if (b.priorities.length) lines.push("Review priorities", ...b.priorities.map((p, i) => `${i + 1}. [${p.level}] ${p.place}: ${p.reason} (${p.evidence})`), "");
+  if (b.actions.length) lines.push("Suggested actions (proposals for officer review)", ...b.actions.map(a => `- ${a.action} - ${a.owner}, ${a.effort} effort, ${a.kind}`));
+  return lines.join("\n").trim();
+}
+
+function Section({ emoji, title, hint, children }: { emoji: string; title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-3">
-      {sections.map((s, i) => {
-        const meta = META[s.key];
-        const paras = s.blocks.filter((b): b is Extract<Block, { kind: "p" }> => b.kind === "p");
-        const items = s.blocks.filter((b): b is Extract<Block, { kind: "li" }> => b.kind === "li");
-        return (
-          <article key={`${s.key}-${i}`} className={cn("rounded-xl border p-4", meta.tone)}>
-            <h3 className="flex items-center gap-2 text-base font-semibold"><span aria-hidden className="text-xl leading-none">{meta.emoji}</span>{meta.title}</h3>
-            {paras.map((b, j) => <p key={j} className="mt-2 text-sm leading-6">{b.text}</p>)}
-            {items.length ? <ul className="mt-3 space-y-2.5">{items.map((b, j) => (
-              <li key={j} className="flex gap-3 text-sm leading-6">
-                {b.n !== undefined || s.key === "prio" ? <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-white text-xs font-semibold tabular-nums shadow-sm" aria-hidden>{b.n ?? j + 1}</span> : <span className="mt-2.5 size-2 shrink-0 rounded-full bg-emerald-500" aria-hidden />}
-                <span className="min-w-0">{b.proposal ? <span className="mr-2 inline-block rounded-full bg-white px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-emerald-700 shadow-sm">Proposal</span> : null}{b.text}</span>
-              </li>))}</ul> : null}
-          </article>
-        );
-      })}
+    <div>
+      <h3 className="flex items-center gap-2 text-base font-semibold"><span aria-hidden className="text-xl leading-none">{emoji}</span>{title}</h3>
+      {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
+      <div className="mt-3">{children}</div>
     </div>
   );
+}
+
+function BriefingView({ b }: { b: Briefing }) {
+  const [done, setDone] = useState<number[]>([]);
+  const toggle = (i: number) => setDone(d => (d.includes(i) ? d.filter(x => x !== i) : [...d, i]));
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-4">
+        <p className="flex items-start gap-3 text-base font-semibold leading-7 sm:text-lg"><span aria-hidden className="text-2xl leading-8">🧭</span><span className="min-w-0">{b.headline}</span></p>
+      </div>
+      {b.themes.length ? (
+        <Section emoji="💬" title="What visitors are saying" hint="Themes read from visitor comments, grouped by place.">
+          <ul className="grid gap-3 md:grid-cols-2">
+            {b.themes.map((t, i) => {
+              const tone = TONE[t.tone];
+              return (
+                <li key={i} className={cn("rounded-xl border p-4", tone.card)}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold", tone.chip)}><span aria-hidden>{tone.emoji}</span>{tone.label}</span>
+                    {t.mentions ? <span className="text-xs tabular-nums text-muted">{t.mentions} comment{t.mentions === 1 ? "" : "s"}</span> : null}
+                  </div>
+                  <p className="mt-2 text-xs font-medium text-muted">{t.place}</p>
+                  <p className="mt-0.5 font-semibold leading-6">{t.theme}</p>
+                  <p className="mt-1 text-sm leading-6">{t.detail}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </Section>
+      ) : null}
+      {b.priorities.length ? (
+        <Section emoji="⚠️" title="Review priorities" hint="Most important first.">
+          <ol className="space-y-3">
+            {b.priorities.map((p, i) => (
+              <li key={i} className="flex gap-3 rounded-xl border border-line bg-white p-4">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-cool text-sm font-semibold tabular-nums" aria-hidden>{i + 1}</span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2"><p className="font-semibold">{p.place}</p><span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide", LEVEL[p.level])}>{p.level}</span></div>
+                  <p className="mt-1 text-sm leading-6">{p.reason}</p>
+                  {p.evidence ? <p className="mt-1 text-xs leading-5 text-muted">Evidence: {p.evidence}</p> : null}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </Section>
+      ) : null}
+      {b.actions.length ? (
+        <Section emoji="✅" title="Suggested actions" hint="Proposals for officer review. Tick them off as you go.">
+          <ul className="space-y-2.5">
+            {b.actions.map((a, i) => {
+              const checked = done.includes(i);
+              return (
+                <li key={i}>
+                  <label className={cn("flex min-h-11 cursor-pointer gap-3 rounded-xl border p-3.5 transition-colors", checked ? "border-emerald-200 bg-emerald-50/60" : "border-line bg-white hover:bg-page")}>
+                    <input type="checkbox" checked={checked} onChange={() => toggle(i)} className="mt-1 size-5 shrink-0" />
+                    <span className="min-w-0">
+                      <span className={cn("block text-sm font-medium leading-6", checked && "text-muted line-through")}>{a.action}</span>
+                      <span className="mt-1.5 flex flex-wrap gap-1.5 text-[11px]">
+                        <span className="rounded-full bg-cool px-2 py-0.5">👤 {a.owner}</span>
+                        <span className="rounded-full bg-cool px-2 py-0.5">⏱ {a.effort} effort</span>
+                        <span className="rounded-full bg-cool px-2 py-0.5">{a.kind === "site check" ? "📍" : a.kind === "visitor reply" ? "💬" : "🔁"} {a.kind}</span>
+                      </span>
+                    </span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+        </Section>
+      ) : null}
+    </div>
+  );
+}
+
+function CopyButton({ text, label = "Copy", className }: { text: string; label?: string; className?: string }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* clipboard may be blocked */ }
+  }
+  return <button type="button" onClick={copy} aria-live="polite" className={cn("inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-sm font-medium", className)}>{copied ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />}{copied ? "Copied" : label}</button>;
 }
 
 function Skeleton() {
   return (
     <div className="space-y-3" role="status" aria-live="polite" aria-label="Preparing briefing">
-      {[0, 1, 2].map(i => <div key={i} className="animate-pulse rounded-xl border border-line bg-white p-4"><div className="h-4 w-40 rounded bg-cool" /><div className="mt-3 h-3 w-full rounded bg-cool" /><div className="mt-2 h-3 w-5/6 rounded bg-cool" />{i === 1 ? <div className="mt-2 h-3 w-2/3 rounded bg-cool" /> : null}</div>)}
-      <p className="text-center text-xs text-muted">Preparing briefing… this can take up to half a minute when the AI service is busy.</p>
+      <div className="h-16 animate-pulse rounded-xl border border-blue-200 bg-blue-50/70" />
+      <div className="grid gap-3 md:grid-cols-2">{[0, 1].map(i => <div key={i} className="animate-pulse rounded-xl border border-line bg-white p-4"><div className="h-4 w-24 rounded bg-cool" /><div className="mt-3 h-3 w-full rounded bg-cool" /><div className="mt-2 h-3 w-4/5 rounded bg-cool" /></div>)}</div>
+      {[0, 1].map(i => <div key={i} className="animate-pulse rounded-xl border border-line bg-white p-4"><div className="h-4 w-40 rounded bg-cool" /><div className="mt-3 h-3 w-5/6 rounded bg-cool" /></div>)}
+      <p className="text-center text-xs text-muted">Reading the comments… this can take up to half a minute when the AI service is busy.</p>
+    </div>
+  );
+}
+
+async function post(payload: object) {
+  const response = await fetch("/api/desk/insights", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.error || "AI summary unavailable.");
+  return body;
+}
+
+function ReportBox({ disabled }: { disabled: boolean }) {
+  const [lang, setLang] = useState<"en" | "fil">("en");
+  const [report, setReport] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function write() {
+    setBusy(true); setError(""); setReport("");
+    try { setReport((await post({ mode: "report", lang })).report); }
+    catch (e) { setError(e instanceof Error ? e.message : "Could not write the report."); }
+    finally { setBusy(false); }
+  }
+  return (
+    <div className="rounded-xl border border-line bg-white p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0"><h3 className="flex items-center gap-2 text-base font-semibold"><FileText size={18} aria-hidden />Draft report</h3><p className="mt-0.5 text-xs text-muted">A short memo you can edit and send. Review before sharing.</p></div>
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+          <div role="group" aria-label="Report language" className="inline-flex flex-1 overflow-hidden rounded-full border border-line sm:flex-none">
+            {([["en", "English"], ["fil", "Filipino"]] as const).map(([id, label]) => <button key={id} type="button" aria-pressed={lang === id} onClick={() => setLang(id)} className={cn("min-h-11 flex-1 px-4 text-sm font-medium sm:flex-none", lang === id ? "bg-ink text-white" : "bg-white")}>{label}</button>)}
+          </div>
+          <button type="button" disabled={busy || disabled} onClick={write} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-action px-5 text-sm font-semibold text-white disabled:opacity-50 sm:flex-none">{busy ? <RefreshCw size={15} className="animate-spin" aria-hidden /> : <FileText size={15} aria-hidden />}{busy ? "Writing…" : report ? "Rewrite" : "Write report"}</button>
+        </div>
+      </div>
+      {error ? <p role="alert" className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{error}</p> : null}
+      {report ? <div className="mt-4"><pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap break-words rounded-xl bg-page p-4 font-sans text-sm leading-6">{report}</pre><div className="mt-3 flex justify-end"><CopyButton text={report} label="Copy report" /></div></div> : null}
     </div>
   );
 }
 
 export function AiBriefing({ data, status, fingerprint, resetSignal }: { data: Insights; status: string; fingerprint: string; resetSignal: number }) {
-  const [ai, setAi] = useState("");
+  const [briefing, setBriefing] = useState<Briefing | null>(null);
+  const [runId, setRunId] = useState(0);
   const [stamp, setStamp] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [copied, setCopied] = useState(false);
-  useEffect(() => { setAi(""); setError(""); }, [resetSignal]);
+  useEffect(() => { setBriefing(null); setError(""); }, [resetSignal]);
   const blocked = status !== "connected" || !data.loaded;
-  const stale = Boolean(ai) && stamp !== fingerprint;
+  const stale = Boolean(briefing) && stamp !== fingerprint;
   async function generate() {
-    setBusy(true); setError(""); setAi(""); setCopied(false);
-    try {
-      const response = await fetch("/api/desk/insights", { method: "POST" });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error || "AI summary unavailable.");
-      setAi(body.summary); setStamp(fingerprint);
-    } catch (e) { setError(e instanceof Error ? e.message : "AI summary unavailable."); }
+    setBusy(true); setError(""); setBriefing(null);
+    try { setBriefing((await post({ mode: "briefing" })).briefing); setStamp(fingerprint); setRunId(n => n + 1); }
+    catch (e) { setError(e instanceof Error ? e.message : "AI summary unavailable."); }
     finally { setBusy(false); }
-  }
-  async function copy() {
-    try { await navigator.clipboard.writeText(ai); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* clipboard may be blocked */ }
   }
   return (
     <section className="desk-briefing overflow-hidden rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-white p-5 sm:p-6" aria-labelledby="ai-briefing-title">
@@ -174,22 +246,23 @@ export function AiBriefing({ data, status, fingerprint, resetSignal }: { data: I
         <div className="min-w-0">
           <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700"><Sparkles size={14} aria-hidden />AI-assisted briefing</p>
           <h2 id="ai-briefing-title" className="mt-1 text-xl font-semibold">What needs attention?</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">A draft reading of your latest counts, with review priorities and proposed next steps. Names, photos and raw comments are never sent.</p>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">A draft reading of visitor ratings and comments: what people say, what to review first, and what to do. Comment text is sent without names, photos or contact details (automatic redaction, best effort).</p>
         </div>
         <div className="flex w-full shrink-0 gap-2 sm:w-auto">
-          {ai ? <button type="button" onClick={copy} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-sm font-medium" aria-live="polite">{copied ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />}{copied ? "Copied" : "Copy"}</button> : null}
-          <button type="button" disabled={busy || blocked} onClick={generate} className="primary-link !min-h-11 flex-1 !gap-2 !rounded-full !px-5 !py-2.5 disabled:opacity-50 sm:flex-none">{busy ? <RefreshCw size={15} className="animate-spin" aria-hidden /> : <Sparkles size={15} aria-hidden />}{busy ? "Preparing…" : ai ? "Regenerate" : "Generate AI briefing"}</button>
+          {briefing ? <CopyButton text={briefingToText(briefing)} /> : null}
+          <button type="button" disabled={busy || blocked} onClick={generate} className="primary-link !min-h-11 flex-1 !gap-2 !rounded-full !px-5 !py-2.5 disabled:opacity-50 sm:flex-none">{busy ? <RefreshCw size={15} className="animate-spin" aria-hidden /> : <Sparkles size={15} aria-hidden />}{busy ? "Preparing…" : briefing ? "Regenerate" : "Generate AI briefing"}</button>
         </div>
       </header>
       {blocked && !busy ? <p className="mt-3 text-xs text-muted">{data.loaded ? "Waiting for a live connection — refresh the data to enable the briefing." : "No feedback loaded yet — collect or refresh data first."}</p> : null}
       <div className="mt-5 grid items-start gap-4 lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[21rem_minmax(0,1fr)]">
         <Snapshot data={data} />
-        <div className="min-w-0">
-          {busy ? <Skeleton /> : ai ? (
-            <div>
-              <p className={cn("mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold", stale ? "bg-amber-100 text-amber-900" : "bg-white text-muted shadow-sm")}>{stale ? "Data changed — regenerate this briefing" : "AI-generated draft · Officer review required"}</p>
-              <BriefingText text={ai} />
-            </div>
+        <div className="min-w-0 space-y-4">
+          {busy ? <Skeleton /> : briefing ? (
+            <>
+              <p className={cn("inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold", stale ? "bg-amber-100 text-amber-900" : "bg-white text-muted shadow-sm")}>{stale ? "Data changed — regenerate this briefing" : "AI-generated draft · Officer review required"}</p>
+              <BriefingView key={runId} b={briefing} />
+              <ReportBox key={`report-${runId}`} disabled={blocked} />
+            </>
           ) : error ? (
             <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
               <p className="flex items-center gap-2 font-semibold text-amber-900"><AlertTriangle size={16} aria-hidden />Couldn’t prepare the briefing</p>
@@ -198,13 +271,13 @@ export function AiBriefing({ data, status, fingerprint, resetSignal }: { data: I
             </div>
           ) : (
             <div className="grid min-h-48 place-items-center rounded-xl border border-dashed border-blue-200 bg-white/70 p-6 text-center">
-              <div><p className="text-3xl" aria-hidden>🧭</p><p className="mt-2 font-semibold">Ready when you are</p><p className="mx-auto mt-1 max-w-sm text-sm leading-6 text-muted">Generate a briefing to get observations, review priorities and suggested next steps based on the snapshot.</p></div>
+              <div><p className="text-3xl" aria-hidden>🧭</p><p className="mt-2 font-semibold">Ready when you are</p><p className="mx-auto mt-1 max-w-sm text-sm leading-6 text-muted">Generate a briefing to see what visitors are saying, what to review first, and a checklist of suggested actions.</p></div>
             </div>
           )}
-          <details className="desk-summary-details mt-4 rounded-xl border border-line bg-white px-4" open={Boolean(error)}>
+          <details className="desk-summary-details rounded-xl border border-line bg-white px-4" open={Boolean(error)}>
             <summary>Data notes and limits</summary>
             <ul className="mb-3 list-disc space-y-2 pl-5 text-sm leading-6">{data.lines.map(line => <li key={line}>{line}</li>)}</ul>
-            <p className="mb-3 text-xs leading-5 text-muted">These are sampled submissions, not unique visitors or a representative tourism survey. Agree/disagree reactions describe responses to comments; they do not prove spam or explain the reason for a rating. Summaries cover the latest 500 entries. AI text is a draft — check it against the data before making decisions.</p>
+            <p className="mb-3 text-xs leading-5 text-muted">These are sampled submissions, not unique visitors or a representative tourism survey. Agree/disagree reactions describe responses to comments; they do not prove spam or explain the reason for a rating. Summaries cover the latest 500 entries. AI text is a draft that can misread local expressions or sarcasm — check it against the comments before making decisions.</p>
           </details>
         </div>
       </div>
