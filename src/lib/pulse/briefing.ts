@@ -25,7 +25,7 @@ export function redact(text: string) {
     .trim();
 }
 
-export function buildComments(pulses: Pulse[], channels: { id: string; name: string }[], limit = 150) {
+export function buildComments(pulses: Pulse[], channels: { id: string; name: string }[], limit = 60) {
   const names = new Map(channels.map(c => [c.id, c.name]));
   names.set(OVERALL_ID, OVERALL_CHANNEL.name);
   const rating = { POS: "positive", MIX: "okay", NEG: "negative" } as const;
@@ -38,7 +38,7 @@ export function buildComments(pulses: Pulse[], channels: { id: string; name: str
       rating: rating[moodOf(p.face)],
       agree: p.reacts.up,
       disagree: p.reacts.down,
-      text: redact(p.body).slice(0, 240),
+      text: redact(p.body).slice(0, 200),
     }));
 }
 
