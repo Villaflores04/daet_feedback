@@ -4,6 +4,7 @@ import { MessageCircle, FileText, Star, ThumbsUp, RefreshCw } from "lucide-react
 import { usePulse } from "@/lib/pulse/store";
 import { buildInsights } from "@/lib/pulse/insights";
 import { MoodBar } from "./mood-bar";
+import { AiBriefing } from "./ai-briefing";
 import { ChartCard, DonutChart, EmptyChart, FaceBars, HBarChart, MOOD_COLORS, PlaceBars, Sparkline, TrendChart } from "./desk-charts";
 
 const FACE_COLOR = { POS: MOOD_COLORS.pos, MIX: MOOD_COLORS.mix, NEG: MOOD_COLORS.neg } as const;
@@ -15,21 +16,8 @@ export function DeskOverview() {
   const sync = usePulse(s => s.syncShared);
   const data = buildInsights(pulses, channels);
   const [refreshing, setRefreshing] = useState(false);
-  const [ai, setAi] = useState("");
-  const [aiError, setAiError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [aiStamp, setAiStamp] = useState("");
+  const [resetSignal, setResetSignal] = useState(0);
   const fingerprint = JSON.stringify(pulses.map(p => [p.id, p.reacts]));
-  async function generate() {
-    setBusy(true); setAiError(""); setAi("");
-    try {
-      const response = await fetch("/api/desk/insights", { method: "POST" });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error || "AI summary unavailable.");
-      setAi(body.summary); setAiStamp(fingerprint);
-    } catch (error) { setAiError(error instanceof Error ? error.message : "AI summary unavailable."); }
-    finally { setBusy(false); }
-  }
   const f = data.faces;
   const positiveShare = f.total ? Math.round((f.pos / f.total) * 100) : 0;
   const weekTotal = data.trend.reduce((n, d) => n + d.count, 0);
@@ -42,9 +30,9 @@ export function DeskOverview() {
   ];
   const places = data.places.map(p => ({ id: p.id, name: p.name, slug: p.slug, pos: p.faces.pos, mix: p.faces.mix, neg: p.faces.neg, total: p.faces.total, notes: p.words.mix }));
   return <div className="desk-overview mt-6 space-y-5">
-    <div className="desk-data-status flex items-center justify-between gap-3 text-sm"><p className="text-muted">{status === "connected" ? "Connected" : "Data may be incomplete or cached — refresh before reporting."} · {data.loaded} recent entries</p><button type="button" disabled={refreshing} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-white px-4" onClick={async () => { setRefreshing(true); setAi(""); try { await sync(); } finally { setRefreshing(false); } }}><RefreshCw size={15} className={refreshing ? "animate-spin" : undefined} aria-hidden />{refreshing ? "Refreshing…" : "Refresh"}</button></div>
+    <div className="desk-data-status flex items-center justify-between gap-3 text-sm"><p className="text-muted">{status === "connected" ? "Connected" : "Data may be incomplete or cached — refresh before reporting."} · {data.loaded} recent entries</p><button type="button" disabled={refreshing} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-white px-4" onClick={async () => { setRefreshing(true); setResetSignal(n => n + 1); try { await sync(); } finally { setRefreshing(false); } }}><RefreshCw size={15} className={refreshing ? "animate-spin" : undefined} aria-hidden />{refreshing ? "Refreshing…" : "Refresh"}</button></div>
     <div className="desk-stat-grid grid grid-cols-2 gap-3 xl:grid-cols-4">{kpis.map(k => { const Icon = k.icon; return <div key={k.label} className="desk-kpi flex flex-col rounded-2xl border border-line bg-white p-4"><div className="flex items-center justify-between gap-2"><p className="text-sm text-muted">{k.label}</p><span className={`grid size-8 shrink-0 place-items-center rounded-full ${k.tone}`} aria-hidden><Icon size={16} /></span></div><p className="mt-2 text-3xl font-semibold tabular-nums">{k.value}</p>{k.extra ? <div className="desk-kpi-extra mt-2">{k.extra}</div> : null}</div>; })}</div>
-    <section className="desk-summary rounded-2xl border border-blue-200 bg-blue-50 p-5 sm:p-6"><p className="text-xs font-semibold uppercase tracking-wider text-blue-700">Automatic summary</p><h2 className="mt-1 text-xl font-semibold">What needs attention?</h2><p className="mt-2 text-sm">{data.faces.neg} negative ratings · {data.words.mix} mixed/neutral notes to review</p><details className="desk-summary-details"><summary>Read analysis and recommendations</summary><ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6">{data.lines.map(line => <li key={line}>{line}</li>)}</ul><p className="mt-3 text-xs text-muted">These are sampled submissions, not unique visitors or a representative tourism survey. Agree/disagree reactions describe responses to comments; they do not prove spam or explain the reason for a rating. Summaries cover the latest 500 entries.</p></details></section>
+    <AiBriefing data={data} status={status} fingerprint={fingerprint} resetSignal={resetSignal} />
     <div className="desk-chart-grid grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-12 xl:gap-5">
       <ChartCard title="Emoji rating mix" hint="Original ratings only; replies are excluded." className="xl:col-span-4">
         <DonutChart ariaLabel={`Emoji rating mix: ${f.pos} positive, ${f.mix} okay, ${f.neg} negative`} centerValue={`${positiveShare}%`} centerLabel="Positive" empty="No original ratings yet." segments={[{ label: "Positive", value: f.pos, color: MOOD_COLORS.pos }, { label: "Okay", value: f.mix, color: MOOD_COLORS.mix }, { label: "Negative", value: f.neg, color: MOOD_COLORS.neg }]} />
@@ -66,6 +54,5 @@ export function DeskOverview() {
     <ChartCard title="Place review queue" hint="Sorted by negative emoji rating count, then total ratings. Bar length shows relative rating volume. This is a review aid, not a ranking of place quality.">
       {places.length ? <PlaceBars rows={places} /> : <EmptyChart>No place ratings yet.</EmptyChart>}
     </ChartCard>
-    <section className="rounded-2xl border border-line bg-white p-5"><h2 className="font-semibold text-lg">AI-assisted briefing</h2><p className="mt-2 text-sm text-muted">Generate a draft interpretation from aggregate counts and topic totals. Names, photos, and raw comments are not sent. Review the draft against the data before making decisions.</p><button type="button" disabled={busy || status !== "connected" || !data.loaded} onClick={generate} className="primary-link mt-4 disabled:opacity-50">{busy ? "Preparing briefing…" : "Generate AI briefing"}</button>{aiError && <p role="status" className="mt-3 text-sm text-muted">{aiError} The automatic data summary above remains available.</p>}{ai && <div className="mt-4 rounded-xl bg-cool p-4"><p className="mb-2 text-xs font-semibold">AI-generated draft · {aiStamp !== fingerprint ? "Data changed — regenerate this briefing" : "Officer review required"}</p><p className="whitespace-pre-wrap text-sm leading-6">{ai}</p></div>}</section>
   </div>;
 }
