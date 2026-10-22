@@ -1,4 +1,4 @@
-import { tallyFaces } from "./faces";
+import { FACES, tallyFaces } from "./faces";
 import { scanPulses, tallyScans } from "./words";
 import { OVERALL_ID } from "./scope";
 import type { Channel, Pulse } from "./types";
@@ -37,7 +37,8 @@ export function buildInsights(pulses: Pulse[], channels: Channel[], now = Date.n
   if (reviewTopic) lines.push(`${reviewTopic.label} appears in ${reviewTopic.review} mixed/negative comments or replies. Review the full comments before deciding whether this topic is the cause of dissatisfaction; a comment can discuss several topics.`);
   const priority = places.find(p => p.faces.neg > 0);
   if (priority) lines.push(`${priority.name} has ${priority.faces.neg} negative ratings out of ${priority.faces.total}. Review its comments and confirm concerns on site before planning a response.`);
-  return { faces, words, places, mentions, trend, lines, originalCount: originals.length, replyCount: pulses.length - originals.length,
+  const faceCounts = FACES.map(f => ({ id: f.id, glyph: f.glyph, label: f.label, mood: f.mood, count: originals.filter(p => p.face === f.id).length }));
+  return { faces, words, places, mentions, trend, lines, faceCounts, originalCount: originals.length, replyCount: pulses.length - originals.length,
     placeFaces: tallyFaces(originals.filter(p => p.channelId !== OVERALL_ID)), tripFaces: tallyFaces(originals.filter(p => p.channelId === OVERALL_ID)),
     reactions: pulses.reduce((n, p) => ({ up: n.up + p.reacts.up, down: n.down + p.reacts.down }), { up: 0, down: 0 }),
     loaded: pulses.length, cutoff: pulses.length ? Math.min(...pulses.map(p => p.createdAt)) : null };
