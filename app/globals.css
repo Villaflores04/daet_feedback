@@ -1785,3 +1785,25 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .activity-body { font-size: 13px; line-height: 1.55; }
   .activity-delete { font-size: 12px; }
 }
+
+/* Admin overview: chart cards, KPI cards and responsive tuning. */
+.desk-card { transition: box-shadow .2s ease; }
+.desk-card:hover { box-shadow: var(--shadow-plate-hover); }
+.desk-kpi { transition: transform .2s ease, box-shadow .2s ease; }
+.desk-kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-plate); }
+.chart-bar { transform-origin: bottom; animation: chart-grow-y .7s cubic-bezier(.2, .7, .3, 1) both; }
+.chart-hbar { transform-origin: left; animation: chart-grow-x .7s cubic-bezier(.2, .7, .3, 1) both; }
+@keyframes chart-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes chart-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (min-width: 768px) and (max-width: 1279px) {
+  .desk-stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .desk-kpi-extra { display: none; }
+}
+@media (max-width: 767px) {
+  .desk-stat-grid > .desk-kpi { padding: 12px; }
+  .desk-stat-grid > .desk-kpi p:first-child { font-size: 11px; }
+  .desk-stat-grid > .desk-kpi > p { font-size: 24px; line-height: 1.15; margin-top: 4px; }
+  .desk-stat-grid > .desk-kpi > div:first-child > span { width: 26px; height: 26px; }
+  .desk-card .font-display { font-size: 26px; }
+  .desk-card svg[role="img"] text { font-size: 13px; }
+}
