@@ -7,14 +7,14 @@ import type { Pulse, Channel } from "@/lib/pulse/types";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
-const RETRYABLE = [429, 500, 502, 503, 504];
+const RETRYABLE = [500, 502, 503, 504];
 const MODEL_NAME = /^[a-zA-Z0-9.-]+$/;
 
 function explain(status: number, reason: string, model: string) {
   const hint = status === 400 && /api key/i.test(reason) ? "The API key was rejected. Check GEMINI_API_KEY."
     : status === 401 || status === 403 ? "The API key is not allowed to use this model (check key restrictions and that the Generative Language API is enabled)."
     : status === 404 ? `Model "${model}" was not found for this key. Check GEMINI_MODEL (or GEMINI_FALLBACK_MODEL).`
-    : status === 429 ? "Quota or rate limit reached for this key/model. Check usage and billing in Google AI Studio."
+    : status === 429 ? "Quota or rate limit reached. If it is the per-minute limit, wait a minute; a daily limit resets the next day. You can also check usage and billing in Google AI Studio."
     : status === 503 ? "The AI model is busy right now. Please try again in a moment."
     : "AI service unavailable.";
   return `${hint} (Gemini ${status}: ${reason})`;
@@ -31,10 +31,16 @@ async function ask<T>(opts: { key: string; models: string[]; system: string; use
     // Thinking tokens count against the limit, so keep generous headroom or answers get cut off mid-sentence.
     generationConfig: { maxOutputTokens: 8192, temperature: 0.3, ...(opts.json ? { responseMimeType: "application/json" } : {}) },
   });
-  const attempts = [opts.models[0], opts.models[opts.models.length - 1], opts.models[0], opts.models[opts.models.length - 1]];
+  // At most three calls: primary, fallback, primary again. A model that reports 429 (quota) is never called twice,
+  // because the limit will not clear within seconds and every extra call only burns more quota.
+  const primary = opts.models[0];
+  const secondary = opts.models[opts.models.length - 1];
+  const attempts = [primary, secondary, primary];
+  const exhausted = new Set<string>();
   const deadline = Date.now() + 26000;
   let lastError = "";
   for (const [i, name] of attempts.entries()) {
+    if (exhausted.has(name)) continue;
     const left = deadline - Date.now();
     if (left < 4000) break;
     if (i) await new Promise(resolve => setTimeout(resolve, 600));
@@ -50,6 +56,7 @@ async function ask<T>(opts: { key: string; models: string[]; system: string; use
       const reason = detail?.error?.message?.slice(0, 200) || detail?.error?.status || "no details";
       console.error(`Gemini attempt ${i + 1} failed (${response.status}, model ${name}): ${reason}`);
       lastError = explain(response.status, reason, name);
+      if (response.status === 429) { exhausted.add(name); continue; }
       if (RETRYABLE.includes(response.status)) continue;
       throw new Error(lastError);
     }
@@ -74,7 +81,7 @@ export async function POST(request: Request) {
   const input = await request.json().catch(() => ({})) as { mode?: string; lang?: string };
   const mode = input.mode === "report" ? "report" : "briefing";
   const lang = input.lang === "fil" ? "fil" : "en";
-  const fallbackName = process.env.GEMINI_FALLBACK_MODEL?.trim() || "gemini-3.6-flash";
+  const fallbackName = process.env.GEMINI_FALLBACK_MODEL?.trim() || "gemini-3.5-flash-lite";
   const models = [model, ...(fallbackName !== model && MODEL_NAME.test(fallbackName) ? [fallbackName] : [])];
   try {
     const db = supabaseServer();

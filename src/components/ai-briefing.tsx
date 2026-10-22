@@ -190,6 +190,13 @@ function Skeleton() {
   );
 }
 
+const CACHE_KEY = "daet-ai-briefing-v1";
+type Cached = { briefing: Briefing; stamp: string };
+function readCache(): Cached | null {
+  try { const v = JSON.parse(localStorage.getItem(CACHE_KEY) || "null"); return v && v.briefing && typeof v.stamp === "string" ? v : null; } catch { return null; }
+}
+function writeCache(value: Cached) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(value)); } catch { /* storage may be blocked */ } }
+
 async function post(payload: object) {
   const response = await fetch("/api/desk/insights", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
   const body = await response.json().catch(() => ({}));
@@ -231,14 +238,26 @@ export function AiBriefing({ data, status, fingerprint, resetSignal }: { data: I
   const [stamp, setStamp] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  useEffect(() => { setBriefing(null); setError(""); }, [resetSignal]);
+  const [cooldown, setCooldown] = useState(0);
+  // Reuse the last briefing after a reload so revisiting the page costs no AI quota.
+  useEffect(() => { const c = readCache(); if (c) { setBriefing(c.briefing); setStamp(c.stamp); } }, []);
+  useEffect(() => { setError(""); }, [resetSignal]);
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown(n => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
   const blocked = status !== "connected" || !data.loaded;
   const stale = Boolean(briefing) && stamp !== fingerprint;
   async function generate() {
-    setBusy(true); setError(""); setBriefing(null);
-    try { setBriefing((await post({ mode: "briefing" })).briefing); setStamp(fingerprint); setRunId(n => n + 1); }
-    catch (e) { setError(e instanceof Error ? e.message : "AI summary unavailable."); }
-    finally { setBusy(false); }
+    setBusy(true); setError("");
+    try {
+      const next: Briefing = (await post({ mode: "briefing" })).briefing;
+      setBriefing(next); setStamp(fingerprint); setRunId(n => n + 1); writeCache({ briefing: next, stamp: fingerprint });
+    } catch (e) {
+      // Keep any earlier briefing on screen; pause the button so repeated clicks do not burn more quota.
+      setError(e instanceof Error ? e.message : "AI summary unavailable."); setCooldown(20);
+    } finally { setBusy(false); }
   }
   return (
     <section className="desk-briefing overflow-hidden rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-white p-5 sm:p-6" aria-labelledby="ai-briefing-title">
@@ -250,31 +269,32 @@ export function AiBriefing({ data, status, fingerprint, resetSignal }: { data: I
         </div>
         <div className="flex w-full shrink-0 gap-2 sm:w-auto">
           {briefing ? <CopyButton text={briefingToText(briefing)} /> : null}
-          <button type="button" disabled={busy || blocked} onClick={generate} className="primary-link !min-h-11 flex-1 !gap-2 !rounded-full !px-5 !py-2.5 disabled:opacity-50 sm:flex-none">{busy ? <RefreshCw size={15} className="animate-spin" aria-hidden /> : <Sparkles size={15} aria-hidden />}{busy ? "Preparing…" : briefing ? "Regenerate" : "Generate AI briefing"}</button>
+          <button type="button" disabled={busy || blocked || cooldown > 0} onClick={generate} className="primary-link !min-h-11 flex-1 !gap-2 !rounded-full !px-5 !py-2.5 disabled:opacity-50 sm:flex-none">{busy ? <RefreshCw size={15} className="animate-spin" aria-hidden /> : <Sparkles size={15} aria-hidden />}{busy ? "Preparing…" : cooldown > 0 ? `Wait ${cooldown}s` : briefing ? "Regenerate" : "Generate AI briefing"}</button>
         </div>
       </header>
       {blocked && !busy ? <p className="mt-3 text-xs text-muted">{data.loaded ? "Waiting for a live connection — refresh the data to enable the briefing." : "No feedback loaded yet — collect or refresh data first."}</p> : null}
       <div className="mt-5 grid items-start gap-4 lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[21rem_minmax(0,1fr)]">
         <Snapshot data={data} />
         <div className="min-w-0 space-y-4">
+          {error && !busy ? (
+            <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
+              <p className="flex items-center gap-2 font-semibold text-amber-900"><AlertTriangle size={16} aria-hidden />Couldn’t prepare a new briefing</p>
+              <p className="mt-2 leading-6 text-amber-900">{error}</p>
+              <p className="mt-2 text-xs text-amber-900/80">{briefing ? "Your previous briefing is shown below." : "The snapshot and data notes remain available."} The button unlocks in a few seconds.</p>
+            </div>
+          ) : null}
           {busy ? <Skeleton /> : briefing ? (
             <>
-              <p className={cn("inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold", stale ? "bg-amber-100 text-amber-900" : "bg-white text-muted shadow-sm")}>{stale ? "Data changed — regenerate this briefing" : "AI-generated draft · Officer review required"}</p>
+              <p className={cn("inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold", stale ? "bg-amber-100 text-amber-900" : "bg-white text-muted shadow-sm")}>{stale ? "Data changed since this briefing — regenerate when ready" : "AI-generated draft · Officer review required"}</p>
               <BriefingView key={runId} b={briefing} />
               <ReportBox key={`report-${runId}`} disabled={blocked} />
             </>
-          ) : error ? (
-            <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
-              <p className="flex items-center gap-2 font-semibold text-amber-900"><AlertTriangle size={16} aria-hidden />Couldn’t prepare the briefing</p>
-              <p className="mt-2 leading-6 text-amber-900">{error}</p>
-              <p className="mt-2 text-xs text-amber-900/80">The snapshot and data notes remain available. Try again in a moment.</p>
-            </div>
-          ) : (
+          ) : !error ? (
             <div className="grid min-h-48 place-items-center rounded-xl border border-dashed border-blue-200 bg-white/70 p-6 text-center">
               <div><p className="text-3xl" aria-hidden>🧭</p><p className="mt-2 font-semibold">Ready when you are</p><p className="mx-auto mt-1 max-w-sm text-sm leading-6 text-muted">Generate a briefing to see what visitors are saying, what to review first, and a checklist of suggested actions.</p></div>
             </div>
-          )}
-          <details className="desk-summary-details rounded-xl border border-line bg-white px-4" open={Boolean(error)}>
+          ) : null}
+          <details className="desk-summary-details rounded-xl border border-line bg-white px-4" open={Boolean(error) && !briefing}>
             <summary>Data notes and limits</summary>
             <ul className="mb-3 list-disc space-y-2 pl-5 text-sm leading-6">{data.lines.map(line => <li key={line}>{line}</li>)}</ul>
             <p className="mb-3 text-xs leading-5 text-muted">These are sampled submissions, not unique visitors or a representative tourism survey. Agree/disagree reactions describe responses to comments; they do not prove spam or explain the reason for a rating. Summaries cover the latest 500 entries. AI text is a draft that can misread local expressions or sarcasm — check it against the comments before making decisions.</p>
