@@ -4,7 +4,7 @@ import { OVERALL_ID } from "@/lib/pulse/scope";
 import Link from "next/link";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { PublicChrome } from "@/components/public-chrome";
-import { CoastalHero } from "@/components/coastal-hero";
+import { MonumentHero } from "@/components/monument-hero";
 import { PlaceCard } from "@/components/place-card";
 import { PulseCard } from "@/components/pulse-card";
 import { FACES, tallyFaces } from "@/lib/pulse/faces";
@@ -25,7 +25,7 @@ export function HomePage() {
   return (
     <PublicChrome landing>
       <main id="main-content">
-        <CoastalHero />
+        <MonumentHero />
         <section id="discover" className="page-width section-space">
           <div className="section-heading">
             <div>
