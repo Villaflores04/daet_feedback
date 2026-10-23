@@ -14,13 +14,28 @@ export function PublicChrome({
   landing?: boolean;
 }) {
   const [scrolled, setScrolled] = useState(false);
+  const [scrolling, setScrolling] = useState(false);
 
   useEffect(() => {
     if (!landing) return;
-    const onScroll = () => setScrolled(window.scrollY > 48);
+    let idle: ReturnType<typeof setTimeout> | undefined;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 48);
+      // Hide the header only while the hero is moving; it returns shortly after scrolling stops.
+      const hero = document.querySelector<HTMLElement>(".mh-journey");
+      if (y > 2 && hero && y < hero.offsetHeight) {
+        setScrolling(true);
+        clearTimeout(idle);
+        idle = setTimeout(() => setScrolling(false), 260);
+      } else {
+        clearTimeout(idle);
+        setScrolling(false);
+      }
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => { window.removeEventListener("scroll", onScroll); clearTimeout(idle); };
   }, [landing]);
 
   return (
@@ -28,7 +43,7 @@ export function PublicChrome({
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
-      {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" && <SiteHeader landing={landing} scrolled={scrolled} />}
+      {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" && <SiteHeader landing={landing} scrolled={scrolled} hiding={landing && scrolling} />}
       <SyncNotice />
       {children}
       {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" && <><SiteFooter /><SiteDock /></>}

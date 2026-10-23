@@ -15,9 +15,11 @@ const LINKS = [
 export function SiteHeader({
   landing = false,
   scrolled = false,
+  hiding = false,
 }: {
   landing?: boolean;
   scrolled?: boolean;
+  hiding?: boolean;
 }) {
   const pathname = usePathname();
   return (
@@ -26,6 +28,7 @@ export function SiteHeader({
         "site-header",
         landing && "site-header-landing",
         scrolled && "is-scrolled",
+        hiding && "is-hiding",
       )}
     >
       <div className="page-width flex h-[76px] items-center justify-between gap-4">
