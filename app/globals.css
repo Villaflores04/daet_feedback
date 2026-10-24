@@ -2050,3 +2050,13 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mh-sway-b { animation-duration: 2.2s; animation-delay: -.7s; }
 .mh-grass { animation: mh-grass-lite 1.8s ease-in-out infinite alternate; will-change: transform; }
 .mh-grass.mh-sway-b { animation-name: mh-grass-lite; animation-duration: 2.2s; animation-delay: -.7s; }
+
+/* Natural breeze: each branch swings on its own period, phase and angle; one smooth sweep out and back, never pausing mid-way. */
+.mh-cluster { position: relative; display: block; width: 100%; padding-bottom: 84.375%; }
+.mh-layer .mh-stem { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-origin: 0 0; will-change: transform; animation: mh-stem-sway 3s ease-in-out infinite alternate; }
+@keyframes mh-stem-sway { from { transform: rotate(calc(var(--a, 4deg) * -.7)); } to { transform: rotate(var(--a, 4deg)); } }
+.mh-grass, .mh-grass.mh-sway-b { animation-name: mh-grass-soft; animation-timing-function: ease-in-out; animation-duration: 2.3s; }
+.mh-grass.mh-sway-b { animation-duration: 2.9s; animation-delay: -1.2s; }
+@keyframes mh-grass-soft { from { transform: skewX(-2.4deg); } to { transform: skewX(2.4deg); } }
+.mh-stage.mh-idle .mh-stem { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .mh-stem { animation: none !important; } }

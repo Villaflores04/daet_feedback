@@ -44,8 +44,20 @@ function branchLeaves(rand: () => number, x0: number, y0: number, x1: number, y1
   return { d: `M${f(x0)} ${f(y0)}Q${f(cx)} ${f(cy)} ${f(x1)} ${f(y1)}`, leaves };
 }
 
-/** Overhanging branches that enter from the top corner. Used mirrored for the right side. */
-export function LeafCluster({ seed, className }: { seed: number; className?: string }) {
+/**
+ * Overhanging branches that enter from the top corner. Used mirrored for the right side.
+ * Every branch is its own stacked <svg>, so each one can sway on its own period, phase and angle with a plain CSS
+ * rotation. That keeps the motion on the compositor (no SVG repaint per frame) and stops the whole cluster moving as
+ * one stiff block.
+ */
+const STEM_MOTION = [
+  { d: 3.1, delay: -0.4, a: 3.4 },
+  { d: 3.7, delay: -1.9, a: 4.6 },
+  { d: 2.7, delay: -1.1, a: 5.6 },
+  { d: 3.4, delay: -2.6, a: 6.4 },
+  { d: 4.1, delay: -0.9, a: 3.0 },
+];
+export function LeafCluster({ seed }: { seed: number; className?: string }) {
   const rand = rng(seed);
   const stems = [
     { x1: 560, y1: 130, bend: 70, n: 11 },
@@ -55,26 +67,37 @@ export function LeafCluster({ seed, className }: { seed: number; className?: str
     { x1: 610, y1: 30, bend: 40, n: 8 },
   ].map(s => branchLeaves(rand, -20 + rand() * 20, -20 + rand() * 20, s.x1 + rand() * 30, s.y1 + rand() * 30, s.bend, s.n));
   return (
-    <svg className={className} viewBox="0 0 640 540" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id={`leaf-shade-${seed}`} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#fff" stopOpacity=".22" />
-          <stop offset="1" stopColor="#0b2a2a" stopOpacity=".28" />
-        </linearGradient>
-      </defs>
-      {stems.map((stem, i) => (
-        <g key={i}>
-          <path d={stem.d} fill="none" stroke="#25412f" strokeWidth={5 - i * 0.4} strokeLinecap="round" />
-          {stem.leaves.map((l, j) => (
-            <g key={j} transform={`translate(${f(l.x)} ${f(l.y)}) rotate(${f(l.r)}) scale(${f(l.s)})`} opacity={l.o}>
-              <path d={LEAF} fill={l.c} />
-              <path d={LEAF} fill={`url(#leaf-shade-${seed})`} />
-              <path d={RIB} stroke="#e6f3c9" strokeOpacity=".45" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-            </g>
-          ))}
-        </g>
-      ))}
-    </svg>
+    <div className="mh-cluster" aria-hidden="true">
+      {stems.map((stem, i) => {
+        const m = STEM_MOTION[(i + seed) % STEM_MOTION.length];
+        return (
+          <svg
+            key={i}
+            className="mh-stem"
+            viewBox="0 0 640 540"
+            focusable="false"
+            style={{ animationDuration: `${m.d}s`, animationDelay: `${m.delay}s`, ["--a" as string]: `${m.a}deg` }}
+          >
+            {i === 0 && (
+              <defs>
+                <linearGradient id={`leaf-shade-${seed}`} x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stopColor="#fff" stopOpacity=".22" />
+                  <stop offset="1" stopColor="#0b2a2a" stopOpacity=".28" />
+                </linearGradient>
+              </defs>
+            )}
+            <path d={stem.d} fill="none" stroke="#25412f" strokeWidth={5 - i * 0.4} strokeLinecap="round" />
+            {stem.leaves.map((l, j) => (
+              <g key={j} transform={`translate(${f(l.x)} ${f(l.y)}) rotate(${f(l.r)}) scale(${f(l.s)})`} opacity={l.o}>
+                <path d={LEAF} fill={l.c} />
+                <path d={LEAF} fill={`url(#leaf-shade-${seed})`} />
+                <path d={RIB} stroke="#e6f3c9" strokeOpacity=".45" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+              </g>
+            ))}
+          </svg>
+        );
+      })}
+    </div>
   );
 }
 
