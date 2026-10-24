@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { SyncNotice } from "@/components/sync-notice";
 import { SiteDock } from "@/components/site-dock";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -44,7 +43,6 @@ export function PublicChrome({
         Skip to content
       </a>
       {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" && <SiteHeader landing={landing} scrolled={scrolled} hiding={landing && scrolling} />}
-      <SyncNotice />
       {children}
       {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" && <><SiteFooter /><SiteDock /></>}
     </div>
