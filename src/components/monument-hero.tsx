@@ -130,8 +130,8 @@ export function MonumentHero() {
         <div className="mh-light" aria-hidden="true" />
         <div className="mh-shade" aria-hidden="true" />
         <DriftingLeaves />
-        <div className="mh-layer mh-leaves-l" aria-hidden="true"><LeafCluster seed={11} className="mh-sway" /></div>
-        <div className="mh-layer mh-leaves-r" aria-hidden="true"><div className="mh-flip"><LeafCluster seed={29} className="mh-sway mh-sway-b" /></div></div>
+        <div className="mh-layer mh-leaves-l" aria-hidden="true"><LeafCluster seed={11} /></div>
+        <div className="mh-layer mh-leaves-r" aria-hidden="true"><div className="mh-flip"><LeafCluster seed={29} /></div></div>
         <div className="mh-layer mh-grass-back" aria-hidden="true"><GrassRow seed={5} count={130} minH={60} maxH={130} palette={["#245c43", "#7fae4c"]} className="mh-grass" /></div>
         <div className="mh-layer mh-grass-front" aria-hidden="true"><GrassRow seed={9} count={80} minH={70} maxH={200} palette={["#143d33", "#4f8f46"]} flowers={7} className="mh-grass mh-sway-b" /></div>
 
