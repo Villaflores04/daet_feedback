@@ -2031,8 +2031,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
    Static scene + lean JS parallax: no endless animations, no blur over moving layers, no per-frame opacity changes. */
 .mh-stage.mh-lite .mh-feelings a { animation: none !important; }
 /* Leaves and grass keep their looping sway in lite mode; each is promoted to its own layer so the loop stays on the compositor. */
-.mh-stage.mh-lite .mh-sway, .mh-stage.mh-lite .mh-grass { will-change: transform; animation-duration: 8s; }
-.mh-stage.mh-lite .mh-sway-b { animation-duration: 10s; }
+.mh-stage.mh-lite .mh-sway, .mh-stage.mh-lite .mh-grass { will-change: transform; animation-duration: 2s; animation-timing-function: ease-in-out; }
+.mh-stage.mh-lite .mh-sway-b { animation-duration: 2.5s; animation-delay: -.8s; }
 .mh-stage.mh-lite .mh-drift { display: none; }
 .mh-stage.mh-lite .mh-bg img, .mh-stage.mh-lite .mh-light, .mh-stage.mh-lite .mh-leaves-l, .mh-stage.mh-lite .mh-leaves-r, .mh-stage.mh-lite .mh-grass-back, .mh-stage.mh-lite .mh-grass-front, .mh-stage.mh-lite .mh-content, .mh-stage.mh-lite .mh-tagline, .mh-stage.mh-lite .mh-progress span { animation: none !important; }
 .mh-stage.mh-lite .mh-card, .mh-stage.mh-lite .mh-feelings.hero-feelings small, .mh-stage.mh-lite .mh-caption-note { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
