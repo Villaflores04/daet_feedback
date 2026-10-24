@@ -2060,3 +2060,13 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes mh-grass-soft { from { transform: skewX(-2.4deg); } to { transform: skewX(2.4deg); } }
 .mh-stage.mh-idle .mh-stem { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .mh-stem { animation: none !important; } }
+
+/* Phones: shorter intro line, no reward pill; the freed space goes to taller, higher grass with a wider sway. */
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  .mh-lede-more, .mh-reward { display: none; }
+  .mh-grass-back, .mh-grass-front { bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .mh-grass-front { height: clamp(210px, 60vw, 330px); }
+  .mh-grass-back { height: clamp(170px, 50vw, 280px); }
+  .mh-grass, .mh-grass.mh-sway-b { animation-name: mh-grass-wide; }
+  @keyframes mh-grass-wide { from { transform: skewX(-4.2deg); } to { transform: skewX(4.2deg); } }
+}
