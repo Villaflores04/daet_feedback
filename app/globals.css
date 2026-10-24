@@ -2044,3 +2044,9 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes mh-grass-lite { from { transform: skewX(-3.5deg); } to { transform: skewX(3.5deg); } }
 .mh-stage.mh-lite .mh-sway { animation-name: mh-sway-lite; }
 .mh-stage.mh-lite .mh-grass, .mh-stage.mh-lite .mh-grass.mh-sway-b { animation-name: mh-grass-lite; }
+
+/* Swing for every browser (not only lite mode): wider and quick enough to read as a breeze. Overrides the slow base sway. */
+.mh-sway { animation: mh-sway-lite 1.8s ease-in-out infinite alternate; will-change: transform; }
+.mh-sway-b { animation-duration: 2.2s; animation-delay: -.7s; }
+.mh-grass { animation: mh-grass-lite 1.8s ease-in-out infinite alternate; will-change: transform; }
+.mh-grass.mh-sway-b { animation-name: mh-grass-lite; animation-duration: 2.2s; animation-delay: -.7s; }
