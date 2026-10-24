@@ -2023,3 +2023,6 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .nav-float .page-width > a svg { width: 22px; height: 22px; }
   .nav-float .page-width > a .leading-none > span:first-child { font-size: 13px; letter-spacing: -.01em; }
 }
+
+/* Landing: no top bar at all over the hero. The normal header appears once the hero is scrolled past. */
+.site-header.nav-float { display: none; }
