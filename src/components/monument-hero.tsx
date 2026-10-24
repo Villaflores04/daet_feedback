@@ -9,63 +9,85 @@ import { DriftingLeaves, GrassRow, LeafCluster } from "./hero-foliage";
 
 /**
  * Landing hero: a painted Daet landmark with scroll-driven parallax.
- * One rAF loop writes three CSS variables on the stage (--p scroll progress, --mx/--my pointer); every layer
- * derives its transform from them in CSS, so there is one style write per frame and no per-layer JS.
+ *
+ * Where the browser supports CSS scroll-driven animations (Chrome/Edge/Android Chrome 115+, Safari 26+) the whole
+ * parallax is declared in CSS (`animation-timeline`) and runs on the compositor thread, so it stays at the display
+ * frame rate even when the main thread is busy and this component does no work while scrolling. Other browsers fall
+ * back to one rAF loop that writes `transform` straight onto a handful of layers. Neither path uses CSS custom
+ * properties, which would force a style recalculation of every foliage node on every frame.
  */
+const POINTER: Record<string, [number, number]> = { bg: [-10, -6], ll: [16, 10], lr: [16, 10], gb: [-10, 0], gf: [-24, 0] };
+
 export function MonumentHero() {
   const root = useRef<HTMLElement>(null);
   useEffect(() => {
     const node = root.current;
     const stage = node?.querySelector<HTMLElement>(".mh-stage");
     if (!node || !stage) return;
+    const q = (selector: string) => stage.querySelector<HTMLElement>(selector);
+    const layers = { bg: q(".mh-bg img"), ll: q(".mh-leaves-l"), lr: q(".mh-leaves-r"), gb: q(".mh-grass-back"), gf: q(".mh-grass-front") };
+    const extras = { light: q(".mh-light"), ct: q(".mh-content"), tag: q(".mh-tagline"), prog: q(".mh-progress span") };
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-    let frame = 0, top = 0, travel = 1, dirty = true, visible = true;
-    let p = -1;
+    const portrait = window.matchMedia("(max-width: 767px), (max-aspect-ratio: 1/1)");
+    const native = typeof CSS !== "undefined" && CSS.supports("animation-timeline: view()");
+    let frame = 0, pointerFrame = 0, travel = 1, dirty = true, visible = true, p = -1;
     let tx = 0, ty = 0, mx = 0, my = 0; // pointer target / eased value, -1..1
 
+    // Fallback only: same maths as the keyframes in globals.css.
     const draw = () => {
       frame = 0;
-      if (document.hidden) return;
-      if (dirty) { // geometry is measured on resize only, never while scrolling
-        top = node.getBoundingClientRect().top + window.scrollY;
-        travel = Math.max(1, node.offsetHeight - stage.offsetHeight);
-        dirty = false; p = -1;
-      }
-      const next = reduced.matches ? 0 : Math.min(1, Math.max(0, (window.scrollY - top) / travel));
-      let moving = false;
-      if (!reduced.matches && finePointer.matches) {
-        mx += (tx - mx) * 0.08; my += (ty - my) * 0.08;
-        moving = Math.abs(tx - mx) > 0.002 || Math.abs(ty - my) > 0.002;
-      }
-      if (next !== p || moving) {
-        p = next;
-        stage.style.setProperty("--p", p.toFixed(4));
-        stage.style.setProperty("--mx", mx.toFixed(4));
-        stage.style.setProperty("--my", my.toFixed(4));
-      }
-      if (moving) frame = requestAnimationFrame(draw);
+      if (document.hidden || !visible || reduced.matches) return;
+      if (dirty) { travel = Math.max(1, node.offsetHeight - stage.offsetHeight); dirty = false; p = -1; }
+      // Position is read fresh each frame: the sync notice above the hero can appear after load and shift it.
+      const next = Math.min(1, Math.max(0, -node.getBoundingClientRect().top / travel));
+      if (next === p) return;
+      p = next;
+      const m = portrait.matches;
+      const set = (el: HTMLElement | null, value: string) => { if (el) el.style.transform = value; };
+      set(layers.bg, m ? `translate3d(0,-4%,0) scale(${1.12 + p * 0.32})` : `scale(${1.04 + p * 0.36})`);
+      set(layers.ll, `translate3d(${p * (m ? -90 : -170)}px,${p * (m ? -70 : -120)}px,0) scale(${1 + p * (m ? 0.3 : 0.6)})`);
+      set(layers.lr, `translate3d(${p * (m ? 90 : 170)}px,${p * (m ? -70 : -120)}px,0) scale(${1 + p * (m ? 0.3 : 0.6)})`);
+      set(layers.gb, `translate3d(0,${p * (m ? 24 : 34)}px,0) scale(${1 + p * (m ? 0.15 : 0.3)})`);
+      set(layers.gf, `translate3d(0,${p * (m ? 50 : 80)}px,0) scale(${1 + p * (m ? 0.3 : 0.55)})`);
+      set(extras.ct, `translate3d(0,${p * -70}px,0)`);
+      if (extras.light) extras.light.style.opacity = String(1 - p * 0.5);
+      if (extras.tag) { extras.tag.style.opacity = String(Math.min(1, Math.max(0, (p - 0.3) * 2.6))); extras.tag.style.transform = `translate3d(0,${(1 - p) * 34}px,0)`; }
+      if (extras.prog) extras.prog.style.transform = `scaleX(${p})`;
     };
-    const update = () => { if (!frame && visible && !document.hidden) frame = requestAnimationFrame(draw); };
+    const update = () => { if (!frame && !native && visible && !document.hidden) frame = requestAnimationFrame(draw); };
+
+    // Desktop pointer parallax uses the independent `translate` property, so it composes with the scroll transform.
+    const drawPointer = () => {
+      pointerFrame = 0;
+      mx += (tx - mx) * 0.08; my += (ty - my) * 0.08;
+      for (const [key, [fx, fy]] of Object.entries(POINTER)) {
+        const el = layers[key as keyof typeof layers];
+        if (el) el.style.translate = `${(mx * fx).toFixed(2)}px ${(my * fy).toFixed(2)}px`;
+      }
+      if (Math.abs(tx - mx) > 0.002 || Math.abs(ty - my) > 0.002) pointerFrame = requestAnimationFrame(drawPointer);
+    };
     const onPointer = (e: PointerEvent) => {
-      if (!finePointer.matches || reduced.matches) return;
+      if (!finePointer.matches || reduced.matches || !visible) return;
       const r = stage.getBoundingClientRect();
       tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
       ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
-      update();
+      if (!pointerFrame) pointerFrame = requestAnimationFrame(drawPointer);
     };
+
     const measure = () => { dirty = true; update(); };
-    const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; if (visible) update(); });
+    // Off-screen: pause the endless sway/drift animations (the CSS reads this class).
+    const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; stage.classList.toggle("mh-idle", !visible); if (visible) update(); });
     const ro = new ResizeObserver(measure);
     io.observe(node); ro.observe(node); ro.observe(stage);
-    window.addEventListener("scroll", update, { passive: true });
+    if (!native) window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", measure, { passive: true });
     stage.addEventListener("pointermove", onPointer, { passive: true });
     reduced.addEventListener("change", measure);
     document.addEventListener("visibilitychange", update);
     update();
     return () => {
-      io.disconnect(); ro.disconnect(); cancelAnimationFrame(frame);
+      io.disconnect(); ro.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", measure);
       stage.removeEventListener("pointermove", onPointer);
