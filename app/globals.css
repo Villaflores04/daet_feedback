@@ -1813,17 +1813,17 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mh-journey { position: relative; height: 200svh; }
 .mh-stage { --p: 0; --mx: 0; --my: 0; position: sticky; top: 0; height: 100svh; min-height: 620px; overflow: hidden; isolation: isolate; background: #2f6a8c; }
 .mh-bg, .mh-light, .mh-shade, .mh-drift { position: absolute; inset: 0; pointer-events: none; }
-.mh-bg img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 30% 55%; transform-origin: 31% 64%; transform: translate3d(calc(var(--mx) * -10px), calc(var(--my) * -6px), 0) scale(calc(1.04 + var(--p) * .36)); will-change: transform; }
-.mh-light { background: radial-gradient(60% 55% at 80% 8%, rgb(255 238 196 / .42), transparent 70%); opacity: calc(1 - var(--p) * .5); }
-.mh-shade { background: linear-gradient(270deg, rgb(7 32 42 / .46) 0%, rgb(7 32 42 / .2) 38%, transparent 66%), linear-gradient(rgb(6 28 38 / .34), transparent 24%), linear-gradient(0deg, rgb(6 28 38 / .3), transparent 30%); opacity: calc(.85 + var(--p) * .15); }
+.mh-bg img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 30% 55%; transform-origin: 31% 64%; transform: scale(1.04); will-change: transform; }
+.mh-light { background: radial-gradient(60% 55% at 80% 8%, rgb(255 238 196 / .42), transparent 70%); }
+.mh-shade { background: linear-gradient(270deg, rgb(7 32 42 / .46) 0%, rgb(7 32 42 / .2) 38%, transparent 66%), linear-gradient(rgb(6 28 38 / .34), transparent 24%), linear-gradient(0deg, rgb(6 28 38 / .3), transparent 30%); }
 
 .mh-layer { position: absolute; pointer-events: none; will-change: transform; z-index: 3; }
 .mh-layer svg { display: block; width: 100%; }
-.mh-leaves-l { left: -3%; top: -4%; width: clamp(300px, 29vw, 560px); transform-origin: 0 0; transform: translate3d(calc(var(--mx) * 16px + var(--p) * -170px), calc(var(--my) * 10px + var(--p) * -120px), 0) scale(calc(1 + var(--p) * .6)); filter: drop-shadow(0 18px 18px rgb(5 30 30 / .28)); }
-.mh-leaves-r { right: -3%; top: -4%; width: clamp(260px, 31vw, 600px); transform-origin: 100% 0; transform: translate3d(calc(var(--mx) * 16px + var(--p) * 170px), calc(var(--my) * 10px + var(--p) * -120px), 0) scale(calc(1 + var(--p) * .6)); filter: drop-shadow(0 18px 18px rgb(5 30 30 / .28)); }
+.mh-leaves-l { left: -3%; top: -4%; width: clamp(300px, 29vw, 560px); transform-origin: 0 0; transform: translate3d(0, 0, 0); filter: drop-shadow(0 18px 18px rgb(5 30 30 / .28)); }
+.mh-leaves-r { right: -3%; top: -4%; width: clamp(260px, 31vw, 600px); transform-origin: 100% 0; transform: translate3d(0, 0, 0); filter: drop-shadow(0 18px 18px rgb(5 30 30 / .28)); }
 .mh-flip { transform: scaleX(-1); }
-.mh-grass-back { left: -2%; right: -2%; bottom: -2px; height: clamp(96px, 14vw, 210px); transform-origin: 50% 100%; transform: translate3d(calc(var(--mx) * -10px), calc(var(--p) * 34px), 0) scale(calc(1 + var(--p) * .3)); z-index: 3; }
-.mh-grass-front { left: -3%; right: -3%; bottom: -4px; height: clamp(110px, 17vw, 250px); transform-origin: 50% 100%; transform: translate3d(calc(var(--mx) * -24px), calc(var(--p) * 80px), 0) scale(calc(1 + var(--p) * .55)); z-index: 4; filter: drop-shadow(0 -6px 10px rgb(5 30 30 / .18)); }
+.mh-grass-back { left: -2%; right: -2%; bottom: -2px; height: clamp(96px, 14vw, 210px); transform-origin: 50% 100%; transform: translate3d(0, 0, 0); z-index: 3; }
+.mh-grass-front { left: -3%; right: -3%; bottom: -4px; height: clamp(110px, 17vw, 250px); transform-origin: 50% 100%; transform: translate3d(0, 0, 0); z-index: 4; filter: drop-shadow(0 -6px 10px rgb(5 30 30 / .18)); }
 .mh-grass-back svg, .mh-grass-front svg { height: 100%; }
 .mh-sway { transform-origin: 0 0; animation: mh-sway 7.5s ease-in-out infinite alternate; }
 .mh-sway-b { animation-duration: 9s; animation-delay: -3s; }
@@ -1833,7 +1833,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes mh-grass { from { transform: skewX(-.9deg); } to { transform: skewX(.9deg); } }
 
 .mh-drift { z-index: 2; overflow: hidden; }
-.mh-drift span { position: absolute; top: 0; display: block; opacity: 0; animation: mh-fall linear infinite; will-change: transform; }
+.mh-drift span { position: absolute; top: 0; display: block; opacity: 0; animation: mh-fall linear infinite; }
 @keyframes mh-fall {
   0% { transform: translate3d(0, -12vh, 0) rotate(var(--rot)); opacity: 0; }
   8% { opacity: .8; }
@@ -1842,7 +1842,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   100% { transform: translate3d(calc(var(--sway) * -.6), 112vh, 0) rotate(calc(var(--rot) + 300deg)); opacity: 0; }
 }
 
-.mh-content { position: relative; z-index: 6; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-top: 84px; padding-bottom: 92px; transform: translate3d(0, calc(var(--p) * -70px), 0); }
+.mh-content { position: relative; z-index: 6; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-top: 84px; padding-bottom: 92px; transform: translate3d(0, 0, 0); }
 .mh-copy { width: min(100%, 540px); }
 .mh-eyebrow { display: flex; align-items: center; gap: 12px; font: 600 11px/1.5 var(--font-sans); letter-spacing: .22em; text-transform: uppercase; color: #fff4d2; text-shadow: 0 1px 10px rgb(5 30 40 / .55); }
 .mh-eyebrow span { width: 34px; height: 1px; background: #f6c453; }
@@ -1864,7 +1864,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mh-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 16px; }
 .mh-actions .primary-link { border-radius: 999px; box-shadow: 0 16px 30px -16px #1d4ed8; }
 
-.mh-tagline { position: absolute; z-index: 6; left: max(6vw, calc((100vw - 1280px) / 2)); top: 24%; max-width: 30vw; color: #fff; pointer-events: none; text-shadow: 0 2px 22px rgb(5 30 40 / .6); opacity: clamp(0, calc((var(--p) - .3) * 2.6), 1); transform: translate3d(0, calc((1 - var(--p)) * 34px), 0); }
+.mh-tagline { position: absolute; z-index: 6; left: max(6vw, calc((100vw - 1280px) / 2)); top: 24%; max-width: 30vw; color: #fff; pointer-events: none; text-shadow: 0 2px 22px rgb(5 30 40 / .6); opacity: 0; transform: translate3d(0, 34px, 0); }
 .mh-tagline span { font-size: 10px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: #ffe08a; }
 .mh-tagline p { margin: 10px 0; font: 500 clamp(32px, 3.6vw, 54px)/1.06 var(--font-display); letter-spacing: -.04em; }
 .mh-tagline em { color: #ffd978; }
@@ -1872,7 +1872,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mh-caption { position: absolute; left: 0; right: 0; bottom: 22px; z-index: 7; display: flex; justify-content: space-between; align-items: center; margin-inline: auto; color: #fff; font-size: 12px; letter-spacing: .02em; }
 .mh-caption-note { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 30px; background: #123449b3; }
 .mh-progress { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; height: 3px; background: rgb(255 255 255 / .25); }
-.mh-progress span { display: block; height: 100%; background: linear-gradient(90deg, #f6c453, #ffe9a8); transform-origin: left; transform: scaleX(var(--p)); }
+.mh-progress span { display: block; height: 100%; background: linear-gradient(90deg, #f6c453, #ffe9a8); transform-origin: left; transform: scaleX(0); }
 
 /* Landing header: a frosted bar so it stays legible over the painting before the page is scrolled. */
 .site-header-landing:not(.is-scrolled) { background: rgb(250 252 253 / .74); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom-color: rgb(255 255 255 / .5); }
@@ -1887,7 +1887,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @media (max-width: 767px), (max-aspect-ratio: 1/1) {
   .mh-journey { height: 175svh; }
   .mh-stage { min-height: 600px; }
-  .mh-bg img { object-position: 34% 50%; transform-origin: 36% 72%; transform: translate3d(calc(var(--mx) * -6px), -4%, 0) scale(calc(1.12 + var(--p) * .32)); }
+  .mh-bg img { object-position: 34% 50%; transform-origin: 36% 72%; transform: translate3d(0, -4%, 0) scale(1.12); }
   .mh-shade { background: linear-gradient(rgb(6 28 38 / .55), transparent 42%), linear-gradient(0deg, rgb(6 28 38 / .6), rgb(6 28 38 / .18) 36%, transparent 52%); }
   .mh-content { align-items: stretch; justify-content: flex-start; padding-top: 92px; padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
   .mh-copy { width: 100%; max-width: 520px; margin-inline: auto; display: flex; flex-direction: column; min-height: 100%; }
@@ -1938,3 +1938,55 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .site-header { transition: transform .32s cubic-bezier(.2, .7, .3, 1), opacity .25s ease; }
 .site-header.is-hiding { transform: translate3d(0, -110%, 0); opacity: 0; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .site-header.is-hiding { transform: none; opacity: 1; pointer-events: auto; } }
+
+
+/* ===== Hero performance: scroll-driven animations run on the compositor thread ===== */
+/* Inset 0: otherwise the page's scroll-padding-top shifts the range start and the progress runs ahead of the JS fallback. */
+.mh-journey { view-timeline: --mh block; view-timeline-inset: 0px; }
+.mh-layer { contain: layout style; }
+.mh-stage.mh-idle .mh-sway, .mh-stage.mh-idle .mh-grass, .mh-stage.mh-idle .mh-drift span, .mh-stage.mh-idle .mh-feelings a { animation-play-state: paused !important; }
+.site-dock { backdrop-filter: none; -webkit-backdrop-filter: none; }
+@supports (animation-timeline: view()) {
+  .mh-bg img, .mh-light, .mh-leaves-l, .mh-leaves-r, .mh-grass-back, .mh-grass-front, .mh-content, .mh-tagline, .mh-progress span { animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --mh; animation-range: contain 0% contain 100%; }
+  .mh-bg img { animation-name: mh-bg; }
+  .mh-light { animation-name: mh-light; }
+  .mh-leaves-l { animation-name: mh-ll; }
+  .mh-leaves-r { animation-name: mh-lr; }
+  .mh-grass-back { animation-name: mh-gb; }
+  .mh-grass-front { animation-name: mh-gf; }
+  .mh-content { animation-name: mh-ct; }
+  .mh-tagline { animation-name: mh-tag; }
+  .mh-progress span { animation-name: mh-prog; }
+}
+@keyframes mh-bg { from { transform: scale(1.04); } to { transform: scale(1.4); } }
+@keyframes mh-bg-m { from { transform: translate3d(0, -4%, 0) scale(1.12); } to { transform: translate3d(0, -4%, 0) scale(1.44); } }
+@keyframes mh-light { from { opacity: 1; } to { opacity: .5; } }
+@keyframes mh-ll { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-170px, -120px, 0) scale(1.6); } }
+@keyframes mh-lr { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(170px, -120px, 0) scale(1.6); } }
+@keyframes mh-ll-m { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-90px, -70px, 0) scale(1.3); } }
+@keyframes mh-lr-m { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(90px, -70px, 0) scale(1.3); } }
+@keyframes mh-gb { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(0, 34px, 0) scale(1.3); } }
+@keyframes mh-gf { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(0, 80px, 0) scale(1.55); } }
+@keyframes mh-gb-m { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(0, 24px, 0) scale(1.15); } }
+@keyframes mh-gf-m { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(0, 50px, 0) scale(1.3); } }
+@keyframes mh-ct { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, -70px, 0); } }
+@keyframes mh-tag { 0% { opacity: 0; transform: translate3d(0, 34px, 0); } 30% { opacity: 0; transform: translate3d(0, 24px, 0); } 68% { opacity: 1; transform: translate3d(0, 11px, 0); } 100% { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes mh-prog { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Phones and portrait tablets: lighter scale, no filters or backdrop blur over the moving scene. */
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  @supports (animation-timeline: view()) {
+    .mh-bg img { animation-name: mh-bg-m; }
+    .mh-leaves-l { animation-name: mh-ll-m; }
+    .mh-leaves-r { animation-name: mh-lr-m; }
+    .mh-grass-back { animation-name: mh-gb-m; }
+    .mh-grass-front { animation-name: mh-gf-m; }
+  }
+  .mh-leaves-l, .mh-leaves-r, .mh-grass-front { filter: none; }
+  .mh-feelings.hero-feelings small { background: rgb(8 36 52 / .72); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .site-header-landing:not(.is-scrolled) { background: rgb(250 252 253 / .88); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .mh-drift span:nth-child(n+6) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mh-bg img, .mh-light, .mh-leaves-l, .mh-leaves-r, .mh-grass-back, .mh-grass-front, .mh-content, .mh-tagline, .mh-progress span { animation: none !important; }
+}
