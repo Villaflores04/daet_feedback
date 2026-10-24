@@ -140,7 +140,7 @@ export function MonumentHero() {
             <p className="mh-eyebrow"><span aria-hidden="true" /> Daet, Camarines Norte</p>
             <h1>Your visit.<br />Your <em>voice.</em></h1>
             <div className="mh-card">
-              <p className="mh-lede">How was your time in Daet?<br className="hidden sm:block" /> Choose a feeling. Help shape a better visit.</p>
+              <p className="mh-lede">How was your time in Daet?<br className="hidden sm:block" /> Choose a feeling.<span className="mh-lede-more"> Help shape a better visit.</span></p>
               <div className="hero-feelings mh-feelings" aria-label="Choose a feeling to start feedback">
                 {FACES.map(face => <Link key={face.id} href={`/feedback?feeling=${face.id}`} aria-label={`Give ${face.label.toLowerCase()} feedback`}><span aria-hidden="true">{face.glyph}</span><small>{face.label}</small></Link>)}
               </div>
