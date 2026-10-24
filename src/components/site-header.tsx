@@ -27,6 +27,7 @@ export function SiteHeader({
       className={cn(
         "site-header",
         landing && "site-header-landing",
+        landing && !scrolled && "nav-float",
         scrolled && "is-scrolled",
         hiding && "is-hiding",
       )}
