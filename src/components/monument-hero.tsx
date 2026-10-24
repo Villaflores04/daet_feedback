@@ -30,7 +30,16 @@ export function MonumentHero() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const portrait = window.matchMedia("(max-width: 767px), (max-aspect-ratio: 1/1)");
-    const native = typeof CSS !== "undefined" && CSS.supports("animation-timeline: view()");
+    // In-app browsers (Messenger, Facebook, Instagram, 1DM and other Android WebViews) and weak phones lag with the full
+    // scene. They get a "lite" mode: no endless animations or blur, and a lean JS-driven parallax of the main layers.
+    const ua = navigator.userAgent;
+    const inApp = /FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|MicroMessenger|Snapchat|TikTok|1DM|IDM|; wv\)/i.test(ua);
+    const weak = !finePointer.matches && ((navigator.hardwareConcurrency || 8) <= 4 || ((navigator as Navigator & { deviceMemory?: number }).deviceMemory || 8) <= 3);
+    const supportsNative = typeof CSS !== "undefined" && CSS.supports("animation-timeline: view()");
+    const lite = !supportsNative || inApp || weak;
+    const native = supportsNative && !lite;
+    if (lite) { node.classList.add("mh-lite"); stage.classList.add("mh-lite"); }
+    let tagOn = false;
     let frame = 0, pointerFrame = 0, travel = 1, dirty = true, visible = true, p = -1;
     let tx = 0, ty = 0, mx = 0, my = 0; // pointer target / eased value, -1..1
 
@@ -41,10 +50,23 @@ export function MonumentHero() {
       if (dirty) { travel = Math.max(1, node.offsetHeight - stage.offsetHeight); dirty = false; p = -1; }
       // Position is read fresh each frame: the sync notice above the hero can appear after load and shift it.
       const next = Math.min(1, Math.max(0, -node.getBoundingClientRect().top / travel));
-      if (next === p) return;
-      p = next;
+      if (lite ? Math.round(next * 120) / 120 === p : next === p) return;
       const m = portrait.matches;
       const set = (el: HTMLElement | null, value: string) => { if (el) el.style.transform = value; };
+      if (lite) {
+        // Lean path: scale-led (little translation), so a scroll event arriving a frame late is hard to notice.
+        p = Math.round(next * 120) / 120;
+        set(layers.bg, m ? `translate3d(0,-4%,0) scale(${1.12 + p * 0.26})` : `scale(${1.04 + p * 0.3})`);
+        set(layers.ll, `translate3d(${p * (m ? -45 : -85)}px,${p * (m ? -35 : -60)}px,0) scale(${1 + p * (m ? 0.2 : 0.4)})`);
+        set(layers.lr, `translate3d(${p * (m ? 45 : 85)}px,${p * (m ? -35 : -60)}px,0) scale(${1 + p * (m ? 0.2 : 0.4)})`);
+        set(layers.gb, `scale(${1 + p * 0.12})`);
+        set(layers.gf, `translate3d(0,${p * (m ? 30 : 50)}px,0) scale(${1 + p * (m ? 0.2 : 0.35)})`);
+        if (extras.prog) extras.prog.style.transform = `scaleX(${p})`;
+        const on = p > 0.45;
+        if (on !== tagOn) { tagOn = on; stage.classList.toggle("mh-tag-on", on); }
+        return;
+      }
+      p = next;
       set(layers.bg, m ? `translate3d(0,-4%,0) scale(${1.12 + p * 0.32})` : `scale(${1.04 + p * 0.36})`);
       set(layers.ll, `translate3d(${p * (m ? -90 : -170)}px,${p * (m ? -70 : -120)}px,0) scale(${1 + p * (m ? 0.3 : 0.6)})`);
       set(layers.lr, `translate3d(${p * (m ? 90 : 170)}px,${p * (m ? -70 : -120)}px,0) scale(${1 + p * (m ? 0.3 : 0.6)})`);

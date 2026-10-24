@@ -1810,8 +1810,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 
 /* ===== Landing hero: Daet monument with scroll parallax (see monument-hero.tsx) ===== */
-.mh-journey { position: relative; height: 200svh; }
-.mh-stage { --p: 0; --mx: 0; --my: 0; position: sticky; top: 0; height: 100svh; min-height: 620px; overflow: hidden; isolation: isolate; background: #2f6a8c; }
+.mh-journey { position: relative; height: 200vh; height: 200svh; }
+.mh-stage { --p: 0; --mx: 0; --my: 0; position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 620px; overflow: hidden; isolation: isolate; background: #2f6a8c; }
 .mh-bg, .mh-light, .mh-shade, .mh-drift { position: absolute; inset: 0; pointer-events: none; }
 .mh-bg img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 30% 55%; transform-origin: 31% 64%; transform: scale(1.04); will-change: transform; }
 .mh-light { background: radial-gradient(60% 55% at 80% 8%, rgb(255 238 196 / .42), transparent 70%); }
@@ -1848,7 +1848,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mh-eyebrow span { width: 34px; height: 1px; background: #f6c453; }
 .mh-copy h1 { margin-top: 14px; font: 500 clamp(54px, 6.2vw, 98px)/1 var(--font-display); letter-spacing: -.05em; color: #fff; text-shadow: 0 2px 26px rgb(5 30 40 / .5); }
 .mh-copy h1 em { display: inline-block; padding-right: .06em; font-weight: 500; background: linear-gradient(120deg, #ffeab0, #f6c453 55%, #ffd978); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 14px rgb(5 30 40 / .45)); }
-.mh-card { margin-top: clamp(18px, 3svh, 30px); padding: 22px 24px 20px; border-radius: 28px; color: var(--color-ink); background: rgb(255 255 255 / .68); border: 1px solid rgb(255 255 255 / .7); backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); box-shadow: 0 34px 80px -34px rgb(6 32 46 / .6), inset 0 1px 0 rgb(255 255 255 / .85); }
+.mh-card { margin-top: clamp(18px, 3vh, 30px); margin-top: clamp(18px, 3svh, 30px); padding: 22px 24px 20px; border-radius: 28px; color: var(--color-ink); background: rgb(255 255 255 / .68); border: 1px solid rgb(255 255 255 / .7); backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); box-shadow: 0 34px 80px -34px rgb(6 32 46 / .6), inset 0 1px 0 rgb(255 255 255 / .85); }
 .mh-lede { font-size: 16.5px; line-height: 1.55; color: #173b4f; }
 .mh-feelings.hero-feelings { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
 .mh-feelings.hero-feelings a { width: auto; min-height: 84px; border-radius: 18px; background: rgb(255 255 255 / .88); border: 1px solid #fff; transition: transform .25s cubic-bezier(.2, .8, .3, 1), box-shadow .25s, background .2s; }
@@ -1885,7 +1885,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 }
 /* Portrait screens and phones: no panel. Heading and lede in the sky, emoji "bubbles" and the CTA in the thumb zone. */
 @media (max-width: 767px), (max-aspect-ratio: 1/1) {
-  .mh-journey { height: 175svh; }
+  .mh-journey { height: 175vh; height: 175svh; }
   .mh-stage { min-height: 600px; }
   .mh-bg img { object-position: 34% 50%; transform-origin: 36% 72%; transform: translate3d(0, -4%, 0) scale(1.12); }
   .mh-shade { background: linear-gradient(rgb(6 28 38 / .55), transparent 42%), linear-gradient(0deg, rgb(6 28 38 / .6), rgb(6 28 38 / .18) 36%, transparent 52%); }
@@ -1927,7 +1927,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .mh-journey { height: auto; }
-  .mh-stage { position: relative; height: 100svh; }
+  .mh-stage { position: relative; height: 100vh; height: 100svh; }
   .mh-drift { display: none; }
   .mh-sway, .mh-grass, .mh-feelings.hero-feelings a { animation: none !important; }
   .mh-bg img, .mh-layer, .mh-content, .mh-tagline { transform: none !important; }
@@ -2026,3 +2026,14 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 /* Landing: no top bar at all over the hero. The normal header appears once the hero is scrolled past. */
 .site-header.nav-float { display: none; }
+
+/* ===== Lite mode: in-app browsers, old WebViews and weak phones =====
+   Static scene + lean JS parallax: no endless animations, no blur over moving layers, no per-frame opacity changes. */
+.mh-stage.mh-lite .mh-sway, .mh-stage.mh-lite .mh-grass, .mh-stage.mh-lite .mh-feelings a { animation: none !important; }
+.mh-stage.mh-lite .mh-drift { display: none; }
+.mh-stage.mh-lite .mh-bg img, .mh-stage.mh-lite .mh-light, .mh-stage.mh-lite .mh-leaves-l, .mh-stage.mh-lite .mh-leaves-r, .mh-stage.mh-lite .mh-grass-back, .mh-stage.mh-lite .mh-grass-front, .mh-stage.mh-lite .mh-content, .mh-stage.mh-lite .mh-tagline, .mh-stage.mh-lite .mh-progress span { animation: none !important; }
+.mh-stage.mh-lite .mh-card, .mh-stage.mh-lite .mh-feelings.hero-feelings small, .mh-stage.mh-lite .mh-caption-note { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.mh-stage.mh-lite .mh-card { background: rgb(255 255 255 / .84); }
+.mh-stage.mh-lite .mh-copy h1 em { filter: none; }
+.mh-stage.mh-lite .mh-tagline { opacity: 0; transform: translate3d(0, 20px, 0); transition: opacity .4s ease, transform .4s ease; }
+.mh-stage.mh-lite.mh-tag-on .mh-tagline { opacity: 1; transform: none; }
