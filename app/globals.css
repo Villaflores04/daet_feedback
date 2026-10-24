@@ -2009,3 +2009,17 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .nav-float .page-width > a svg { width: 28px; height: 28px; }
   .nav-float .reward-balance-link { min-height: 44px; background: rgb(7 38 46 / .66); }
 }
+
+/* Landing nav, simplified: only the logo and DAET-CONNECT name over the hero. No links, points or pill. */
+.public-shell:not(:has(.sync-notice)) .nav-float .page-width { width: min(1240px, calc(100% - 40px)); height: auto; margin-top: 0; padding: 18px 0 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; justify-content: flex-start; }
+.nav-float nav, .nav-float .page-width > div { display: none; }
+.nav-float .page-width > a { pointer-events: auto; width: auto; height: auto; display: inline-flex; border: 0; background: none; border-radius: 0; text-shadow: 0 1px 10px rgb(3 20 28 / .5); }
+.nav-float .page-width > a svg { width: 34px; height: 34px; }
+.nav-float .page-width > a .leading-none { display: block; }
+.nav-float .page-width > a .leading-none > span:first-child { font-size: 1.15rem; }
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  .public-shell:not(:has(.sync-notice)) .nav-float .page-width { width: 100%; padding: calc(10px + env(safe-area-inset-top)) 14px 0; }
+  .nav-float .page-width > a { width: auto; height: auto; border: 0; background: none; gap: 6px; }
+  .nav-float .page-width > a svg { width: 22px; height: 22px; }
+  .nav-float .page-width > a .leading-none > span:first-child { font-size: 13px; letter-spacing: -.01em; }
+}
