@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search, Plus, X } from "lucide-react";
 import { PublicChrome } from "@/components/public-chrome";
 import { PlaceCard } from "@/components/place-card";
+import { PageHero } from "@/components/page-hero";
 import { WishSheet } from "@/components/wish-sheet";
 import { CATEGORIES, type Category } from "@/lib/pulse/types";
 import { usePulse } from "@/lib/pulse/store";
@@ -12,6 +13,11 @@ export function SpotsPage() {
   const [filter, setFilter] = useState<Category | "All">("All");
   const [query, setQuery] = useState("");
   const [wish, setWish] = useState(false);
+  const pulses = usePulse((s) => s.pulses);
+  const places = channels.filter((c) => c.id !== OVERALL_ID);
+  const placeIds = new Set(places.map((c) => c.id));
+  const ratingCount = pulses.filter((p) => !p.parentId && placeIds.has(p.channelId)).length;
+  const countFor = (item: Category | "All") => item === "All" ? places.length : places.filter((c) => c.category === item).length;
   const visible = channels.filter(
     (c) =>
       c.id !== OVERALL_ID && (filter === "All" || c.category === filter) &&
@@ -22,12 +28,12 @@ export function SpotsPage() {
   return (
     <PublicChrome>
       <main id="main-content" className="page-width pb-16 places-main">
-        <header className="page-intro places-intro">
-          <h1>Explore places</h1>
-          <p>
-            Find your next stop and see how visitors felt.
-          </p>
-        </header>
+        <PageHero
+          eyebrow="Places in Daet"
+          title="Explore places"
+          lede="Find your next stop and see how visitors felt."
+          stats={[{ value: places.length, label: places.length === 1 ? "place" : "places" }, { value: ratingCount, label: ratingCount === 1 ? "visitor rating" : "visitor ratings" }]}
+        />
         <div className="explore-toolbar">
           <label className="search-field">
             <Search size={18} />
@@ -57,6 +63,7 @@ export function SpotsPage() {
                 onClick={() => setFilter(item)}
               >
                 {item}
+                <small>{countFor(item)}</small>
               </button>
             ))}
           </div>

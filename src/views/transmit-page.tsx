@@ -7,6 +7,7 @@ import { ArrowUpRight, CheckCircle2, MapPin, MessageCircle, ShieldCheck } from "
 import { RewardPreview } from "@/components/reward-preview";
 import { FEEDBACK_PREVIEW_POINTS } from "@/lib/rewards";
 import { FacePicker } from "@/components/face-picker";
+import { PageHero } from "@/components/page-hero";
 import { PhotoField } from "@/components/photo-field";
 import { PublicChrome } from "@/components/public-chrome";
 import { StoredPhoto } from "@/components/stored-photo";
@@ -65,13 +66,12 @@ export function TransmitPage() {
 
   return <PublicChrome>
     <main id="main-content" className="feedback-main page-width">
-      <header className="feedback-heading">
-        <div>
-          <h1>Share your experience</h1>
-          <p>Choose a place or your whole visit, then an emoji.</p>
-        </div>
-        <Link href="/board" className="feedback-insights-link">View sentiment <ArrowUpRight size={16} /></Link>
-      </header>
+      <PageHero
+        eyebrow="Your voice"
+        title="Share your experience"
+        lede="Choose a place or your whole visit, then an emoji. It takes about 10 seconds."
+        action={<Link href="/board" className="page-hero-cta">View sentiment <ArrowUpRight size={16} /></Link>}
+      />
       <div className="feedback-grid">
         <section className="feedback-compose" aria-label="Share feedback">
           {sentId ? <div className="feedback-success" role="status">
