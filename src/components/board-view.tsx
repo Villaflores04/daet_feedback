@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ChevronDown, Smile, MessageSquareText } from "lucide-react";
+import { PageHero } from "@/components/page-hero";
 import { FaceGauge } from "@/components/face-gauge";
 import { MoodBar } from "@/components/mood-bar";
 import { WordMeter } from "@/components/word-meter";
@@ -73,10 +74,20 @@ export function BoardView({
 
   return (
     <div className={desk ? "sentiment-page sentiment-desk pb-12" : "sentiment-page page-width pb-12"}>
-      <header className="sentiment-intro">
-        <h1 className="font-display text-ink">Visitor sentiment</h1>
-        <p>See how visitors feel about Daet.</p>
-      </header>
+      {desk ? (
+        <header className="sentiment-intro">
+          <h1 className="font-display text-ink">Visitor sentiment</h1>
+          <p>See how visitors feel about Daet.</p>
+        </header>
+      ) : (
+        <PageHero
+          eyebrow="How Daet feels"
+          title="Visitor sentiment"
+          lede="See how visitors feel about Daet."
+          stats={[{ value: townFaces.total, label: townFaces.total === 1 ? "rating" : "ratings" }, ...(townFaces.total ? [{ value: `${Math.round((townFaces.pos / townFaces.total) * 100)}%`, label: "positive" }] : []), { value: textCount, label: textCount === 1 ? "written note" : "written notes" }]}
+          action={<Link href="/feedback" className="page-hero-cta">Add your rating</Link>}
+        />
+      )}
       <div className="sentiment-navigation">
         <div className="analysis-primary" role="group" aria-label="Analysis type">
           <button type="button" aria-pressed={mode === "faces"} onClick={() => selectAnalysis("faces")}>
@@ -110,6 +121,12 @@ export function BoardView({
           <WordMeter tally={townWords} className="sentiment-chart" />
         )}
 
+        {!desk && (mode === "faces" ? townFaces.total : townWords.total) === 0 ? (
+          <div className="sentiment-empty">
+            <p><strong>Nothing to chart yet.</strong> Ratings appear here as visitors share them.</p>
+            <Link href="/feedback" className="primary-link">Be the first to rate</Link>
+          </div>
+        ) : null}
         <details className="sentiment-method">
           <summary>About these results{mode === "words" ? ` · ${townWords.total} classified notes` : ` · ${townFaces.total} ratings`}</summary>
           <p>Summaries cover the latest 500 shared entries. Overall visits and individual place ratings are calculated separately. Emoji ratings exclude replies.</p>
@@ -149,7 +166,7 @@ export function BoardView({
                       {count} {mode === "faces" ? (count === 1 ? "rating" : "ratings") : "classified comments"} · {expanded ? "Hide details" : "View details"}
                     </p>
                   </div>
-                  <MoodBar tally={tally} className="hidden w-28 sm:block" />
+                  <MoodBar tally={tally} className="hidden w-28 sm:flex" />
                   <ChevronDown
                     className={cn(
                       "size-5 shrink-0 text-muted transition-transform duration-200",

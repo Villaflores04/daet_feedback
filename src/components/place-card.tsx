@@ -17,7 +17,7 @@ export function PlaceCard({
   const hydrated = usePulse(s => s.hydrated);
   const ratings = pulses.filter(p => p.channelId === channel.id && !p.parentId);
   const tally = tallyFaces(ratings);
-  const summary = !hydrated ? "Loading ratings…" : !tally.total ? "No ratings yet" : tally.pos > tally.total / 2 ? "Mostly positive" : tally.neg > tally.total / 2 ? "Mostly negative" : "Mixed feelings";
+  const summary = !hydrated ? "Loading ratings…" : !tally.total ? "Be the first to rate" : tally.pos > tally.total / 2 ? "Mostly positive" : tally.neg > tally.total / 2 ? "Mostly negative" : "Mixed feelings";
   const glyph = !hydrated || !tally.total ? "😐" : tally.pos > tally.total / 2 ? "😊" : tally.neg > tally.total / 2 ? "😢" : "😐";
   const breakdown = FACES.map(face => `${face.label}: ${ratings.filter(p => p.face === face.id).length}`).join(", ");
   return (
@@ -29,14 +29,14 @@ export function PlaceCard({
           className="h-full w-full object-cover object-[center_65%]"
         />
         <div
-          className="place-rating-badge"
+          className={`place-rating-badge${hydrated && !tally.total ? " is-empty" : ""}`}
           aria-label={`${channel.name}: ${summary}${hydrated ? `, ${tally.total} ratings. ${breakdown}` : ""}`}
           title={hydrated ? `Latest shared emoji ratings · ${breakdown}` : summary}
         >
-          <span className="place-rating-emoji" aria-hidden="true">{glyph}</span>
+          {hydrated && !tally.total ? null : <span className="place-rating-emoji" aria-hidden="true">{glyph}</span>}
           <span className="place-rating-copy">
             <strong>{summary}</strong>
-            {hydrated ? <small>{tally.total} {tally.total === 1 ? "rating" : "ratings"}</small> : null}
+            {hydrated && tally.total ? <small>{tally.total} {tally.total === 1 ? "rating" : "ratings"}</small> : null}
           </span>
         </div>
         <span className="place-category">{channel.category}</span>
