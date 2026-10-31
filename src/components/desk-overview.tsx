@@ -6,7 +6,7 @@ import { usePulse } from "@/lib/pulse/store";
 import { buildInsights } from "@/lib/pulse/insights";
 import { buildAttention } from "@/lib/pulse/attention";
 import { MoodBar } from "./mood-bar";
-import { AiBriefing } from "./ai-briefing";
+import { openAskAi, usePromptGroups } from "./desk-ask-ai";
 import { ChartCard, DonutChart, EmptyChart, FaceBars, HBarChart, MOOD_COLORS, PlaceBars, Sparkline, TrendChart } from "./desk-charts";
 
 const FACE_COLOR = { POS: MOOD_COLORS.pos, MIX: MOOD_COLORS.mix, NEG: MOOD_COLORS.neg } as const;
@@ -22,6 +22,8 @@ export function DeskOverview() {
   const fingerprint = JSON.stringify(pulses.map(p => [p.id, p.reacts]));
   const f = data.faces;
   const positiveShare = f.total ? Math.round((f.pos / f.total) * 100) : 0;
+  const groups = usePromptGroups();
+  const strip = [groups[0].prompts[0], groups[1].prompts[0], groups[2].prompts[0]];
   const wishes = usePulse(s => s.wishes);
   const openWishes = wishes.filter(w => w.status === "open").length;
   const attention = buildAttention(data);
@@ -60,7 +62,14 @@ export function DeskOverview() {
       </li>; })}</ul>
     </section> : null}
     <div className="desk-stat-grid grid grid-cols-2 gap-3 xl:grid-cols-4">{tiles.map(k => { const Icon = k.icon; const body = <><div className="flex items-center justify-between gap-2"><p className="text-sm text-muted">{k.label}</p><span className={`grid size-8 shrink-0 place-items-center rounded-full ${k.tone}`} aria-hidden><Icon size={16} /></span></div><p className="mt-2 text-3xl font-semibold tabular-nums">{k.value}</p><p className="desk-kpi-sub mt-1 text-xs leading-5 text-muted">{k.sub}</p></>; return k.href ? <Link key={k.label} href={k.href} className="desk-kpi flex flex-col rounded-2xl border border-line bg-white p-4 transition hover:border-blue-300">{body}</Link> : <div key={k.label} className="desk-kpi flex flex-col rounded-2xl border border-line bg-white p-4">{body}</div>; })}</div>
-    <AiBriefing data={data} status={status} fingerprint={fingerprint} resetSignal={resetSignal} />
+    <section className="desk-ask-strip rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-white p-4 sm:p-5" aria-labelledby="ask-strip-title">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0"><p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700"><Sparkles size={14} aria-hidden />Ask AI</p><h2 id="ask-strip-title" className="mt-0.5 text-lg font-semibold">Want to know why, or what to do?</h2></div>
+        <button type="button" onClick={() => openAskAi()} className="primary-link !min-h-11 !gap-2 !rounded-full !px-5 !py-2.5"><Sparkles size={15} aria-hidden />Open chat</button>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">{strip.map(p => <button key={p} type="button" onClick={() => openAskAi(p)} className="desk-ask-chip">{p}</button>)}</div>
+      <p className="mt-3 text-xs text-muted">Comments are sent without names, photos or contact details. Answers are drafts for officer review.</p>
+    </section>
     <details className="desk-details rounded-2xl border border-line bg-white">
       <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-semibold sm:px-5"><span className="inline-flex items-center gap-2"><Sparkles size={15} aria-hidden className="text-blue-600" />Charts and details</span><span className="text-xs font-normal text-muted">Rating mix · comments · trend · topics · place queue</span></summary>
       <div className="space-y-5 border-t border-line p-4 sm:p-5">

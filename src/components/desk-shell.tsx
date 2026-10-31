@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { SyncNotice } from "@/components/sync-notice";
+import { DeskAskAi } from "@/components/desk-ask-ai";
 import { Wordmark } from "@/components/mark";
 import { useDesk } from "@/lib/pulse/desk";
 import { toast } from "sonner";
@@ -67,6 +68,7 @@ export function DeskShell({ children }: { children: ReactNode }) {
         <SyncNotice />
         {children}
       </main>
+      <DeskAskAi />
     </div>
   );
 }
