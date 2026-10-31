@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { hasDeskSession, sameOrigin } from "@/lib/desk-session";
 import { supabaseServer } from "@/lib/supabase-server";
 import { buildInsights } from "@/lib/pulse/insights";
+import { buildAttention } from "@/lib/pulse/attention";
 import { BRIEFING_PROMPT, buildComments, parseBriefing, reportPrompt } from "@/lib/pulse/briefing";
 import type { Pulse, Channel } from "@/lib/pulse/types";
 export const dynamic = "force-dynamic";
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
     // Sent to the AI: aggregate counts plus redacted comment text. Never names/callsigns, photos, ids or contact details.
     const { lines, cutoff, ...aggregates } = insights;
     void lines; void cutoff;
-    const user = JSON.stringify({ ...aggregates, places: aggregates.places.map(({ id, slug, ...place }) => { void id; void slug; return place; }), comments: buildComments(pulses, channels) });
+    const user = JSON.stringify({ ...aggregates, places: aggregates.places.map(({ id, slug, ...place }) => { void id; void slug; return place; }), attention: buildAttention(insights).items.map(({ level, title, place }) => ({ level, title, place })), comments: buildComments(pulses, channels, 40) });
     const headers = { "cache-control": "no-store" };
     if (mode === "report") {
       const report = await ask({ key, models, system: reportPrompt(lang), user, json: false, accept: text => (text.length > 60 ? text.slice(0, 5000) : null) });

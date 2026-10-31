@@ -80,7 +80,7 @@ const GROUND_RULES = [
 ].join(" ");
 
 export const BRIEFING_PROMPT = `You assist a Daet municipal tourism officer by turning visitor feedback into a short, practical briefing. ${GROUND_RULES}
-The officer already sees charts of the counts, so do NOT restate totals or percentages. Add what the charts cannot show: what visitors actually say, what to look at first, and what to do.
+The officer already sees charts and a rule-based "attention" list (the supplied "attention" array: level, title, place). Do NOT restate totals, percentages or those titles. Decide nothing about urgency yourself: your priorities must cover the attention items first (same places, same order), then explain from the comments WHY visitors are unhappy or happy there, and what to do. If comments do not explain an item, say so plainly.
 Reply with ONLY one JSON object, no markdown, with exactly these keys:
 {"headline": one sentence (max 28 words) with the single most useful takeaway; if fewer than 4 comments exist, say the sample is too small for firm conclusions,
 "themes": up to 6 items {"place": place name or "Overall Daet experience", "tone": "positive"|"mixed"|"negative", "theme": short label, "detail": one or two sentences paraphrasing what visitors say, "mentions": number of supplied comments that support it},

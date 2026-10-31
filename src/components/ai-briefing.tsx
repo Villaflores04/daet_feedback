@@ -197,12 +197,12 @@ export function AiBriefing({ data, status, fingerprint, resetSignal }: { data: I
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700"><Sparkles size={14} aria-hidden />AI-assisted briefing</p>
-          <h2 id="ai-briefing-title" className="mt-1 text-xl font-semibold">What needs attention?</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">A draft reading of visitor ratings and comments: what people say, what to review first, and what to do. Comment text is sent without names, photos or contact details (automatic redaction, best effort).</p>
+          <h2 id="ai-briefing-title" className="mt-1 text-xl font-semibold">What are visitors saying, and what should we do?</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">Explains the items above using the written comments, then suggests next steps. Comments are sent without names, photos or contact details (automatic redaction, best effort).</p>
         </div>
         <div className="flex w-full shrink-0 gap-2 sm:w-auto">
           {briefing ? <CopyButton text={briefingToText(briefing)} /> : null}
-          <button type="button" disabled={busy || blocked || cooldown > 0} onClick={generate} className="primary-link !min-h-11 flex-1 !gap-2 !rounded-full !px-5 !py-2.5 disabled:opacity-50 sm:flex-none">{busy ? <RefreshCw size={15} className="animate-spin" aria-hidden /> : <Sparkles size={15} aria-hidden />}{busy ? "Preparing…" : cooldown > 0 ? `Wait ${cooldown}s` : briefing ? "Regenerate" : "Generate AI briefing"}</button>
+          <button type="button" disabled={busy || blocked || cooldown > 0 || (Boolean(briefing) && !stale)} onClick={generate} className="primary-link !min-h-11 flex-1 !gap-2 !rounded-full !px-5 !py-2.5 disabled:opacity-50 sm:flex-none">{busy ? <RefreshCw size={15} className="animate-spin" aria-hidden /> : <Sparkles size={15} aria-hidden />}{busy ? "Preparing…" : cooldown > 0 ? `Wait ${cooldown}s` : briefing ? (stale ? "Regenerate" : "Up to date") : "Generate AI briefing"}</button>
         </div>
       </header>
       {blocked && !busy ? <p className="mt-3 text-xs text-muted">{data.loaded ? "Waiting for a live connection — refresh the data to enable the briefing." : "No feedback loaded yet — collect or refresh data first."}</p> : null}
