@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
-import { MessageCircle, FileText, Star, ThumbsUp, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, ArrowRight, CheckCircle2, Eye, Info, RefreshCw, Sparkles, Star, MessageCircle, Lightbulb, ThumbsUp } from "lucide-react";
 import { usePulse } from "@/lib/pulse/store";
 import { buildInsights } from "@/lib/pulse/insights";
+import { buildAttention } from "@/lib/pulse/attention";
 import { MoodBar } from "./mood-bar";
-import { AiBriefing } from "./ai-briefing";
+import { openAskAi, usePromptGroups } from "./desk-ask-ai";
 import { ChartCard, DonutChart, EmptyChart, FaceBars, HBarChart, MOOD_COLORS, PlaceBars, Sparkline, TrendChart } from "./desk-charts";
 
 const FACE_COLOR = { POS: MOOD_COLORS.pos, MIX: MOOD_COLORS.mix, NEG: MOOD_COLORS.neg } as const;
@@ -20,19 +22,57 @@ export function DeskOverview() {
   const fingerprint = JSON.stringify(pulses.map(p => [p.id, p.reacts]));
   const f = data.faces;
   const positiveShare = f.total ? Math.round((f.pos / f.total) * 100) : 0;
-  const weekTotal = data.trend.reduce((n, d) => n + d.count, 0);
-  const trendValues = data.trend.map(d => d.count);
-  const kpis = [
-    { label: "Original ratings", value: data.originalCount, icon: Star, tone: "bg-blue-50 text-blue-600", extra: <div><Sparkline values={trendValues} /><p className="mt-1 text-[11px] text-muted">{weekTotal} in the last 7 days</p></div> },
-    { label: "Replies", value: data.replyCount, icon: MessageCircle, tone: "bg-sky-50 text-sky-600" },
-    { label: "Classified notes", value: data.words.total, icon: FileText, tone: "bg-violet-50 text-violet-600" },
-    { label: "Agree / disagree", value: `${data.reactions.up} / ${data.reactions.down}`, icon: ThumbsUp, tone: "bg-emerald-50 text-emerald-600" },
+  const groups = usePromptGroups();
+  const strip = [groups[0].prompts[0], groups[1].prompts[0], groups[2].prompts[0]];
+  const wishes = usePulse(s => s.wishes);
+  const openWishes = wishes.filter(w => w.status === "open").length;
+  const attention = buildAttention(data);
+  const { weekly } = data;
+  const delta = weekly.current - weekly.previous;
+  const tiles = [
+    { label: "Ratings this week", value: weekly.current, icon: Star, tone: "bg-blue-50 text-blue-600", sub: weekly.previous ? `${delta >= 0 ? "▲" : "▼"} ${Math.abs(delta)} vs last week (${weekly.previous})` : "No ratings the week before" },
+    { label: "Positive", value: data.faces.total ? `${positiveShare}%` : "–", icon: ThumbsUp, tone: "bg-emerald-50 text-emerald-600", sub: `${f.pos} of ${f.total} original ratings` },
+    { label: "Comments to read", value: weekly.notes, icon: MessageCircle, tone: "bg-violet-50 text-violet-600", sub: "written in the last 7 days" },
+    { label: "Open suggestions", value: openWishes, icon: Lightbulb, tone: "bg-amber-50 text-amber-600", sub: openWishes ? "from visitors, awaiting review" : "nothing waiting", href: "/desk/wishes" },
   ];
+  const LEVEL = {
+    high: { label: "Urgent", icon: AlertTriangle, card: "border-red-200 bg-red-50/70", pill: "bg-red-100 text-red-800" },
+    medium: { label: "Review", icon: Eye, card: "border-amber-200 bg-amber-50/70", pill: "bg-amber-100 text-amber-900" },
+    low: { label: "Note", icon: Info, card: "border-line bg-white", pill: "bg-slate-100 text-slate-700" },
+    good: { label: "Going well", icon: CheckCircle2, card: "border-emerald-200 bg-emerald-50/70", pill: "bg-emerald-100 text-emerald-800" },
+  } as const;
+  const BANNER = {
+    act: "border-red-200 bg-red-50 text-red-900", watch: "border-amber-200 bg-amber-50 text-amber-900",
+    ok: "border-emerald-200 bg-emerald-50 text-emerald-900", empty: "border-line bg-white text-ink",
+  } as const;
   const places = data.places.map(p => ({ id: p.id, name: p.name, slug: p.slug, pos: p.faces.pos, mix: p.faces.mix, neg: p.faces.neg, total: p.faces.total, notes: p.words.mix }));
   return <div className="desk-overview mt-6 space-y-5">
     <div className="desk-data-status flex items-center justify-between gap-3 text-sm"><p className="text-muted">{status === "connected" ? "Connected" : "Data may be incomplete or cached — refresh before reporting."} · {data.loaded} recent entries</p><button type="button" disabled={refreshing} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-white px-4" onClick={async () => { setRefreshing(true); setResetSignal(n => n + 1); try { await sync(); } finally { setRefreshing(false); } }}><RefreshCw size={15} className={refreshing ? "animate-spin" : undefined} aria-hidden />{refreshing ? "Refreshing…" : "Refresh"}</button></div>
-    <div className="desk-stat-grid grid grid-cols-2 gap-3 xl:grid-cols-4">{kpis.map(k => { const Icon = k.icon; return <div key={k.label} className="desk-kpi flex flex-col rounded-2xl border border-line bg-white p-4"><div className="flex items-center justify-between gap-2"><p className="text-sm text-muted">{k.label}</p><span className={`grid size-8 shrink-0 place-items-center rounded-full ${k.tone}`} aria-hidden><Icon size={16} /></span></div><p className="mt-2 text-3xl font-semibold tabular-nums">{k.value}</p>{k.extra ? <div className="desk-kpi-extra mt-2">{k.extra}</div> : null}</div>; })}</div>
-    <AiBriefing data={data} status={status} fingerprint={fingerprint} resetSignal={resetSignal} />
+    <div role="status" className={`desk-status-banner flex items-start gap-3 rounded-2xl border p-4 sm:p-5 ${BANNER[attention.status.level]}`}>
+      <span className="mt-0.5 shrink-0" aria-hidden>{attention.status.level === "act" ? <AlertTriangle size={22} /> : attention.status.level === "ok" ? <CheckCircle2 size={22} /> : attention.status.level === "watch" ? <Eye size={22} /> : <Info size={22} />}</span>
+      <div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-wider opacity-70">Today at a glance</p><p className="mt-0.5 text-lg font-semibold leading-snug sm:text-xl">{attention.status.text}</p></div>
+    </div>
+    {attention.items.length ? <section aria-labelledby="attention-title" className="desk-attention">
+      <h2 id="attention-title" className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">Needs your attention</h2>
+      <ul className="desk-attention-grid grid gap-3">{attention.items.map(item => { const l = LEVEL[item.level]; const Icon = l.icon; return <li key={item.id} className={`flex flex-col rounded-2xl border p-4 ${l.card}`}>
+        <span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${l.pill}`}><Icon size={13} aria-hidden />{l.label}</span>
+        <p className="mt-3 font-semibold leading-snug">{item.title}</p>
+        <p className="mt-1.5 text-sm leading-6 text-muted">{item.detail}</p>
+        {item.href ? <Link href={item.href} className="mt-auto inline-flex min-h-11 items-center gap-1.5 pt-2 text-sm font-semibold text-blue-700">Open comments <ArrowRight size={15} aria-hidden /></Link> : null}
+      </li>; })}</ul>
+    </section> : null}
+    <div className="desk-stat-grid grid grid-cols-2 gap-3 xl:grid-cols-4">{tiles.map(k => { const Icon = k.icon; const body = <><div className="flex items-center justify-between gap-2"><p className="text-sm text-muted">{k.label}</p><span className={`grid size-8 shrink-0 place-items-center rounded-full ${k.tone}`} aria-hidden><Icon size={16} /></span></div><p className="mt-2 text-3xl font-semibold tabular-nums">{k.value}</p><p className="desk-kpi-sub mt-1 text-xs leading-5 text-muted">{k.sub}</p></>; return k.href ? <Link key={k.label} href={k.href} className="desk-kpi flex flex-col rounded-2xl border border-line bg-white p-4 transition hover:border-blue-300">{body}</Link> : <div key={k.label} className="desk-kpi flex flex-col rounded-2xl border border-line bg-white p-4">{body}</div>; })}</div>
+    <section className="desk-ask-strip rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-white p-4 sm:p-5" aria-labelledby="ask-strip-title">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0"><p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700"><Sparkles size={14} aria-hidden />Ask AI</p><h2 id="ask-strip-title" className="mt-0.5 text-lg font-semibold">Want to know why, or what to do?</h2></div>
+        <button type="button" onClick={() => openAskAi()} className="primary-link !min-h-11 !gap-2 !rounded-full !px-5 !py-2.5"><Sparkles size={15} aria-hidden />Open chat</button>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">{strip.map(p => <button key={p} type="button" onClick={() => openAskAi(p)} className="desk-ask-chip">{p}</button>)}</div>
+      <p className="mt-3 text-xs text-muted">Comments are sent without names, photos or contact details. Answers are drafts for officer review.</p>
+    </section>
+    <details className="desk-details rounded-2xl border border-line bg-white">
+      <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-semibold sm:px-5"><span className="inline-flex items-center gap-2"><Sparkles size={15} aria-hidden className="text-blue-600" />Charts and details</span><span className="text-xs font-normal text-muted">Rating mix · comments · trend · topics · place queue</span></summary>
+      <div className="space-y-5 border-t border-line p-4 sm:p-5">
     <div className="desk-chart-grid grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-12 xl:gap-5">
       <ChartCard title="Emoji rating mix" hint="Original ratings only; replies are excluded." className="xl:col-span-4">
         <DonutChart ariaLabel={`Emoji rating mix: ${f.pos} positive, ${f.mix} okay, ${f.neg} negative`} centerValue={`${positiveShare}%`} centerLabel="Positive" empty="No original ratings yet." segments={[{ label: "Positive", value: f.pos, color: MOOD_COLORS.pos }, { label: "Okay", value: f.mix, color: MOOD_COLORS.mix }, { label: "Negative", value: f.neg, color: MOOD_COLORS.neg }]} />
@@ -54,5 +94,7 @@ export function DeskOverview() {
     <ChartCard title="Place review queue" hint="Sorted by negative emoji rating count, then total ratings. Bar length shows relative rating volume. This is a review aid, not a ranking of place quality.">
       {places.length ? <PlaceBars rows={places} /> : <EmptyChart>No place ratings yet.</EmptyChart>}
     </ChartCard>
+      </div>
+    </details>
   </div>;
 }

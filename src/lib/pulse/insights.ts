@@ -1,4 +1,4 @@
-import { FACES, tallyFaces } from "./faces";
+import { FACES, moodOf, tallyFaces } from "./faces";
 import { scanPulses, tallyScans } from "./words";
 import { OVERALL_ID } from "./scope";
 import type { Channel, Pulse } from "./types";
@@ -21,7 +21,8 @@ export function buildInsights(pulses: Pulse[], channels: Channel[], now = Date.n
   }).filter(t => t.mentions > 0).sort((a, b) => b.review - a.review || b.mentions - a.mentions);
   const places = channels.filter(c => c.id !== OVERALL_ID).map(c => {
     const rows = pulses.filter(p => p.channelId === c.id);
-    return { id: c.id, name: c.name, slug: c.slug, faces: tallyFaces(rows), words: tallyScans(scanPulses(rows)) };
+    const recentNeg = rows.filter(p => !p.parentId && p.createdAt >= now - 7 * 86400000 && moodOf(p.face) === "NEG").length;
+    return { id: c.id, name: c.name, slug: c.slug, faces: tallyFaces(rows), words: tallyScans(scanPulses(rows)), recentNeg };
   }).sort((a, b) => b.faces.neg - a.faces.neg || b.faces.total - a.faces.total);
   const day = 86400000;
   // UTC days ensure the browser and server summarize identical date buckets.
@@ -38,7 +39,9 @@ export function buildInsights(pulses: Pulse[], channels: Channel[], now = Date.n
   const priority = places.find(p => p.faces.neg > 0);
   if (priority) lines.push(`${priority.name} has ${priority.faces.neg} negative ratings out of ${priority.faces.total}. Review its comments and confirm concerns on site before planning a response.`);
   const faceCounts = FACES.map(f => ({ id: f.id, glyph: f.glyph, label: f.label, mood: f.mood, count: originals.filter(p => p.face === f.id).length }));
-  return { faces, words, places, mentions, trend, lines, faceCounts, originalCount: originals.length, replyCount: pulses.length - originals.length,
+  const week = 7 * day;
+  const weekly = { current: originals.filter(p => p.createdAt >= now - week).length, previous: originals.filter(p => p.createdAt >= now - 2 * week && p.createdAt < now - week).length, notes: pulses.filter(p => p.body.trim() && p.createdAt >= now - week).length };
+  return { faces, words, places, weekly, mentions, trend, lines, faceCounts, originalCount: originals.length, replyCount: pulses.length - originals.length,
     placeFaces: tallyFaces(originals.filter(p => p.channelId !== OVERALL_ID)), tripFaces: tallyFaces(originals.filter(p => p.channelId === OVERALL_ID)),
     reactions: pulses.reduce((n, p) => ({ up: n.up + p.reacts.up, down: n.down + p.reacts.down }), { up: 0, down: 0 }),
     loaded: pulses.length, cutoff: pulses.length ? Math.min(...pulses.map(p => p.createdAt)) : null };
