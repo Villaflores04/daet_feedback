@@ -4,75 +4,8 @@ import { AlertTriangle, Check, Copy, FileText, RefreshCw, Sparkles } from "lucid
 import type { buildInsights } from "@/lib/pulse/insights";
 import type { Briefing } from "@/lib/pulse/briefing";
 import { cn } from "@/lib/utils";
-import { MoodBar } from "./mood-bar";
-import { MOOD_COLORS } from "./desk-charts";
 
 type Insights = ReturnType<typeof buildInsights>;
-
-function Ring({ pos, mix, neg }: { pos: number; mix: number; neg: number }) {
-  const total = pos + mix + neg;
-  const r = 38, C = 2 * Math.PI * r;
-  const parts = [{ v: pos, c: MOOD_COLORS.pos }, { v: mix, c: MOOD_COLORS.mix }, { v: neg, c: MOOD_COLORS.neg }].filter(p => p.v > 0);
-  const gap = parts.length > 1 ? 2 : 0;
-  let offset = 0;
-  return (
-    <div className="relative size-24 shrink-0">
-      <svg viewBox="0 0 100 100" className="size-full -rotate-90" role="img" aria-label={`${pos} positive, ${mix} okay, ${neg} negative original ratings`}>
-        <circle cx="50" cy="50" r={r} fill="none" stroke={MOOD_COLORS.track} strokeWidth="13" />
-        {total > 0 && parts.map(p => { const len = (p.v / total) * C; const node = <circle key={p.c} cx="50" cy="50" r={r} fill="none" stroke={p.c} strokeWidth="13" strokeDasharray={`${Math.max(len - gap, 0.01)} ${C}`} strokeDashoffset={-offset} />; offset += len; return node; })}
-      </svg>
-      <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
-        <div><p className="font-display text-2xl font-semibold leading-none tabular-nums">{total ? `${Math.round((pos / total) * 100)}%` : "–"}</p><p className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-muted">Positive</p></div>
-      </div>
-    </div>
-  );
-}
-
-function Snapshot({ data }: { data: Insights }) {
-  const f = data.faces;
-  const maxFace = Math.max(1, ...data.faceCounts.map(i => i.count));
-  const tone = { POS: MOOD_COLORS.pos, MIX: MOOD_COLORS.mix, NEG: MOOD_COLORS.neg } as const;
-  const topic = data.mentions.find(t => t.review > 0);
-  const priority = data.places.find(p => p.faces.neg > 0);
-  const chips = [
-    { emoji: "😢", text: `${f.neg} negative rating${f.neg === 1 ? "" : "s"}`, hot: f.neg > 0 },
-    { emoji: "📝", text: `${data.words.mix} mixed/neutral note${data.words.mix === 1 ? "" : "s"}`, hot: data.words.mix > 0 },
-    ...(priority ? [{ emoji: "📍", text: `${priority.name} · ${priority.faces.neg} negative`, hot: true }] : []),
-    ...(topic ? [{ emoji: "🏷️", text: `${topic.label} · ${topic.review} to review`, hot: true }] : []),
-  ];
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-      <div className="flex items-center gap-4 rounded-xl border border-line bg-white p-4">
-        <Ring pos={f.pos} mix={f.mix} neg={f.neg} />
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted">Rating mix</p>
-          <p className="mt-1 text-sm tabular-nums"><span className="font-semibold">{f.total}</span> original ratings</p>
-          <p className="mt-1 text-xs leading-5 text-muted tabular-nums">{f.pos} positive · {f.mix} okay · {f.neg} negative</p>
-        </div>
-      </div>
-      <div className="rounded-xl border border-line bg-white p-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted">By emoji</p>
-        <ul className="mt-3 space-y-2" aria-label="Ratings by emoji">
-          {data.faceCounts.map(i => (
-            <li key={i.id} className="grid grid-cols-[1.75rem_minmax(0,1fr)_1.75rem] items-center gap-2">
-              <span className="text-lg leading-none" title={i.label}>{i.glyph}</span>
-              <span className="h-2.5 overflow-hidden rounded-full bg-cool"><span className="chart-hbar block h-full rounded-full" style={{ width: `${(i.count / maxFace) * 100}%`, background: tone[i.mood] }} /></span>
-              <span className="text-right text-sm font-semibold tabular-nums">{i.count}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="rounded-xl border border-line bg-white p-4 sm:col-span-2 lg:col-span-1">
-        <div className="flex items-baseline justify-between gap-2"><p className="text-xs font-semibold uppercase tracking-wider text-muted">Written comments</p><p className="text-xs tabular-nums text-muted">{data.words.total} classified</p></div>
-        <MoodBar tally={data.words} className="mt-3 h-3" />
-        <p className="mt-2 text-xs tabular-nums text-muted">{data.words.pos} positive · {data.words.mix} mixed · {data.words.neg} negative</p>
-        <ul className="mt-4 flex flex-wrap gap-2" aria-label="Items needing attention">
-          {chips.map(c => <li key={c.text} className={cn("inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs", c.hot ? "border-amber-200 bg-amber-50 text-amber-900" : "border-line bg-page text-muted")}><span aria-hidden>{c.emoji}</span><span className="min-w-0 truncate">{c.text}</span></li>)}
-        </ul>
-      </div>
-    </div>
-  );
-}
 
 const TONE = {
   positive: { emoji: "😊", label: "Positive", card: "border-emerald-200 bg-emerald-50/70", chip: "bg-emerald-100 text-emerald-800" },
@@ -273,14 +206,13 @@ export function AiBriefing({ data, status, fingerprint, resetSignal }: { data: I
         </div>
       </header>
       {blocked && !busy ? <p className="mt-3 text-xs text-muted">{data.loaded ? "Waiting for a live connection — refresh the data to enable the briefing." : "No feedback loaded yet — collect or refresh data first."}</p> : null}
-      <div className="mt-5 grid items-start gap-4 lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[21rem_minmax(0,1fr)]">
-        <Snapshot data={data} />
+      <div className="mt-5">
         <div className="min-w-0 space-y-4">
           {error && !busy ? (
             <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
               <p className="flex items-center gap-2 font-semibold text-amber-900"><AlertTriangle size={16} aria-hidden />Couldn’t prepare a new briefing</p>
               <p className="mt-2 leading-6 text-amber-900">{error}</p>
-              <p className="mt-2 text-xs text-amber-900/80">{briefing ? "Your previous briefing is shown below." : "The snapshot and data notes remain available."} The button unlocks in a few seconds.</p>
+              <p className="mt-2 text-xs text-amber-900/80">{briefing ? "Your previous briefing is shown below." : "The data notes remain available."} The button unlocks in a few seconds.</p>
             </div>
           ) : null}
           {busy ? <Skeleton /> : briefing ? (
