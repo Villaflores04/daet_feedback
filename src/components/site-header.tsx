@@ -5,7 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 import { RewardBalanceLink } from "@/components/reward-preview";
 import { Wordmark } from "@/components/mark";
 import { cn } from "@/lib/utils";
-const LINKS = [
+export const LINKS = [
   { to: "/", label: "Home" },
   { to: "/spots", label: "Places" },
   { to: "/live", label: "Visitor stories" },

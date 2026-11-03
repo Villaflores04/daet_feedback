@@ -2442,3 +2442,21 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .spot-sticky { display: block; position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom)); z-index: 39; padding: 8px 14px; background: #fffffff0; border-top: 1px solid var(--color-line); backdrop-filter: blur(10px); }
   .spot-gallery li { flex-basis: 140px; }
 }
+
+/* Landing burger menu: desktop only, over the hero. Static, no blur, so it does not touch parallax performance. */
+.landing-menu { display: none; }
+@media (min-width: 1024px) {
+  .landing-menu { display: block; position: fixed; top: 22px; right: max(24px, calc((100vw - 1240px) / 2)); z-index: 60; animation: landing-menu-in .5s .2s both; }
+  .landing-menu-button { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #fff; background: rgb(7 38 46 / .7); border: 1px solid rgb(255 255 255 / .3); box-shadow: 0 8px 22px rgb(3 20 28 / .35); transition: background .2s, transform .2s; cursor: pointer; }
+  .landing-menu-button:hover { background: rgb(7 38 46 / .88); transform: scale(1.05); }
+  .landing-menu-button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .landing-menu-panel { position: absolute; top: 58px; right: 0; width: 260px; padding: 10px; border-radius: 20px; background: #fff; border: 1px solid var(--color-line); box-shadow: 0 24px 50px -16px rgb(3 20 28 / .5); animation: landing-menu-pop .18s ease-out; }
+  .landing-menu-panel a { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 46px; padding: 0 14px; border-radius: 12px; font-size: 15px; font-weight: 500; color: var(--color-ink); }
+  .landing-menu-panel li a:hover, .landing-menu-panel li a:focus-visible { background: #eef6f9; outline: none; }
+  .landing-menu-panel li a[aria-current="page"] { background: #e3f1f5; font-weight: 600; }
+  .landing-menu-panel .landing-menu-cta { margin-top: 8px; justify-content: center; background: #1d4ed8; color: #fff; font-weight: 600; }
+  .landing-menu-panel .landing-menu-cta:hover, .landing-menu-panel .landing-menu-cta:focus-visible { background: #1e40af; outline: none; }
+}
+@keyframes landing-menu-in { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes landing-menu-pop { from { opacity: 0; transform: translateY(-6px) scale(.97); } }
+@media (prefers-reduced-motion: reduce) { .landing-menu, .landing-menu-panel { animation: none; } }
