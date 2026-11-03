@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Check, MessageCircle, Share2, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Lightbox } from "@/components/lightbox";
 import { StoredPhoto } from "@/components/stored-photo";
 import { faceById } from "@/lib/pulse/faces";
@@ -14,12 +14,15 @@ function timeAgo(ts: number) {
   const diff = Math.max(0, Date.now() - ts);
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m`;
+  if (mins < 60) return `${mins} min ago`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
+  if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
   const days = Math.floor(hours / 24);
-  return `${days}d`;
+  if (days < 30) return `${days} ${days === 1 ? "day" : "days"} ago`;
+  return new Date(ts).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
 }
+
+const LONG_STORY = 260;
 
 export function PulseCard({
   pulse,
@@ -32,6 +35,9 @@ export function PulseCard({
   replyLabel = "Reply",
   repliesOpen,
   repliesId,
+  photoFirst = false,
+  replyCount,
+  shareable = false,
 }: {
   pulse: Pulse;
   channel?: Channel;
@@ -43,6 +49,10 @@ export function PulseCard({
   replyLabel?: string;
   repliesOpen?: boolean;
   repliesId?: string;
+  /** Story feed: show the photo large above the author row. */
+  photoFirst?: boolean;
+  replyCount?: number;
+  shareable?: boolean;
 }) {
   const face = faceById(pulse.face);
   const mine = usePulse((s) => s.myReacts[pulse.id]);
@@ -58,8 +68,37 @@ export function PulseCard({
   }
   const [openPhoto, setOpenPhoto] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+  async function share() {
+    const url = `${window.location.origin}/live?pulse=${encodeURIComponent(pulse.id)}`;
+    try {
+      if (navigator.share) { await navigator.share({ title: "A visitor story from Daet", url }); return; }
+      await navigator.clipboard.writeText(url);
+      setCopied(true); window.setTimeout(() => setCopied(false), 2000);
+    } catch { /* cancelled or blocked; nothing to do */ }
+  }
   const reply = Boolean(pulse.parentId);
   const iso = new Date(pulse.createdAt).toISOString();
+  const lead = photoFirst && !reply && Boolean(pulse.photo);
+  const clamp = !reply && pulse.body.length > LONG_STORY;
+  const photoButton = pulse.photo ? (
+    <button
+      type="button"
+      onClick={() => setOpenPhoto(true)}
+      aria-label={`Enlarge photo from ${pulse.callsign}`}
+      className={cn(
+        lead ? "story-lead" : "mt-3 overflow-hidden rounded-xl",
+        !lead && !reply && !compactPhoto && "story-photo",
+        !lead && (reply ? "h-20 w-28" : compactPhoto ? "h-28 w-40" : "w-full"),
+      )}
+    >
+      <StoredPhoto
+        id={pulse.photo}
+        alt="Visitor photo"
+        className={cn("h-full w-full object-cover", lead ? "object-center" : "object-[center_72%]", !lead && !compactPhoto && "max-h-64")}
+      />
+    </button>
+  ) : null;
 
   return (
     <article
@@ -68,9 +107,11 @@ export function PulseCard({
         reply ? "rounded-lg bg-plate px-3 py-2" : "rounded-xl bg-plate p-5 shadow-plate",
         !reply && "story-card",
         reply && "conversation-reply",
+        lead && "story-card-lead",
         highlight && "ring-2 ring-teal",
       )}
     >
+      {lead ? photoButton : null}
       <header className="story-author flex items-start gap-2">
         <span className={reply ? "text-lg leading-none" : "text-2xl leading-none"} aria-hidden>
           {face.glyph}
@@ -91,41 +132,22 @@ export function PulseCard({
             <time dateTime={iso} suppressHydrationWarning>
               {timeAgo(pulse.createdAt)}
             </time>
+            {replyCount ? <><span aria-hidden> · </span><span>{replyCount} {replyCount === 1 ? "reply" : "replies"}</span></> : null}
             <span className="sr-only"> {face.label}</span>
           </p>
         </div>
       </header>
 
       {pulse.body ? (
-        <p className={cn("whitespace-pre-wrap break-words text-ink", reply ? "mt-2 text-sm leading-5" : "mt-4 text-[0.95rem] leading-relaxed", reply && pulse.body.length > 180 && !expanded && "line-clamp-4")}>
+        <p className={cn("whitespace-pre-wrap break-words text-ink", reply ? "mt-2 text-sm leading-5" : "mt-4 text-[0.95rem] leading-relaxed", (reply ? pulse.body.length > 180 : clamp) && !expanded && (reply ? "line-clamp-4" : "line-clamp-5"))}>
           {pulse.body}
         </p>
       ) : (
         <p className="mt-3 text-sm text-muted">{face.label} — face only</p>
       )}
-      {reply && pulse.body.length > 180 ? <button type="button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)} className="min-h-11 text-xs font-semibold text-teal">{expanded ? "Show less" : "Read full reply"}</button> : null}
+      {(reply && pulse.body.length > 180) || clamp ? <button type="button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)} className="min-h-11 text-xs font-semibold text-teal">{expanded ? "Show less" : reply ? "Read full reply" : "Read more"}</button> : null}
 
-      {pulse.photo ? (
-        <button
-          type="button"
-          onClick={() => setOpenPhoto(true)}
-          aria-label={`Enlarge photo from ${pulse.callsign}`}
-          className={cn(
-            "mt-3 overflow-hidden rounded-xl",
-            !reply && !compactPhoto && "story-photo",
-            reply ? "h-20 w-28" : compactPhoto ? "h-28 w-40" : "w-full",
-          )}
-        >
-          <StoredPhoto
-            id={pulse.photo}
-            alt="Visitor photo"
-            className={cn(
-              "h-full w-full object-cover object-[center_72%]",
-              !compactPhoto && "max-h-64",
-            )}
-          />
-        </button>
-      ) : null}
+      {!lead ? photoButton : null}
 
       <footer className={cn("story-actions flex items-center gap-1", reply ? "mt-1" : "mt-4 border-t border-line pt-2")}>
         <button
@@ -157,6 +179,7 @@ export function PulseCard({
           <span className="sr-only">Disagree</span>
         </button>
         <div className="story-reply-actions">
+        {shareable ? <button type="button" onClick={() => void share()} className="story-share" aria-label="Share this story">{copied ? <Check className="size-4" /> : <Share2 className="size-4" />}<span>{copied ? "Link copied" : "Share"}</span></button> : null}
         {onReply ? (
           <button
             type="button"
