@@ -160,3 +160,69 @@ export function MismatchList({ d }: { d: SentimentData }) {
     </ChartCard>
   );
 }
+
+const MOOD_LABEL = { POS: "Positive stories", MIX: "Okay stories", NEG: "Negative stories" } as const;
+
+function AgreeBar({ up, down }: { up: number; down: number }) {
+  const total = up + down;
+  return (
+    <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-cool" aria-hidden>
+      {total ? <><span className="h-full" style={{ width: `${(up / total) * 100}%`, background: MOOD_COLORS.pos }} /><span className="h-full" style={{ width: `${(down / total) * 100}%`, background: MOOD_COLORS.neg }} /></> : null}
+    </div>
+  );
+}
+
+/** Do other visitors agree? Agree / disagree reactions overall, by the mood of the story they were left on, and (desk) by place. */
+export function ReactionsCard({ d, desk = false }: { d: SentimentData; desk?: boolean }) {
+  const r = d.reactions;
+  return (
+    <ChartCard title="Do visitors agree?" hint="Agree and disagree taps on stories and replies. Shows whether a mood is shared by others, not just one visitor.">
+      {r.total ? (
+        <>
+          <div className="flex items-end justify-between gap-3"><p className="text-3xl font-semibold tabular-nums">{pct(r.up, r.total)}%<span className="ml-2 text-sm font-normal text-muted">agree</span></p><p className="text-sm tabular-nums text-muted">👍 {r.up} · 👎 {r.down}</p></div>
+          <div className="mt-3"><AgreeBar up={r.up} down={r.down} /></div>
+          <h3 className="mt-5 text-xs font-semibold uppercase tracking-wide text-muted">By type of story</h3>
+          <ul className="mt-2 space-y-3">
+            {r.byMood.map(m => (
+              <li key={m.mood}>
+                <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm"><span className="font-medium">{MOOD_LABEL[m.mood]} <span className="text-xs text-muted">· {m.stories}</span></span><span className="tabular-nums text-xs text-muted">{m.up + m.down ? <>👍 {m.up} · 👎 {m.down}</> : "no reactions"}</span></div>
+                <AgreeBar up={m.up} down={m.down} />
+              </li>
+            ))}
+          </ul>
+          {desk && r.byPlace.length ? (
+            <>
+              <h3 className="mt-5 text-xs font-semibold uppercase tracking-wide text-muted">Most reacted places</h3>
+              <ul className="mt-2 space-y-3">
+                {r.byPlace.map(p => <li key={p.id}><div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm"><span className="min-w-0 truncate font-medium">{p.name}</span><span className="shrink-0 tabular-nums text-xs text-muted">👍 {p.up} · 👎 {p.down}</span></div><AgreeBar up={p.up} down={p.down} /></li>)}
+              </ul>
+            </>
+          ) : null}
+        </>
+      ) : <EmptyChart>No agree or disagree reactions in this period yet.</EmptyChart>}
+    </ChartCard>
+  );
+}
+
+/** Stories other visitors reacted to most. A negative story many agree with is a stronger signal than a single complaint. */
+export function TopReacted({ d }: { d: SentimentData }) {
+  const top = d.reactions.top;
+  return (
+    <ChartCard title="Most reacted stories" hint="Original ratings that got the most agree and disagree taps.">
+      {top.length ? (
+        <ol className="space-y-2.5">
+          {top.map(t => {
+            const backed = t.mood === "NEG" && t.up > t.down;
+            return (
+              <li key={t.id} className="rounded-xl bg-page p-3">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted"><span aria-hidden className="text-base">{t.glyph}</span><span>{t.place}</span>{backed ? <span className="rounded-full bg-neg/10 px-2 py-0.5 font-semibold text-neg">Visitors agree it was negative</span> : null}</div>
+                <p className="mt-1.5 text-sm leading-relaxed break-words">{t.body || "Emoji only"}</p>
+                <p className="mt-1.5 text-xs tabular-nums text-muted">👍 {t.up} · 👎 {t.down}</p>
+              </li>
+            );
+          })}
+        </ol>
+      ) : <EmptyChart>No stories have been reacted to in this period yet.</EmptyChart>}
+    </ChartCard>
+  );
+}

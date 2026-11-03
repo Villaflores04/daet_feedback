@@ -61,7 +61,23 @@ export function buildSentiment(all: Pulse[], channels: Channel[], scope: "places
     return clash ? [{ id: n.pulse.id, place: names.get(n.pulse.channelId)?.name ?? "Unknown place", glyph: FACES.find(f => f.id === n.pulse.face)?.glyph ?? "", emojiMood: emoji, textMood: n.mood, body: n.pulse.body }] : [];
   }).slice(0, 6);
 
-  return { inScope, originals, faces, places, ranked, unranked, trend, topics, heat, heatMax, matrixPlaces, matrix, weekday, mismatch, days };
+  // Agree / disagree reactions. Totals cover every entry in scope (replies too); lists and mood splits use original ratings.
+  const sum = (rows: Pulse[]) => rows.reduce((n, p) => ({ up: n.up + p.reacts.up, down: n.down + p.reacts.down }), { up: 0, down: 0 });
+  const rt = sum(inScope);
+  const byMood = (["POS", "MIX", "NEG"] as Mood[]).map(m => {
+    const rows = originals.filter(p => moodOf(p.face) === m);
+    return { mood: m, stories: rows.length, ...sum(rows) };
+  });
+  const reactions = {
+    up: rt.up, down: rt.down, total: rt.up + rt.down,
+    agreeShare: rt.up + rt.down ? rt.up / (rt.up + rt.down) : 0,
+    byMood,
+    byPlace: places.map(p => ({ id: p.id, name: p.name, ...sum(originals.filter(r => r.channelId === p.id)) })).filter(p => p.up + p.down > 0).sort((a, b) => b.up + b.down - (a.up + a.down)).slice(0, 5),
+    top: originals.filter(p => p.reacts.up + p.reacts.down > 0).sort((a, b) => b.reacts.up + b.reacts.down - (a.reacts.up + a.reacts.down) || b.createdAt - a.createdAt).slice(0, 5)
+      .map(p => ({ id: p.id, place: names.get(p.channelId)?.name ?? "Unknown place", glyph: FACES.find(f => f.id === p.face)?.glyph ?? "", mood: moodOf(p.face), body: p.body, up: p.reacts.up, down: p.reacts.down })),
+  };
+
+  return { inScope, originals, faces, reactions, places, ranked, unranked, trend, topics, heat, heatMax, matrixPlaces, matrix, weekday, mismatch, days };
 }
 export type SentimentData = ReturnType<typeof buildSentiment>;
 
