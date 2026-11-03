@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, Smile, MessageSquareText } from "lucide-react";
+import { ChevronDown, Download, Smile, MessageSquareText } from "lucide-react";
 import { PageHero } from "@/components/page-hero";
-import { FaceGauge } from "@/components/face-gauge";
+import { MismatchList, MoodDonut, MoodHeatmap, MoodTrend, PlaceCompare, RangeSwitch, TopicPlaceMatrix, TopicTone, WeekdayChart } from "@/components/sentiment-charts";
+import { buildSentiment, csvOf, DAY, type Range } from "@/lib/pulse/sentiment";
 import { MoodBar } from "@/components/mood-bar";
 import { WordMeter } from "@/components/word-meter";
 import { FACES, tallyFaces } from "@/lib/pulse/faces";
@@ -43,6 +44,8 @@ export function BoardView({
 }) {
   const channels = usePulse((s) => s.channels);
   const pulses = usePulse((s) => s.pulses);
+  const hydrated = usePulse((s) => s.hydrated);
+  const [range, setRange] = useState<Range>(30);
   const [open, setOpen] = useState<string | null>(openSlug ?? null);
 
   useEffect(() => {
@@ -66,7 +69,14 @@ export function BoardView({
     url.searchParams.set("scope", next);
     window.history.replaceState(null, "", url);
   }
-  const scopedPulses = pulses.filter(p => scope === "trip" ? p.channelId === OVERALL_ID : p.channelId !== OVERALL_ID);
+  const ranged = range ? pulses.filter(p => p.createdAt >= Date.now() - range * DAY) : pulses;
+  const scopedPulses = ranged.filter(p => scope === "trip" ? p.channelId === OVERALL_ID : p.channelId !== OVERALL_ID);
+  const sd = useMemo(() => buildSentiment(pulses, channels, scope, range), [pulses, channels, scope, range]);
+  function exportCsv() {
+    const url = URL.createObjectURL(new Blob([csvOf(scopedPulses, channels)], { type: "text/csv" }));
+    const a = document.createElement("a"); a.href = url; a.download = `daet-sentiment-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); URL.revokeObjectURL(url);
+  }
+  function showPlace(slug: string) { setOpen(slug); window.setTimeout(() => document.getElementById("place-details")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); }
   const scopedChannels = channels.filter(c => scope === "trip" ? c.id === OVERALL_ID : c.id !== OVERALL_ID);
   const townFaces = tallyFaces(scopedPulses);
   const townWords = tallyScans(scanPulses(scopedPulses));
@@ -106,6 +116,10 @@ export function BoardView({
             <label><input type="radio" name="feedback-scope" value="trip" checked={scope === "trip"} onChange={() => selectScope("trip")} /><span>Overall Daet visit</span></label>
           </div>
         </fieldset>
+        <div className="sentiment-tools">
+          <RangeSwitch value={range} onChange={setRange} />
+          {desk ? <button type="button" onClick={exportCsv} className="sentiment-export"><Download size={15} aria-hidden />Export CSV</button> : null}
+        </div>
       </div>
       <div className="sentiment-results-heading" aria-live="polite" aria-atomic="true">
         <div><h2>{mode === "faces" ? "Emoji rating overview" : "Comment sentiment overview"}</h2>
@@ -113,29 +127,38 @@ export function BoardView({
         <span>{mode === "faces" ? `${townFaces.total} ratings` : `${townWords.total} classified · ${textCount - townWords.total} unclassified`}</span>
       </div>
 
-      <div className="sentiment-layout">
-        <div className="sentiment-overview">
-        {mode === "faces" ? (
-          <FaceGauge tally={townFaces} className="sentiment-chart" />
-        ) : (
-          <WordMeter tally={townWords} className="sentiment-chart" />
-        )}
-
-        {!desk && (mode === "faces" ? townFaces.total : townWords.total) === 0 ? (
-          <div className="sentiment-empty">
-            <p><strong>Nothing to chart yet.</strong> Ratings appear here as visitors share them.</p>
-            <Link href="/feedback" className="primary-link">Be the first to rate</Link>
+      {hydrated ? (
+        mode === "faces" ? (
+          <div className="sentiment-charts">
+            <MoodDonut d={sd} />
+            {scope === "places" ? <PlaceCompare d={sd} onSelect={showPlace} /> : null}
+            <MoodTrend d={sd} />
+            {desk ? <><MoodHeatmap d={sd} /><WeekdayChart d={sd} /></> : null}
           </div>
-        ) : null}
-        <details className="sentiment-method">
-          <summary>About these results{mode === "words" ? ` · ${townWords.total} classified notes` : ` · ${townFaces.total} ratings`}</summary>
-          <p>Summaries cover the latest 500 shared entries. Overall visits and individual place ratings are calculated separately. Emoji ratings exclude replies.</p>
-          {mode === "words" ? <p>{textCount} notes and replies checked · {townWords.total} classified · {textCount - townWords.total} without a clear sentiment match. Empty notes are excluded. Word-based estimates may misunderstand local expressions and sarcasm.</p> : null}
-        </details>
+        ) : (
+          <div className="sentiment-charts">
+            <WordMeter tally={townWords} className="sentiment-chart" />
+            <TopicTone d={sd} />
+            {desk ? <><TopicPlaceMatrix d={sd} /><MismatchList d={sd} /></> : null}
+          </div>
+        )
+      ) : <div className="sentiment-charts-loading" aria-hidden />}
+      {!desk && (mode === "faces" ? townFaces.total : townWords.total) === 0 ? (
+        <div className="sentiment-empty">
+          <p><strong>Nothing to chart yet.</strong> Ratings appear here as visitors share them.</p>
+          <Link href="/feedback" className="primary-link">Be the first to rate</Link>
         </div>
+      ) : null}
+      <details className="sentiment-method">
+        <summary>About these results{mode === "words" ? ` · ${townWords.total} classified notes` : ` · ${townFaces.total} ratings`}</summary>
+        <p>Summaries cover the latest 500 shared entries within the chosen time range. Overall visits and individual place ratings are calculated separately. Emoji ratings exclude replies. Topic and comment charts are keyword estimates and can misread local expressions and sarcasm.</p>
+        {mode === "words" ? <p>{textCount} notes and replies checked · {townWords.total} classified · {textCount - townWords.total} without a clear sentiment match. Empty notes are excluded.</p> : null}
+      </details>
+      <h2 id="place-details" className="sentiment-details-title">{scope === "places" ? "Details by place" : "Overall visit details"}</h2>
+      <div className="sentiment-layout sentiment-layout-single">
         <ul className="space-y-2" aria-label={scope === "places" ? "Results by place" : "Overall visit results"}>
           {scopedChannels.map((channel) => {
-            const placePulses = pulses.filter(
+            const placePulses = ranged.filter(
               (p) => p.channelId === channel.id,
             );
             const faces = tallyFaces(placePulses);

@@ -3,7 +3,7 @@ import { scanPulses, tallyScans } from "./words";
 import { OVERALL_ID } from "./scope";
 import type { Channel, Pulse } from "./types";
 
-const topics = [
+export const TOPICS = [
   { label: "Cleanliness", pattern: /\b(clean|dirty|trash|garbage|litter|malinis|marumi|madumi|basura|toilet|cr)\b/i },
   { label: "Safety", pattern: /\b(safe|unsafe|dangerous|security|danger|ligtas|delikado|guard)\b/i },
   { label: "Facilities and access", pattern: /\b(facilities|parking|road|transport|toilet|restroom|accessible|amenities|daan|kalsada)\b/i },
@@ -15,7 +15,7 @@ export function buildInsights(pulses: Pulse[], channels: Channel[], now = Date.n
   const originals = pulses.filter(p => !p.parentId);
   const scanned = scanPulses(pulses);
   const words = tallyScans(scanned);
-  const mentions = topics.map(topic => {
+  const mentions = TOPICS.map(topic => {
     const matches = scanned.filter(n => topic.pattern.test(n.pulse.body));
     return { label: topic.label, mentions: matches.length, review: matches.filter(n => n.mood === "NEG" || n.mood === "MIX").length };
   }).filter(t => t.mentions > 0).sort((a, b) => b.review - a.review || b.mentions - a.mentions);
