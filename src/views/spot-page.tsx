@@ -2,8 +2,8 @@
 
 import { useParams, useSearchParams, notFound } from "next/navigation";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Check, ExternalLink, Share2 } from "lucide-react";
 import { WordMeter } from "@/components/word-meter";
 import { scanPulses, tallyScans } from "@/lib/pulse/words";
 import { FaceGauge } from "@/components/face-gauge";
@@ -13,6 +13,14 @@ import { StoredPhoto } from "@/components/stored-photo";
 import { PlaceThread } from "@/components/thread";
 import { Button } from "@/components/ui/button";
 import { FACES, tallyFaces } from "@/lib/pulse/faces";
+import { Lightbox } from "@/components/lightbox";
+import { PlaceCard } from "@/components/place-card";
+import { MoodTrend, RangeSwitch, ReactionsCard, TopicTone } from "@/components/sentiment-charts";
+import { mapsUrl } from "@/lib/pulse/geo";
+import { buildPlaceStats } from "@/lib/pulse/places";
+import { buildSentiment, type Range } from "@/lib/pulse/sentiment";
+import { shareLink } from "@/lib/share";
+import { OVERALL_ID } from "@/lib/pulse/scope";
 import { usePulse } from "@/lib/pulse/store";
 
 export function SpotPage() {
@@ -23,6 +31,44 @@ export function SpotPage() {
   const channel = usePulse((s) => s.channels.find((c) => c.slug === slug));
   const pulses = usePulse((s) => s.pulses);
   const [rate, setRate] = useState(false);
+  const [range, setRange] = useState<Range>(30);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [heroCta, setHeroCta] = useState(true);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const channels = usePulse((s) => s.channels);
+  const hydrated = usePulse((s) => s.hydrated);
+
+  // Phones get a sticky button once the one in the hero scrolls out of view.
+  useEffect(() => {
+    const node = ctaRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setHeroCta(entry.isIntersecting));
+    io.observe(node);
+    return () => io.disconnect();
+  }, [channel?.id]);
+
+  const own = useMemo(() => pulses.filter((p) => p.channelId === channel?.id), [pulses, channel?.id]);
+  const sd = useMemo(() => buildSentiment(own, channel ? [channel] : [], "places", range), [own, channel, range]);
+  const photos = useMemo(() => own.filter((p) => p.photo).sort((a, b) => b.createdAt - a.createdAt).slice(0, 8), [own]);
+  // Topics most visitors praise or complain about, from the same keyword scan as the Sentiment tab.
+  const says = useMemo(() => {
+    const praise = sd.topics.filter((t) => t.total >= 2 && t.pos > t.neg).slice(0, 3).map((t) => t.label);
+    const concerns = sd.topics.filter((t) => t.total >= 2 && t.neg > t.pos).slice(0, 3).map((t) => t.label);
+    return { praise, concerns };
+  }, [sd]);
+  const related = useMemo(() => {
+    if (!channel) return [];
+    const others = channels.filter((c) => c.id !== channel.id && c.id !== OVERALL_ID);
+    const stats = buildPlaceStats(others, pulses);
+    const score = (c: typeof others[number]) => Number(c.category === channel.category) * 10 + (stats.get(c.id)?.posShare ?? 0);
+    return others.sort((a, b) => score(b) - score(a)).slice(0, 3).map((c) => ({ c, stat: stats.get(c.id)! }));
+  }, [channels, pulses, channel]);
+  async function share() {
+    if (!channel) return;
+    const result = await shareLink(`${window.location.origin}/spots/${channel.slug}`, channel.name);
+    if (result === "copied") { setCopied(true); window.setTimeout(() => setCopied(false), 2000); }
+  }
 
   const tally = useMemo(
     () => tallyFaces(pulses.filter((p) => p.channelId === channel?.id)),
@@ -79,7 +125,11 @@ export function SpotPage() {
                   {commentSentiment.unclassified > 0 ? ` ${commentSentiment.unclassified} unclassified — no clear word match.` : ""}
                 </p>
               </div>
-              <Button type="button" className="spot-rate-button mt-6 h-12" onClick={() => setRate(true)}>Share your experience</Button>
+              <div className="spot-actions" ref={ctaRef}>
+                <Button type="button" className="spot-rate-button h-12" onClick={() => setRate(true)}>Share your experience</Button>
+                <button type="button" className="spot-share" onClick={() => void share()}>{copied ? <Check size={16} aria-hidden="true" /> : <Share2 size={16} aria-hidden="true" />}{copied ? "Link copied" : "Share"}</button>
+                <a className="spot-share" href={mapsUrl(channel)} target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" />Maps</a>
+              </div>
             </div>
           </div>
         </div>
@@ -97,6 +147,36 @@ export function SpotPage() {
             <p className="mt-4 text-[0.95rem] leading-relaxed text-muted">
               {channel.about}
             </p>
+            {photos.length ? (
+              <section className="spot-gallery" aria-labelledby="gallery-title">
+                <h2 id="gallery-title" className="font-display text-2xl tracking-tight">Visitor photos</h2>
+                <ul>
+                  {photos.map((p) => (
+                    <li key={p.id}>
+                      <button type="button" onClick={() => setPhoto(p.photo!)} aria-label="Enlarge visitor photo"><StoredPhoto id={p.photo} alt="Visitor photo" className="h-full w-full object-cover" /></button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+            {hydrated && (says.praise.length || says.concerns.length) ? (
+              <section className="spot-says" aria-label="What visitors say">
+                <h2 className="font-display text-2xl tracking-tight">What visitors say</h2>
+                {says.praise.length ? <p><span className="spot-says-tag is-good">Praised for</span>{says.praise.join(", ")}</p> : null}
+                {says.concerns.length ? <p><span className="spot-says-tag is-bad">Concerns</span>{says.concerns.join(", ")}</p> : null}
+                <small>Based on keywords in written comments. Read the stories below for the full picture.</small>
+              </section>
+            ) : null}
+            {hydrated && tally.total ? (
+              <section className="spot-analysis" aria-labelledby="analysis-title">
+                <div className="spot-analysis-head"><h2 id="analysis-title" className="font-display text-2xl tracking-tight">How visitors feel</h2><RangeSwitch value={range} onChange={setRange} /></div>
+                <div className="sentiment-charts spot-charts">
+                  <MoodTrend d={sd} />
+                  <TopicTone d={sd} />
+                  <ReactionsCard d={sd} />
+                </div>
+              </section>
+            ) : null}
             <section className="mt-10">
               <h2 className="font-display text-2xl tracking-tight">
                 Visitor stories
@@ -111,7 +191,17 @@ export function SpotPage() {
           </div>
 
         </div>
+        {related.length ? (
+          <section className="spot-related page-width" aria-labelledby="related-title">
+            <h2 id="related-title" className="font-display text-2xl tracking-tight">More places to see</h2>
+            <ul className="place-grid">
+              {related.map(({ c, stat }) => <li key={c.id}><PlaceCard channel={c} stat={stat} /></li>)}
+            </ul>
+          </section>
+        ) : null}
       </main>
+      {!heroCta ? <div className="spot-sticky"><Button type="button" className="h-12 w-full" onClick={() => setRate(true)}>Share your experience</Button></div> : null}
+      {photo ? <Lightbox id={photo} alt="Visitor photo" onClose={() => setPhoto(null)} /> : null}
       {rate ? (
         <RateSheet
           open={rate}
