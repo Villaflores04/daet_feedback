@@ -13,7 +13,7 @@ export function StoryConversation({ pulse, channel, replies, highlight, hidePlac
   const id = `comments-${pulse.id}`;
   return <div className="conversation-card">
     <PulseCard pulse={pulse} channel={channel} highlight={highlight} hidePlace={hidePlace}
-      compactPhoto={false} onReply={replies.length ? () => setOpen(!open) : undefined}
+      compactPhoto={false} photoFirst shareable replyCount={replies.length} onReply={replies.length ? () => setOpen(!open) : undefined}
       onCompose={channel ? () => { setOpen(true); setComposing(true); } : undefined}
       repliesOpen={open} repliesId={id}
       replyLabel={open ? "Hide replies" : `View ${replies.length} ${replies.length === 1 ? "reply" : "replies"}`} />
