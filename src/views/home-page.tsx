@@ -25,7 +25,7 @@ export function HomePage() {
   return (
     <PublicChrome landing>
       <main id="main-content">
-        <MonumentHero />
+        <MonumentHero trail={{ places: featured.map(c => c.name), moods: { pos: tally.pos, mix: tally.mix, neg: tally.neg, total: tally.total }, story: latest.find(x => x.body && x.body.length > 20 && x.body.length < 140)?.body }} />
         <section id="discover" className="page-width section-space">
           <div className="section-heading">
             <div>

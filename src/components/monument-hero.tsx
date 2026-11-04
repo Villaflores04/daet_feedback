@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { ArrowDown, ArrowUpRight, Waves } from "lucide-react";
 import { DriftingLeaves, GrassRow, LeafCluster } from "./hero-foliage";
+import { TrailHead, TrailScenery, TrailSteps, type TrailData } from "./landing-trail";
 
 /**
  * Landing hero: a painted Daet landmark with scroll-driven parallax.
@@ -18,7 +19,12 @@ import { DriftingLeaves, GrassRow, LeafCluster } from "./hero-foliage";
  */
 const POINTER: Record<string, [number, number]> = { bg: [-10, -6], ll: [16, 10], lr: [16, 10], gb: [-10, 0], gf: [-24, 0] };
 
-export function MonumentHero() {
+/** Share of the scroll used by the hero itself; the rest belongs to the trail scene that rises out of the grass (desktop). */
+const HERO = 0.22;
+/** Scroll positions where each trail step switches on in the script fallback. */
+const STEPS = [0.1, 0.36, 0.46, 0.62, 0.78, 0.9];
+
+export function MonumentHero({ trail }: { trail: TrailData }) {
   const root = useRef<HTMLElement>(null);
   useEffect(() => {
     const node = root.current;
@@ -26,7 +32,7 @@ export function MonumentHero() {
     if (!node || !stage) return;
     const q = (selector: string) => stage.querySelector<HTMLElement>(selector);
     const layers = { bg: q(".mh-bg img"), ll: q(".mh-leaves-l"), lr: q(".mh-leaves-r"), gb: q(".mh-grass-back"), gf: q(".mh-grass-front") };
-    const extras = { light: q(".mh-light"), ct: q(".mh-content"), tag: q(".mh-tagline"), prog: q(".mh-progress span") };
+    const extras = { light: q(".mh-light"), ct: q(".mh-content"), prog: q(".mh-progress span") };
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const portrait = window.matchMedia("(max-width: 767px), (max-aspect-ratio: 1/1)");
@@ -39,7 +45,7 @@ export function MonumentHero() {
     const lite = !supportsNative || inApp || weak;
     const native = supportsNative && !lite;
     if (lite) { node.classList.add("mh-lite"); stage.classList.add("mh-lite"); }
-    let tagOn = false;
+    let past = false, steps = 0;
     let frame = 0, pointerFrame = 0, travel = 1, dirty = true, visible = true, p = -1;
     let tx = 0, ty = 0, mx = 0, my = 0; // pointer target / eased value, -1..1
 
@@ -53,29 +59,20 @@ export function MonumentHero() {
       if (lite ? Math.round(next * 120) / 120 === p : next === p) return;
       const m = portrait.matches;
       const set = (el: HTMLElement | null, value: string) => { if (el) el.style.transform = value; };
-      if (lite) {
-        // Lean path: scale-led (little translation), so a scroll event arriving a frame late is hard to notice.
-        p = Math.round(next * 120) / 120;
-        set(layers.bg, m ? `translate3d(0,-4%,0) scale(${1.12 + p * 0.26})` : `scale(${1.04 + p * 0.3})`);
-        set(layers.ll, `translate3d(${p * (m ? -45 : -85)}px,${p * (m ? -35 : -60)}px,0) scale(${1 + p * (m ? 0.2 : 0.4)})`);
-        set(layers.lr, `translate3d(${p * (m ? 45 : 85)}px,${p * (m ? -35 : -60)}px,0) scale(${1 + p * (m ? 0.2 : 0.4)})`);
-        set(layers.gb, `scale(${1 + p * 0.12})`);
-        set(layers.gf, `translate3d(0,${p * (m ? 30 : 50)}px,0) scale(${1 + p * (m ? 0.2 : 0.35)})`);
-        if (extras.prog) extras.prog.style.transform = `scaleX(${p})`;
-        const on = p > 0.45;
-        if (on !== tagOn) { tagOn = on; stage.classList.toggle("mh-tag-on", on); }
-        return;
-      }
-      p = next;
-      set(layers.bg, m ? `translate3d(0,-4%,0) scale(${1.12 + p * 0.32})` : `scale(${1.04 + p * 0.36})`);
-      set(layers.ll, `translate3d(${p * (m ? -90 : -170)}px,${p * (m ? -70 : -120)}px,0) scale(${1 + p * (m ? 0.3 : 0.6)})`);
-      set(layers.lr, `translate3d(${p * (m ? 90 : 170)}px,${p * (m ? -70 : -120)}px,0) scale(${1 + p * (m ? 0.3 : 0.6)})`);
-      set(layers.gb, `translate3d(0,${p * (m ? 24 : 34)}px,0) scale(${1 + p * (m ? 0.15 : 0.3)})`);
-      set(layers.gf, `translate3d(0,${p * (m ? 50 : 80)}px,0) scale(${1 + p * (m ? 0.3 : 0.55)})`);
-      set(extras.ct, `translate3d(0,${p * -70}px,0)`);
-      if (extras.light) extras.light.style.opacity = String(1 - p * 0.5);
-      if (extras.tag) { extras.tag.style.opacity = String(Math.min(1, Math.max(0, (p - 0.3) * 2.6))); extras.tag.style.transform = `translate3d(0,${(1 - p) * 34}px,0)`; }
-      if (extras.prog) extras.prog.style.transform = `scaleX(${p})`;
+      // Desktop: the hero uses the first part of the scroll, then the trail scene rises behind the grass. Phones: whole range.
+      const hp = m ? next : Math.min(1, next / HERO);
+      p = lite ? Math.round(next * 120) / 120 : next;
+      // No zoom: layers only drift upward / sideways.
+      set(layers.bg, m ? `translate3d(0,${-4 - 2 * hp}%,0) scale(1.12)` : `scale(1.04) translate3d(0,${-2 * hp}%,0)`);
+      set(layers.ll, `translate3d(${hp * (m ? -80 : -150)}px,${hp * (m ? -60 : -110)}px,0)`);
+      set(layers.lr, `translate3d(${hp * (m ? 80 : 150)}px,${hp * (m ? -60 : -110)}px,0)`);
+      set(extras.ct, `translate3d(0,${hp * -70}px,0)`);
+      if (!lite && extras.light) extras.light.style.opacity = String(1 - hp * 0.5);
+      if (extras.prog) extras.prog.style.transform = `scaleX(${next})`;
+      const isPast = !m && next > HERO;
+      if (isPast !== past) { past = isPast; stage.classList.toggle("mh-past", isPast); }
+      const n = m ? 0 : STEPS.filter(t => next >= t).length;
+      if (n !== steps) { steps = n; for (let i = 1; i <= STEPS.length; i++) stage.classList.toggle(`st${i}`, i <= n); }
     };
     const update = () => { if (!frame && !native && visible && !document.hidden) frame = requestAnimationFrame(draw); };
 
@@ -118,7 +115,18 @@ export function MonumentHero() {
     };
   }, []);
 
+  const goHow = (e: React.MouseEvent) => {
+    const node = root.current;
+    if (!node) return;
+    e.preventDefault();
+    const phone = window.matchMedia("(max-width: 767px), (max-aspect-ratio: 1/1)").matches;
+    const target = phone ? document.getElementById("how-it-works") : null;
+    const top = target ? target.getBoundingClientRect().top + window.scrollY - 70 : node.offsetTop + (node.offsetHeight - window.innerHeight) * 0.5;
+    window.scrollTo({ top, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+
   return (
+    <>
     <section ref={root} className="mh-journey" aria-label="DAET-CONNECT visitor feedback">
       <div className="mh-stage">
         <div className="mh-bg" aria-hidden="true">
@@ -153,13 +161,25 @@ export function MonumentHero() {
           </div>
         </div>
 
-        <div className="mh-tagline" aria-hidden="true"><span>Daet landmark</span><p>A better visit<br />starts with <em>you.</em></p><small>Daet · Camarines Norte · Philippines</small></div>
         <div className="mh-caption page-width">
-          <a href="#discover" className="scroll-cue"><ArrowDown size={16} /> Visitor experiences</a>
+          <a href="#how-it-works" className="scroll-cue" onClick={goHow}><ArrowDown size={16} /> How it works</a>
           <span className="mh-caption-note"><Waves size={18} /> Emoji feedback · Sentiment · Rewards preview</span>
+        </div>
+        <div className="mt-panel">
+          <TrailScenery />
+          <div className="mt-body page-width"><TrailHead /><TrailSteps data={trail} />
+            <svg className="mt-trail" viewBox="0 0 1200 420" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+              <path className="mt-path-base" d="M-20 430C140 400 170 250 330 262S560 380 700 330 900 150 1030 170 1180 120 1230 60" />
+              <path className="mt-path" pathLength="1" d="M-20 430C140 400 170 250 330 262S560 380 700 330 900 150 1030 170 1180 120 1230 60" />
+            </svg>
+          </div>
         </div>
         <div className="mh-progress" aria-hidden="true"><span /></div>
       </div>
     </section>
+    <section id="how-it-works" className="mt-inline" aria-label="How it works">
+      <div className="page-width"><TrailHead /><TrailSteps data={trail} /></div>
+    </section>
+    </>
   );
 }
