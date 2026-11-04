@@ -2460,3 +2460,131 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes landing-menu-in { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes landing-menu-pop { from { opacity: 0; transform: translateY(-6px) scale(.97); } }
 @media (prefers-reduced-motion: reduce) { .landing-menu, .landing-menu-panel { animation: none; } }
+
+/* ===== Landing v3: no zoom, and a "how it works" trail that rises out of the grass ===== */
+.mh-journey { height: 430vh; height: 430svh; }
+/* The grass is the ground line: it stays put above the scene that rises behind it. */
+.mh-grass-back, .mh-grass-front { z-index: 8; animation: none !important; }
+.mh-caption { z-index: 9; }
+
+/* Hero motion without zoom (the hero uses the first 22% of the scroll on desktop, the whole range on phones). */
+@keyframes mh-bg { 0% { transform: scale(1.04) translate3d(0, 0, 0); } 22%, 100% { transform: scale(1.04) translate3d(0, -2%, 0); } }
+@keyframes mh-bg-m { from { transform: translate3d(0, -4%, 0) scale(1.12); } to { transform: translate3d(0, -6%, 0) scale(1.12); } }
+@keyframes mh-light { 0% { opacity: 1; } 22%, 100% { opacity: .5; } }
+@keyframes mh-ll { 0% { transform: translate3d(0, 0, 0); } 22%, 100% { transform: translate3d(-150px, -110px, 0); } }
+@keyframes mh-lr { 0% { transform: translate3d(0, 0, 0); } 22%, 100% { transform: translate3d(150px, -110px, 0); } }
+@keyframes mh-ll-m { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-80px, -60px, 0); } }
+@keyframes mh-lr-m { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(80px, -60px, 0); } }
+@keyframes mh-ct2 { 0% { transform: translate3d(0, 0, 0); opacity: 1; visibility: visible; } 21% { opacity: 0; visibility: visible; } 22%, 100% { transform: translate3d(0, -90px, 0); opacity: 0; visibility: hidden; } }
+@keyframes mh-cap { 0% { opacity: 1; visibility: visible; } 8% { opacity: 0; visibility: visible; } 8.5%, 100% { opacity: 0; visibility: hidden; } }
+
+/* Trail panel (desktop base state = hidden; the animations or the .st1-.st6 classes reveal it). */
+.mt-panel { display: none; }
+.mt-inline { display: block; position: relative; padding: 118px 0 64px; background: linear-gradient(#143d33 0, #2a6b58 40px, #a9d6df 150px, #f4f1d8 100%); }
+.mt-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.mt-head .mh-eyebrow { color: #1d5f7a; text-shadow: none; }
+.mt-head h2 { margin-top: 6px; font: 500 clamp(28px, 3.2vw, 46px)/1.08 var(--font-display); letter-spacing: -.04em; color: #0f3a50; }
+.mt-steps { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 30px; }
+.mt-card { position: relative; padding: 24px 20px 18px; border-radius: 22px; background: rgb(255 255 255 / .94); border: 1px solid #fff; box-shadow: 0 22px 44px -26px #0b3a52; }
+.mt-node { position: absolute; top: -15px; left: 18px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #f6c453; color: #4a3200; font: 700 .85rem/1 var(--font-sans); box-shadow: 0 6px 14px -6px #a16207; }
+.mt-card h3 { font: 500 1.3rem/1.2 var(--font-display); letter-spacing: -.02em; color: #0f3a50; }
+.mt-card > p { margin-top: 6px; font-size: .84rem; line-height: 1.5; color: var(--color-muted); }
+.mt-mini-places { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+.mt-mini-places li { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 10px; background: #eef6f9; font-size: .82rem; color: #164b63; }
+.mt-mini-places svg { flex-shrink: 0; color: #2563eb; }
+.mt-faces { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.mt-faces a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border-radius: 14px; background: #f1f7fa; transition: transform .2s, background .2s; }
+.mt-faces a:hover { transform: translateY(-3px); background: #e2f0f6; }
+.mt-faces span { font-size: 1.7rem; line-height: 1.2; }
+.mt-faces small { font-size: .66rem; color: #164b63; }
+.mt-points { display: inline-block; margin-top: 12px; padding: 4px 10px; border-radius: 999px; background: #fff1bd; color: #713f12; font-size: .7rem; font-weight: 600; }
+.mt-bar { display: flex; height: 9px; margin-top: 14px; border-radius: 99px; overflow: hidden; background: #edf2f6; }
+.mt-bar i { display: block; height: 100%; }
+.mt-react { display: flex; gap: 8px; margin-top: 12px; }
+.mt-react span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #f1f7fa; font-size: .74rem; color: #164b63; }
+.mt-more { display: inline-flex; align-items: center; gap: 4px; margin-top: 12px; min-height: 36px; font-size: .82rem; font-weight: 600; color: #1d4ed8; }
+.mt-trail { display: none; }
+.mt-inline .mt-cta .primary-link { border-radius: 999px; }
+
+/* Phones and portrait tablets: no scene parallax. Steps stack as cards that fade in. */
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  .mh-journey { height: 140vh; height: 140svh; }
+  .mt-inline { padding-top: 96px; }
+  .mt-steps { padding-left: 0; }
+  @supports (animation-timeline: view()) {
+    .mt-inline .mt-card { animation: mt-in linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+  }
+}
+@keyframes mt-in { from { opacity: 0; transform: translate3d(0, 34px, 0); } to { opacity: 1; transform: none; } }
+
+@media (min-width: 768px) and (min-aspect-ratio: 1/1) {
+  .mt-inline { display: none; }
+  .mt-panel { display: block; position: absolute; inset: 0; z-index: 7; overflow: hidden; transform: translate3d(0, 100%, 0); will-change: transform; -webkit-mask-image: linear-gradient(transparent 0, #000 70px); mask-image: linear-gradient(transparent 0, #000 70px); }
+  .mt-sky { position: absolute; inset: 0; background: linear-gradient(#78bfe4 0%, #b9e0ee 46%, #f1f0d6 80%, #f7e4b0 100%); }
+  .mt-warm { position: absolute; inset: 0; opacity: 0; background: linear-gradient(rgb(255 190 120 / 0) 20%, rgb(255 160 90 / .55) 100%); pointer-events: none; }
+  .mt-sun { position: absolute; right: 12%; top: 14%; width: clamp(90px, 10vw, 150px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fff8d8 0 36%, rgb(255 226 140 / .65) 40% 60%, transparent 70%); }
+  .mt-layer { position: absolute; left: -6%; width: 112%; height: 46%; display: block; will-change: transform; pointer-events: none; }
+  .mt-far { bottom: 12%; color: #a5cddb; transform: translate3d(0, 60%, 0); }
+  .mt-mid { bottom: 6%; color: #6aa0b2; transform: translate3d(0, 80%, 0); }
+  .mt-near { bottom: 0; color: #3a7869; transform: translate3d(0, 100%, 0); }
+  .mt-body { position: relative; z-index: 2; height: 100%; padding-top: 104px; padding-bottom: clamp(120px, 16vw, 240px); }
+  .mt-head { opacity: 0; transform: translate3d(0, 24px, 0); }
+  .mt-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; align-items: start; margin-top: 26px; }
+  .mt-s1, .mt-s2, .mt-s3 { opacity: 0; transform: translate3d(0, 44px, 0) scale(.96); }
+  .mt-s2 { margin-top: 30px; } .mt-s3 { margin-top: 60px; }
+  .mt-cta { opacity: 0; }
+  .mt-trail { display: block; position: absolute; z-index: -1; left: 0; right: 0; bottom: clamp(110px, 15vw, 230px); width: 100%; height: 48%; overflow: visible; }
+  .mt-trail path { fill: none; stroke-linecap: round; }
+  .mt-path-base { stroke: rgb(255 255 255 / .6); stroke-width: 3; stroke-dasharray: 2 12; }
+  .mt-path { stroke: #f6c453; stroke-width: 5; stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 2px 4px rgb(160 98 7 / .35)); }
+  @media (max-height: 820px) { .mt-card { padding: 20px 16px 12px; } .mt-card > p { font-size: .78rem; } .mt-faces span { font-size: 1.4rem; } .mt-s2 { margin-top: 16px; } .mt-s3 { margin-top: 32px; } .mt-mini-places li { padding: 5px 9px; } }
+
+  /* Scroll-driven (compositor thread): each piece reads the one journey timeline. */
+  @supports (animation-timeline: view()) {
+    .mh-stage:not(.mh-lite) :is(.mh-caption, .mt-panel, .mt-far, .mt-mid, .mt-near, .mt-warm, .mt-sun, .mt-head, .mt-path, .mt-s1, .mt-s2, .mt-s3, .mt-cta) { animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --mh; animation-range: contain 0% contain 100%; }
+    .mh-stage:not(.mh-lite) .mh-content { animation-name: mh-ct2; }
+    .mh-stage:not(.mh-lite) .mh-caption { animation-name: mh-cap; }
+    .mh-stage:not(.mh-lite) .mt-panel { animation-name: mt-panel; }
+    .mh-stage:not(.mh-lite) .mt-far { animation-name: mt-far; }
+    .mh-stage:not(.mh-lite) .mt-mid { animation-name: mt-mid; }
+    .mh-stage:not(.mh-lite) .mt-near { animation-name: mt-near; }
+    .mh-stage:not(.mh-lite) .mt-warm { animation-name: mt-warm; }
+    .mh-stage:not(.mh-lite) .mt-sun { animation-name: mt-sun; }
+    .mh-stage:not(.mh-lite) .mt-head { animation-name: mt-head; }
+    .mh-stage:not(.mh-lite) .mt-path { animation-name: mt-line; }
+    .mh-stage:not(.mh-lite) .mt-s1 { animation-name: mt-s1; }
+    .mh-stage:not(.mh-lite) .mt-s2 { animation-name: mt-s2; }
+    .mh-stage:not(.mh-lite) .mt-s3 { animation-name: mt-s3; }
+    .mh-stage:not(.mh-lite) .mt-cta { animation-name: mt-cta; }
+  }
+
+  /* Script fallback / lite mode: same story, driven by step classes with short transitions. */
+  .mh-stage.mh-lite .mt-panel, .mh-stage.mh-lite .mt-layer, .mh-stage.mh-lite .mt-head, .mh-stage.mh-lite .mt-card, .mh-stage.mh-lite .mt-cta, .mh-stage.mh-lite .mt-warm { transition: transform .9s cubic-bezier(.2, .7, .2, 1), opacity .7s ease; }
+  .mh-stage.mh-lite .mt-path { transition: stroke-dashoffset 1.3s ease; }
+  .mh-stage.mh-lite.st1 .mt-panel, .mh-stage.mh-lite.st1 .mt-layer { transform: none; }
+  .mh-stage.mh-lite.st2 .mt-head { opacity: 1; transform: none; }
+  .mh-stage.mh-lite.st3 .mt-s1, .mh-stage.mh-lite.st4 .mt-s2, .mh-stage.mh-lite.st5 .mt-s3 { opacity: 1; transform: none; }
+  .mh-stage.mh-lite.st6 .mt-cta { opacity: 1; }
+  .mh-stage.mh-lite.st4 .mt-warm { opacity: .6; }
+  .mh-stage.mh-lite.st2 .mt-path { stroke-dashoffset: .85; } .mh-stage.mh-lite.st3 .mt-path { stroke-dashoffset: .6; } .mh-stage.mh-lite.st4 .mt-path { stroke-dashoffset: .35; } .mh-stage.mh-lite.st5 .mt-path { stroke-dashoffset: .15; } .mh-stage.mh-lite.st6 .mt-path { stroke-dashoffset: 0; }
+  .mh-stage.mh-past .mh-content, .mh-stage.mh-past .mh-caption { visibility: hidden; }
+}
+@keyframes mt-panel { 0%, 6% { transform: translate3d(0, 100%, 0); } 30%, 100% { transform: none; } }
+@keyframes mt-far { 0%, 8% { transform: translate3d(0, 60%, 0); } 34% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-5%, 0, 0); } }
+@keyframes mt-mid { 0%, 10% { transform: translate3d(0, 80%, 0); } 36% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-10%, 0, 0); } }
+@keyframes mt-near { 0%, 12% { transform: translate3d(0, 100%, 0); } 38% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-18%, 0, 0); } }
+@keyframes mt-warm { 0%, 36% { opacity: 0; } 100% { opacity: .6; } }
+@keyframes mt-sun { 0%, 36% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(0, 130px, 0); } }
+@keyframes mt-head { 0%, 30% { opacity: 0; transform: translate3d(0, 24px, 0); } 38%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-line { 0%, 38% { stroke-dashoffset: 1; } 92%, 100% { stroke-dashoffset: 0; } }
+@keyframes mt-s1 { 0%, 40% { opacity: 0; transform: translate3d(0, 44px, 0) scale(.96); } 48%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-s2 { 0%, 56% { opacity: 0; transform: translate3d(0, 44px, 0) scale(.96); } 64%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-s3 { 0%, 72% { opacity: 0; transform: translate3d(0, 44px, 0) scale(.96); } 80%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-cta { 0%, 86% { opacity: 0; } 94%, 100% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mh-journey { height: auto; }
+  .mt-panel { display: none !important; }
+  .mt-inline { display: block !important; }
+  .mt-inline .mt-card { animation: none !important; }
+}
