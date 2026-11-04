@@ -178,7 +178,15 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
       </div>
     </section>
     <section id="how-it-works" className="mt-inline" aria-label="How it works">
-      <div className="page-width"><TrailHead /><TrailSteps data={trail} /></div>
+      <div className="mt-hill" aria-hidden="true"><TrailScenery /></div>
+      <div className="page-width">
+        <TrailHead />
+        <TrailSteps data={trail} />
+        <div className="mt-end">
+          <Link href="/feedback" className="primary-link">Share how it felt <ArrowUpRight size={18} /></Link>
+          <Link href="/spots" className="text-link">Browse places <ArrowUpRight size={16} /></Link>
+        </div>
+      </div>
     </section>
     </>
   );
