@@ -2117,7 +2117,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .place-rating-badge.is-empty { padding: 7px 14px; border-color: rgb(255 255 255 / .28); background: rgb(7 36 48 / .74); color: #fff; box-shadow: none; }
 .place-rating-badge.is-empty .place-rating-copy strong { font-size: 12px; font-weight: 600; }
 @media (max-width: 767px) {
-  .places-main .explore-toolbar { position: sticky; top: 70px; z-index: 30; flex-direction: column; align-items: stretch; padding: 8px; border-radius: 20px; }
+  .places-main .explore-toolbar { flex-direction: column; align-items: stretch; padding: 8px; border-radius: 20px; }
   .places-main .search-field { min-width: 0; }
   .places-main .search-field input { height: 44px; }
   .places-main .filter-row { flex-wrap: nowrap; margin-inline: -2px; padding-bottom: 2px; scroll-snap-type: x proximity; }
@@ -2158,7 +2158,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .stories-results { order: 1; }
 }
 @media (max-width: 767px) {
-  .stories-bar { position: sticky; top: 70px; z-index: 30; flex-wrap: wrap; padding: 8px; border-radius: 20px; }
+  .stories-bar { flex-wrap: wrap; padding: 8px; border-radius: 20px; }
   .stories-bar .stories-place-filter { width: 100%; flex: 1 1 100%; }
   .stories-bar .stories-place-filter select { height: 44px; }
   .stories-bar > button { min-height: 40px; }
