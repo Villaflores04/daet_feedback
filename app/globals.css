@@ -2460,3 +2460,19 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes landing-menu-in { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes landing-menu-pop { from { opacity: 0; transform: translateY(-6px) scale(.97); } }
 @media (prefers-reduced-motion: reduce) { .landing-menu, .landing-menu-panel { animation: none; } }
+
+/* Feedback: destination picker (replaces the native select, which overflowed the card on phones) */
+.dest-picker { position: relative; margin-top: 8px; }
+.dest-trigger { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 12px 14px; border: 1px solid var(--color-line); border-radius: 14px; background: #f8fafc; font-size: 16px; font-weight: 500; text-align: left; color: #0f2a3d; transition: border-color .2s, box-shadow .2s; }
+.dest-trigger > svg:first-child { flex-shrink: 0; color: #2563eb; }
+.dest-trigger > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dest-trigger[data-empty="true"] > span { color: var(--color-muted); font-weight: 400; }
+.dest-trigger[aria-expanded="true"] { border-color: #2563eb; box-shadow: 0 0 0 3px #2563eb26; background: #fff; }
+.dest-chevron { flex-shrink: 0; color: var(--color-muted); transition: transform .2s; }
+.dest-trigger[aria-expanded="true"] .dest-chevron { transform: rotate(180deg); }
+.dest-list { position: relative; z-index: 30; margin: 8px 0 0; padding: 6px; list-style: none; max-height: min(340px, 52vh); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--color-line); border-radius: 14px; background: #fff; box-shadow: 0 18px 40px -24px #164d78; }
+.dest-list li button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 52px; padding: 10px 12px; border-radius: 10px; text-align: left; font-size: .92rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+.dest-list li button:hover, .dest-list li button:focus-visible { background: #eff6ff; }
+.dest-list li[aria-selected="true"] button { background: #eff6ff; color: #1d4ed8; }
+.dest-list small { display: block; margin-top: 2px; font-size: .72rem; font-weight: 400; color: var(--color-muted); }
+.dest-list li button > svg { flex-shrink: 0; }

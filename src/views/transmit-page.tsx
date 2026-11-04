@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, CheckCircle2, MapPin, MessageCircle, ShieldCheck } from "lucide-react";
 import { RewardPreview } from "@/components/reward-preview";
 import { FEEDBACK_PREVIEW_POINTS } from "@/lib/rewards";
+import { DestinationPicker } from "@/components/destination-picker";
 import { FacePicker } from "@/components/face-picker";
 import { PageHero } from "@/components/page-hero";
 import { PhotoField } from "@/components/photo-field";
@@ -89,12 +90,11 @@ export function TransmitPage() {
               <button type="button" aria-pressed={scope === "place"} onClick={() => setScope("place")} disabled={sending}><MapPin size={19} /><span>A place<small>A specific destination</small></span></button>
               <button type="button" aria-pressed={scope === "trip"} onClick={() => setScope("trip")} disabled={sending}><MessageCircle size={19} /><span>Overall visit<small>My Daet experience</small></span></button>
             </div>
-            {scope === "place" && <label className="feedback-field">Destination
-              <select required value={placeId} disabled={sending} onChange={e => setPlaceId(e.target.value)}>
-                <option value="">Choose a destination</option>
-                {channels.filter(c => c.id !== OVERALL_ID).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </label>}
+            {scope === "place" && <div className="feedback-field" role="group" aria-labelledby="dest-label">
+              <span id="dest-label">Destination</span>
+              <DestinationPicker disabled={sending} value={placeId} onChange={setPlaceId}
+                options={channels.filter(c => c.id !== OVERALL_ID).map(c => { const n = pulses.filter(p => p.channelId === c.id).length; return { id: c.id, name: c.name, note: n ? `${n} rating${n === 1 ? "" : "s"}` : "No ratings yet" }; })} />
+            </div>}
             <div className="feedback-section-heading"><span className="feedback-step">02</span><h2>How did it feel?</h2></div>
             <fieldset className="feedback-feelings" disabled={sending}><FacePicker value={face} onChange={setFace} caption={false} /></fieldset>
             <p className="feedback-helper">Choose the feeling that best represents your experience.</p>
