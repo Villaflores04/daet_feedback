@@ -34,7 +34,7 @@ export function SiteHeader({
       )}
     >
       <div className="page-width flex h-[76px] items-center justify-between gap-4">
-        <Link href="/" aria-label="DAET-CONNECT home">
+        <Link href="/" aria-label="CONNECT-Daet home">
           <Wordmark />
         </Link>
         <nav

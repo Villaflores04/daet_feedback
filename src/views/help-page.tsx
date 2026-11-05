@@ -118,7 +118,7 @@ function HelpContent() {
   const type = useSearchParams().get("type");
   return <PublicChrome>
     <main id="main-content" className="help-main page-width">
-      <PageHero eyebrow="We're here to help" title="Help & support" lede="Reach the office, report something that isn't working, or tell us how to make DAET-CONNECT better." />
+      <PageHero eyebrow="We're here to help" title="Help & support" lede="Reach the office, report something that isn't working, or tell us how to make CONNECT-Daet better." />
       <section className="hp-section" aria-labelledby="hp-contact-h">
         <div className="hp-heading"><p className="eyebrow">Talk to a person</p><h2 id="hp-contact-h">Contact us</h2></div>
         <Contacts />
