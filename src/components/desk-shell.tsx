@@ -8,6 +8,7 @@ import {
   MapPinned,
   Inbox,
   ScrollText,
+  LifeBuoy,
   LockKeyhole,
   ArrowUpRight,
 } from "lucide-react";
@@ -15,17 +16,20 @@ import { SyncNotice } from "@/components/sync-notice";
 import { DeskAskAi } from "@/components/desk-ask-ai";
 import { Wordmark } from "@/components/mark";
 import { useDesk } from "@/lib/pulse/desk";
+import { useNewReports } from "@/lib/pulse/new-reports";
 import { toast } from "sonner";
 const LINKS = [
   { to: "/desk", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/desk/board", label: "Sentiment", icon: ChartNoAxesCombined },
   { to: "/desk/channels", label: "Places", icon: MapPinned },
   { to: "/desk/wishes", label: "Suggestions", icon: Inbox },
+  { to: "/desk/help", label: "Help & support", icon: LifeBuoy },
   { to: "/desk/log", label: "Activity", icon: ScrollText },
 ];
 export function DeskShell({ children }: { children: ReactNode }) {
   const pathname = usePathname(),
-    lock = useDesk((s) => s.lock);
+    lock = useDesk((s) => s.lock),
+    newReports = useNewReports(pathname);
   return (
     <div className="desk-shell">
       <a href="#main-content" className="skip-link">
@@ -50,6 +54,7 @@ export function DeskShell({ children }: { children: ReactNode }) {
               >
                 <Icon size={18} />
                 {link.label}
+                {link.to === "/desk/help" && newReports > 0 ? <span className="desk-badge" aria-label={`${newReports} new reports`}>{newReports > 99 ? "99+" : newReports}</span> : null}
               </Link>
             );
           })}

@@ -2729,3 +2729,53 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .hp-kinds { grid-template-columns: 1fr; }
   .hp-kinds button { min-height: 64px; }
 }
+
+/* ===== Desk: Help & support ===== */
+.desk-badge { margin-left: auto; min-width: 22px; height: 22px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 999px; background: #dc2626; color: #fff; font-size: .7rem; font-weight: 700; line-height: 1; }
+.dh-tabs { display: inline-flex; gap: 4px; margin-top: 20px; padding: 4px; border-radius: 999px; background: #eef4f7; }
+.dh-tabs button { min-height: 44px; padding: 0 18px; border-radius: 999px; font-size: .88rem; font-weight: 500; color: #164b63; }
+.dh-tabs button[aria-selected="true"] { background: #fff; box-shadow: 0 6px 16px -10px #164d78; font-weight: 600; }
+[role="tabpanel"] { margin-top: 22px; }
+.dh-filters { display: grid; gap: 10px; margin-bottom: 18px; }
+.dh-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.dh-chips button { min-height: 40px; padding: 0 14px; border: 1px solid var(--color-line); border-radius: 999px; background: #fff; font-size: .82rem; font-weight: 500; }
+.dh-chips button[aria-pressed="true"] { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
+.dh-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 14px; }
+.dh-report { padding: 18px; border: 1px solid var(--color-line); border-radius: 18px; background: #fff; }
+.dh-report.is-new { border-color: #93c5fd; box-shadow: inset 4px 0 0 #2563eb; }
+.dh-report-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.dh-kind { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: .74rem; font-weight: 600; }
+.dh-kind.bug { background: #fee2e2; color: #991b1b; } .dh-kind.idea { background: #fef3c7; color: #92400e; }
+.dh-chip { padding: 4px 10px; border-radius: 999px; background: #eef4f7; font-size: .74rem; color: #164b63; }
+.dh-time { margin-left: auto; font-size: .76rem; color: var(--color-muted); }
+.dh-message { margin-top: 12px; font-size: .94rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.dh-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 10px; font-size: .8rem; }
+.dh-meta div { display: flex; gap: 6px; } .dh-meta dt { color: var(--color-muted); }
+.dh-inline { display: inline-flex; align-items: center; gap: 4px; color: #1d4ed8; text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
+.dh-device { margin-top: 8px; font-size: .76rem; color: var(--color-muted); } .dh-device summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; } .dh-device p { overflow-wrap: anywhere; line-height: 1.5; }
+.dh-status { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.dh-status button { min-height: 40px; padding: 0 14px; border: 1px solid var(--color-line); border-radius: 999px; font-size: .8rem; font-weight: 500; background: #fff; }
+.dh-status button[aria-pressed="true"] { background: #0f3a50; border-color: #0f3a50; color: #fff; }
+.dh-note { display: block; margin-top: 14px; font-size: .8rem; font-weight: 600; color: #0f3a50; } .dh-note span { font-weight: 400; color: var(--color-muted); }
+.dh-note textarea { display: block; width: 100%; margin-top: 6px; padding: 10px 12px; border: 1px solid var(--color-line); border-radius: 12px; background: #f8fafc; font-size: 16px; font-weight: 400; resize: vertical; }
+.dh-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.dh-sure { display: inline-flex; align-items: center; gap: 8px; font-size: .82rem; font-weight: 500; }
+.dh-empty { padding: 22px; border: 1px dashed var(--color-line); border-radius: 16px; color: var(--color-muted); line-height: 1.6; background: #fafcfd; }
+.dh-error { padding: 14px 16px; border: 1px solid #fecaca; border-radius: 12px; background: #fef2f2; color: #991b1b; font-size: .86rem; line-height: 1.5; margin: 12px 0; }
+.dh-intro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; font-size: .88rem; color: var(--color-muted); line-height: 1.55; } .dh-intro p { max-width: 560px; }
+.dh-form { display: grid; gap: 14px; max-width: 560px; margin: 18px 0; padding: 20px; border: 1px solid #93c5fd; border-radius: 18px; background: #fff; }
+.dh-form h2 { font: 500 1.3rem/1.2 var(--font-display); }
+.dh-form label { display: block; font-size: .82rem; font-weight: 600; color: #0f3a50; } .dh-form label span { font-weight: 400; color: var(--color-muted); }
+.dh-form input { display: block; width: 100%; margin-top: 6px; min-height: 48px; padding: 10px 12px; border: 1px solid var(--color-line); border-radius: 12px; background: #f8fafc; font-size: 16px; font-weight: 400; }
+.dh-contact { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 16px; border: 1px solid var(--color-line); border-radius: 16px; background: #fff; }
+.dh-contact-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: #eff6ff; color: #2563eb; }
+.dh-kind-label { font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--color-muted); }
+.dh-contact-name { font-weight: 600; overflow-wrap: anywhere; } .dh-contact-value { font-size: .86rem; color: #164b63; overflow-wrap: anywhere; } .dh-contact-note { font-size: .76rem; color: var(--color-muted); }
+.dh-contact-actions { display: flex; align-items: center; gap: 2px; }
+.dh-contact-actions button { display: grid; place-items: center; min-width: 44px; min-height: 44px; border-radius: 12px; color: #164b63; font-size: .8rem; font-weight: 600; }
+.dh-contact-actions button:hover:not(:disabled) { background: #eef4f7; } .dh-contact-actions button:disabled { opacity: .3; } .dh-contact-actions .danger { color: #b91c1c; }
+@media (max-width: 767px) {
+  .dh-contact { grid-template-columns: auto minmax(0, 1fr); }
+  .dh-contact-actions { grid-column: 1 / -1; justify-content: flex-end; border-top: 1px solid var(--color-line); padding-top: 8px; }
+  .dh-time { margin-left: 0; width: 100%; }
+}
