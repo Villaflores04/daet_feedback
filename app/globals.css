@@ -2475,8 +2475,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes mh-lr { 0% { transform: translate3d(0, 0, 0); } 22%, 100% { transform: translate3d(150px, -110px, 0); } }
 @keyframes mh-ll-m { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-80px, -60px, 0); } }
 @keyframes mh-lr-m { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(80px, -60px, 0); } }
-@keyframes mh-ct2 { 0% { transform: translate3d(0, 0, 0); opacity: 1; visibility: visible; } 21% { opacity: 0; visibility: visible; } 22%, 100% { transform: translate3d(0, -90px, 0); opacity: 0; visibility: hidden; } }
-@keyframes mh-cap { 0% { opacity: 1; visibility: visible; } 8% { opacity: 0; visibility: visible; } 8.5%, 100% { opacity: 0; visibility: hidden; } }
+@keyframes mh-ct2 { 0% { transform: translate3d(0, 0, 0); opacity: 1; } 21%, 100% { opacity: 0; } 22%, 100% { transform: translate3d(0, -90px, 0); } }
+@keyframes mh-cap { 0% { opacity: 1; } 8%, 100% { opacity: 0; } }
 
 /* Trail panel (desktop base state = hidden; the animations or the .st1-.st6 classes reveal it). */
 .mt-panel { display: none; }
@@ -2519,7 +2519,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 @media (min-width: 768px) and (min-aspect-ratio: 1/1) {
   .mt-inline { display: none; }
-  .mt-panel { display: block; position: absolute; inset: 0; z-index: 7; overflow: hidden; transform: translate3d(0, 100%, 0); will-change: transform; -webkit-mask-image: linear-gradient(transparent 0, #000 70px); mask-image: linear-gradient(transparent 0, #000 70px); }
+  .mt-panel { display: block; position: absolute; inset: 0; z-index: 7; overflow: hidden; transform: translate3d(0, 100%, 0); will-change: transform; contain: layout paint style; box-shadow: 0 -22px 34px -14px rgb(20 61 51 / .35); }
   .mt-sky { position: absolute; inset: 0; background: linear-gradient(#78bfe4 0%, #b9e0ee 46%, #f1f0d6 80%, #f7e4b0 100%); }
   .mt-warm { position: absolute; inset: 0; opacity: 0; background: linear-gradient(rgb(255 190 120 / 0) 20%, rgb(255 160 90 / .55) 100%); pointer-events: none; }
   .mt-sun { position: absolute; right: 12%; top: 14%; width: clamp(90px, 10vw, 150px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fff8d8 0 36%, rgb(255 226 140 / .65) 40% 60%, transparent 70%); }
@@ -2530,18 +2530,21 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-body { position: relative; z-index: 2; height: 100%; padding-top: 104px; padding-bottom: clamp(120px, 16vw, 240px); }
   .mt-head { opacity: 0; transform: translate3d(0, 24px, 0); }
   .mt-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; align-items: start; margin-top: 26px; }
-  .mt-s1, .mt-s2, .mt-s3 { opacity: 0; transform: translate3d(0, 44px, 0) scale(.96); }
+  .mt-s1, .mt-s2, .mt-s3 { opacity: 0; transform: translate3d(0, 44px, 0); }
   .mt-s2 { margin-top: 30px; } .mt-s3 { margin-top: 60px; }
   .mt-cta { opacity: 0; }
   .mt-trail { display: block; position: absolute; z-index: -1; left: 0; right: 0; bottom: clamp(110px, 15vw, 230px); width: 100%; height: 48%; overflow: visible; }
-  .mt-trail path { fill: none; stroke-linecap: round; }
-  .mt-path-base { stroke: rgb(255 255 255 / .6); stroke-width: 3; stroke-dasharray: 2 12; }
-  .mt-path { stroke: #f6c453; stroke-width: 5; stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 2px 4px rgb(160 98 7 / .35)); }
+  .mt-trail path { fill: none; stroke-linecap: round; vector-effect: none; }
+  .mt-trail-base path { stroke: rgb(255 255 255 / .6); stroke-width: 3; stroke-dasharray: 2 12; }
+  /* The gold trail is revealed by sliding a clip window (wrapper) against its content (svg): transform only, no repaint. */
+  .mt-clip { overflow: hidden; transform: translate3d(-100%, 0, 0); will-change: transform; }
+  .mt-trail-gold { display: block; width: 100%; height: 100%; overflow: visible; transform: translate3d(100%, 0, 0); will-change: transform; }
+  .mt-trail-gold path { stroke: #f6c453; stroke-width: 5; }
   @media (max-height: 820px) { .mt-card { padding: 20px 16px 12px; } .mt-card > p { font-size: .78rem; } .mt-faces span { font-size: 1.4rem; } .mt-s2 { margin-top: 16px; } .mt-s3 { margin-top: 32px; } .mt-mini-places li { padding: 5px 9px; } }
 
   /* Scroll-driven (compositor thread): each piece reads the one journey timeline. */
   @supports (animation-timeline: view()) {
-    .mh-stage:not(.mh-lite) :is(.mh-caption, .mt-panel, .mt-far, .mt-mid, .mt-near, .mt-warm, .mt-sun, .mt-head, .mt-path, .mt-s1, .mt-s2, .mt-s3, .mt-cta) { animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --mh; animation-range: contain 0% contain 100%; }
+    .mh-stage:not(.mh-lite) :is(.mh-caption, .mt-panel, .mt-far, .mt-mid, .mt-near, .mt-warm, .mt-sun, .mt-head, .mt-clip, .mt-trail-gold, .mt-s1, .mt-s2, .mt-s3, .mt-cta) { animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --mh; animation-range: contain 0% contain 100%; }
     .mh-stage:not(.mh-lite) .mh-content { animation-name: mh-ct2; }
     .mh-stage:not(.mh-lite) .mh-caption { animation-name: mh-cap; }
     .mh-stage:not(.mh-lite) .mt-panel { animation-name: mt-panel; }
@@ -2551,7 +2554,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
     .mh-stage:not(.mh-lite) .mt-warm { animation-name: mt-warm; }
     .mh-stage:not(.mh-lite) .mt-sun { animation-name: mt-sun; }
     .mh-stage:not(.mh-lite) .mt-head { animation-name: mt-head; }
-    .mh-stage:not(.mh-lite) .mt-path { animation-name: mt-line; }
+    .mh-stage:not(.mh-lite) .mt-clip { animation-name: mt-clip; }
+    .mh-stage:not(.mh-lite) .mt-trail-gold { animation-name: mt-gold; }
     .mh-stage:not(.mh-lite) .mt-s1 { animation-name: mt-s1; }
     .mh-stage:not(.mh-lite) .mt-s2 { animation-name: mt-s2; }
     .mh-stage:not(.mh-lite) .mt-s3 { animation-name: mt-s3; }
@@ -2560,14 +2564,19 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
   /* Script fallback / lite mode: same story, driven by step classes with short transitions. */
   .mh-stage.mh-lite .mt-panel, .mh-stage.mh-lite .mt-layer, .mh-stage.mh-lite .mt-head, .mh-stage.mh-lite .mt-card, .mh-stage.mh-lite .mt-cta, .mh-stage.mh-lite .mt-warm { transition: transform .9s cubic-bezier(.2, .7, .2, 1), opacity .7s ease; }
-  .mh-stage.mh-lite .mt-path { transition: stroke-dashoffset 1.3s ease; }
+  .mh-stage.mh-lite .mt-clip, .mh-stage.mh-lite .mt-trail-gold { transition: transform 1.3s ease; }
   .mh-stage.mh-lite.st1 .mt-panel, .mh-stage.mh-lite.st1 .mt-layer { transform: none; }
   .mh-stage.mh-lite.st2 .mt-head { opacity: 1; transform: none; }
   .mh-stage.mh-lite.st3 .mt-s1, .mh-stage.mh-lite.st4 .mt-s2, .mh-stage.mh-lite.st5 .mt-s3 { opacity: 1; transform: none; }
   .mh-stage.mh-lite.st6 .mt-cta { opacity: 1; }
   .mh-stage.mh-lite.st4 .mt-warm { opacity: .6; }
-  .mh-stage.mh-lite.st2 .mt-path { stroke-dashoffset: .85; } .mh-stage.mh-lite.st3 .mt-path { stroke-dashoffset: .6; } .mh-stage.mh-lite.st4 .mt-path { stroke-dashoffset: .35; } .mh-stage.mh-lite.st5 .mt-path { stroke-dashoffset: .15; } .mh-stage.mh-lite.st6 .mt-path { stroke-dashoffset: 0; }
+  .mh-stage.mh-lite.st2 .mt-clip { transform: translate3d(-85%, 0, 0); } .mh-stage.mh-lite.st2 .mt-trail-gold { transform: translate3d(85%, 0, 0); }
+  .mh-stage.mh-lite.st3 .mt-clip { transform: translate3d(-60%, 0, 0); } .mh-stage.mh-lite.st3 .mt-trail-gold { transform: translate3d(60%, 0, 0); }
+  .mh-stage.mh-lite.st4 .mt-clip { transform: translate3d(-35%, 0, 0); } .mh-stage.mh-lite.st4 .mt-trail-gold { transform: translate3d(35%, 0, 0); }
+  .mh-stage.mh-lite.st5 .mt-clip { transform: translate3d(-15%, 0, 0); } .mh-stage.mh-lite.st5 .mt-trail-gold { transform: translate3d(15%, 0, 0); }
+  .mh-stage.mh-lite.st6 .mt-clip, .mh-stage.mh-lite.st6 .mt-trail-gold { transform: none; }
   .mh-stage.mh-past .mh-content, .mh-stage.mh-past .mh-caption { visibility: hidden; }
+  .mh-stage.mh-past :is(.mh-drift span, .mh-sway, .mh-stem) { animation-play-state: paused !important; }
 }
 @keyframes mt-panel { 0%, 6% { transform: translate3d(0, 100%, 0); } 30%, 100% { transform: none; } }
 @keyframes mt-far { 0%, 8% { transform: translate3d(0, 60%, 0); } 34% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-5%, 0, 0); } }
@@ -2576,10 +2585,11 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes mt-warm { 0%, 36% { opacity: 0; } 100% { opacity: .6; } }
 @keyframes mt-sun { 0%, 36% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(0, 130px, 0); } }
 @keyframes mt-head { 0%, 30% { opacity: 0; transform: translate3d(0, 24px, 0); } 38%, 100% { opacity: 1; transform: none; } }
-@keyframes mt-line { 0%, 38% { stroke-dashoffset: 1; } 92%, 100% { stroke-dashoffset: 0; } }
-@keyframes mt-s1 { 0%, 40% { opacity: 0; transform: translate3d(0, 44px, 0) scale(.96); } 48%, 100% { opacity: 1; transform: none; } }
-@keyframes mt-s2 { 0%, 56% { opacity: 0; transform: translate3d(0, 44px, 0) scale(.96); } 64%, 100% { opacity: 1; transform: none; } }
-@keyframes mt-s3 { 0%, 72% { opacity: 0; transform: translate3d(0, 44px, 0) scale(.96); } 80%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-clip { 0%, 38% { transform: translate3d(-100%, 0, 0); } 92%, 100% { transform: none; } }
+@keyframes mt-gold { 0%, 38% { transform: translate3d(100%, 0, 0); } 92%, 100% { transform: none; } }
+@keyframes mt-s1 { 0%, 40% { opacity: 0; transform: translate3d(0, 44px, 0); } 48%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-s2 { 0%, 56% { opacity: 0; transform: translate3d(0, 44px, 0); } 64%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-s3 { 0%, 72% { opacity: 0; transform: translate3d(0, 44px, 0); } 80%, 100% { opacity: 1; transform: none; } }
 @keyframes mt-cta { 0%, 86% { opacity: 0; } 94%, 100% { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2653,3 +2663,5 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-inline .mt-head .mh-eyebrow span { background: #f6c453; }
   .mt-inline .mt-head h2 { color: #fff; text-shadow: 0 2px 14px rgb(5 30 40 / .35); }
 }
+
+.mh-sentinel { position: absolute; left: 0; top: 23%; width: 1px; height: 1px; pointer-events: none; }
