@@ -107,27 +107,43 @@ function Reports() {
 }
 
 /* ---------- Contacts ---------- */
+type Entry = { value: string; note: string };
+const EMPTY: Record<ContactKind, Entry> = { phone: { value: "", note: "" }, email: { value: "", note: "" }, messenger: { value: "", note: "" }, facebook: { value: "", note: "" }, other: { value: "", note: "" } };
+
+/** Each kind keeps its own detail and note, so one office can be saved with a phone, an email, Messenger and Facebook in one go. */
 function ContactForm({ initial, onSaved, onCancel }: { initial: SupportContact | null; onSaved: (c: SupportContact) => void; onCancel: () => void }) {
   const [kind, setKind] = useState<ContactKind>(initial?.kind ?? "phone");
   const [label, setLabel] = useState(initial?.label ?? "");
-  const [value, setValue] = useState(initial?.value ?? "");
-  const [note, setNote] = useState(initial?.note ?? "");
+  const [entries, setEntries] = useState<Record<ContactKind, Entry>>(() => initial ? { ...EMPTY, [initial.kind]: { value: initial.value, note: initial.note } } : EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const set = (patch: Partial<Entry>) => setEntries(e => ({ ...e, [kind]: { ...e[kind], ...patch } }));
+  const filled = CONTACT_KINDS.filter(k => entries[k].value.trim());
+
   async function save(e: React.FormEvent) {
-    e.preventDefault(); if (busy) return; setBusy(true); setError("");
-    try { const r = await call<{ contact: SupportContact }>("/api/desk/support/contacts", { method: "POST", body: JSON.stringify({ id: initial?.id, kind, label, value, note }) }); onSaved(r.contact); }
-    catch (err) { setError(err instanceof Error ? err.message : "Could not save."); }
-    finally { setBusy(false); }
+    e.preventDefault(); if (busy) return;
+    if (!filled.length) { setError(`Enter at least one contact detail, for example the ${CONTACT_LABELS[kind].toLowerCase()}.`); return; }
+    setBusy(true); setError("");
+    let saved = 0;
+    for (const k of filled) {
+      try {
+        const r = await call<{ contact: SupportContact }>("/api/desk/support/contacts", { method: "POST", body: JSON.stringify({ id: initial?.id, kind: k, label, value: entries[k].value, note: entries[k].note }) });
+        onSaved(r.contact); saved++;
+        setEntries(en => ({ ...en, [k]: { value: "", note: "" } }));
+      } catch (err) { setKind(k); setError(`${CONTACT_LABELS[k]}: ${err instanceof Error ? err.message : "Could not save."}`); break; }
+    }
+    setBusy(false);
+    if (saved === filled.length) onCancel();
   }
   return <form className="dh-form" onSubmit={save} noValidate>
-    <h2>{initial ? "Edit contact" : "Add a contact"}</h2>
-    <div className="dh-chips" role="group" aria-label="Kind of contact">{CONTACT_KINDS.map(k => <button key={k} type="button" aria-pressed={kind === k} onClick={() => setKind(k)}>{CONTACT_LABELS[k]}</button>)}</div>
+    <h2>{initial ? "Edit contact" : "Add contacts"}</h2>
     <label>Name shown to visitors<input value={label} maxLength={60} onChange={e => setLabel(e.target.value)} placeholder="Municipal Tourism Office" /></label>
-    <label>{CONTACT_LABELS[kind]}<input value={value} maxLength={200} onChange={e => setValue(e.target.value)} placeholder={HINTS[kind]} inputMode={kind === "phone" ? "tel" : kind === "email" ? "email" : "url"} autoComplete="off" /></label>
-    <label>Note <span>(optional, for example office hours)</span><input value={note} maxLength={120} onChange={e => setNote(e.target.value)} placeholder="Mon to Fri, 8:00 AM to 5:00 PM" /></label>
+    {!initial && <p className="dh-form-hint">Fill in as many as you like below, then press Save once. A dot shows which types have details.</p>}
+    <div className="dh-chips" role="group" aria-label="Kind of contact">{CONTACT_KINDS.map(k => <button key={k} type="button" aria-pressed={kind === k} disabled={Boolean(initial) && k !== initial?.kind} onClick={() => setKind(k)}>{CONTACT_LABELS[k]}{entries[k].value.trim() ? <i className="dh-dot" aria-label="has details" /> : null}</button>)}</div>
+    <label>{CONTACT_LABELS[kind]}<input key={kind} value={entries[kind].value} maxLength={200} onChange={e => set({ value: e.target.value })} placeholder={HINTS[kind]} inputMode={kind === "phone" ? "tel" : kind === "email" ? "email" : "url"} autoComplete="off" /></label>
+    <label>Note <span>(optional, for example office hours)</span><input key={`n-${kind}`} value={entries[kind].note} maxLength={120} onChange={e => set({ note: e.target.value })} placeholder="Mon to Fri, 8:00 AM to 5:00 PM" /></label>
     {error && <p className="dh-error" role="alert">{error}</p>}
-    <div className="dh-actions"><Button type="submit" disabled={busy}>{busy ? "Saving…" : "Save"}</Button><Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button></div>
+    <div className="dh-actions"><Button type="submit" disabled={busy}>{busy ? "Saving…" : filled.length > 1 ? `Save ${filled.length} contacts` : "Save"}</Button><Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button></div>
   </form>;
 }
 
@@ -150,7 +166,7 @@ function Contacts() {
   }
   function saved(c: SupportContact) {
     setContacts(l => { const list = l || []; return list.some(x => x.id === c.id) ? list.map(x => x.id === c.id ? c : x) : [...list, c]; });
-    setEditing(null); toast.success("Contact saved");
+    toast.success("Contact saved");
   }
 
   if (!contacts) return <p className="dh-empty" aria-busy="true">Loading contacts…</p>;
