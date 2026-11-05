@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { hasDeskSession, sameOrigin } from "@/lib/desk-session";
 import { ask, loadDeskContext, MODEL_NAME, type Turn } from "@/lib/desk-ai";
 import { CHAT_PROMPT } from "@/lib/pulse/briefing";
+import { quickReply } from "@/lib/desk-fast";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
@@ -25,6 +26,9 @@ export async function POST(request: Request) {
     .filter(t => t.text);
   if (!turns.length || turns[turns.length - 1].role !== "user") return NextResponse.json({ error: "Type a question first." }, { status: 400 });
   while (turns[0].role !== "user") turns.shift();
+  // Small talk ("hi", "thanks") is answered instantly: no database read, no AI call, and it does not count toward the daily limit.
+  const quick = quickReply(turns[turns.length - 1].text);
+  if (quick) return NextResponse.json({ reply: quick, quick: true }, { headers: { "cache-control": "no-store" } });
   const fallbackName = process.env.GEMINI_FALLBACK_MODEL?.trim() || "gemini-3.5-flash-lite";
   const models = [model, ...(fallbackName !== model && MODEL_NAME.test(fallbackName) ? [fallbackName] : [])];
   try {

@@ -75,7 +75,7 @@ export function DeskAskAi() {
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error || "Ask AI is unavailable right now.");
       setMessages(m => [...m, { role: "assistant", content: String(body.reply) }]);
-      const n = readUsed() + 1; writeUsed(n); setUsed(n);
+      if (!body.quick) { const n = readUsed() + 1; writeUsed(n); setUsed(n); }
     } catch (e) {
       setMessages(m => [...m, { role: "assistant", error: true, content: e instanceof Error ? e.message : "Ask AI is unavailable right now." }]);
     } finally { setBusy(false); }
