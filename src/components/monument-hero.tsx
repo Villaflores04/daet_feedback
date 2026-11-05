@@ -98,6 +98,10 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     // Off-screen: pause the endless sway/drift animations (the CSS reads this class).
     const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; stage.classList.toggle("mh-idle", !visible); if (visible) update(); });
     const ro = new ResizeObserver(measure);
+    // Desktop: once the hero has scrolled away, hide it for keyboard/pointer and pause its hidden loops (one cheap observer, no per-frame work).
+    const sentinel = node.querySelector<HTMLElement>(".mh-sentinel");
+    const so = new IntersectionObserver(([entry]) => stage.classList.toggle("mh-past", !entry.isIntersecting && entry.boundingClientRect.top < 0));
+    if (sentinel) so.observe(sentinel);
     io.observe(node); ro.observe(node); ro.observe(stage);
     if (!native) window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", measure, { passive: true });
@@ -106,7 +110,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     document.addEventListener("visibilitychange", update);
     update();
     return () => {
-      io.disconnect(); ro.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
+      io.disconnect(); so.disconnect(); ro.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", measure);
       stage.removeEventListener("pointermove", onPointer);
@@ -128,6 +132,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
   return (
     <>
     <section ref={root} className="mh-journey" aria-label="DAET-CONNECT visitor feedback">
+      <span className="mh-sentinel" aria-hidden="true" />
       <div className="mh-stage">
         <div className="mh-bg" aria-hidden="true">
           <picture>
@@ -168,10 +173,8 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
         <div className="mt-panel">
           <TrailScenery />
           <div className="mt-body page-width"><TrailHead /><TrailSteps data={trail} />
-            <svg className="mt-trail" viewBox="0 0 1200 420" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-              <path className="mt-path-base" d="M-20 430C140 400 170 250 330 262S560 380 700 330 900 150 1030 170 1180 120 1230 60" />
-              <path className="mt-path" pathLength="1" d="M-20 430C140 400 170 250 330 262S560 380 700 330 900 150 1030 170 1180 120 1230 60" />
-            </svg>
+            <svg className="mt-trail mt-trail-base" viewBox="0 0 1200 420" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M-20 430C140 400 170 250 330 262S560 380 700 330 900 150 1030 170 1180 120 1230 60" /></svg>
+            <div className="mt-trail mt-clip" aria-hidden="true"><svg className="mt-trail-gold" viewBox="0 0 1200 420" preserveAspectRatio="none" focusable="false"><path d="M-20 430C140 400 170 250 330 262S560 380 700 330 900 150 1030 170 1180 120 1230 60" /></svg></div>
           </div>
         </div>
         <div className="mh-progress" aria-hidden="true"><span /></div>
