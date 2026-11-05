@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Check, ExternalLink, Share2 } from "lucide-react";
 import { WordMeter } from "@/components/word-meter";
-import { scanPulses, tallyScans } from "@/lib/pulse/words";
+import { scanPulses, tallyScans, type ScannedNote } from "@/lib/pulse/words";
 import { FaceGauge } from "@/components/face-gauge";
 import { PublicChrome } from "@/components/public-chrome";
 import { RateSheet } from "@/components/rate-sheet";
@@ -17,11 +17,33 @@ import { Lightbox } from "@/components/lightbox";
 import { PlaceCard } from "@/components/place-card";
 import { MoodTrend, RangeSwitch, ReactionsCard, TopicTone } from "@/components/sentiment-charts";
 import { mapsUrl } from "@/lib/pulse/geo";
-import { buildPlaceStats } from "@/lib/pulse/places";
+import { ago, buildPlaceStats } from "@/lib/pulse/places";
 import { buildSentiment, type Range } from "@/lib/pulse/sentiment";
 import { shareLink } from "@/lib/share";
 import { OVERALL_ID } from "@/lib/pulse/scope";
 import { usePulse } from "@/lib/pulse/store";
+
+const TAB_LABEL = { POS: "Positive", MIX: "Mixed", NEG: "Negative" } as const;
+
+/** Three short examples of each kind of written comment, so the numbers above are easy to check. */
+function SentimentExamples({ notes }: { notes: ScannedNote[] }) {
+  const counts = { POS: 0, MIX: 0, NEG: 0 };
+  for (const n of notes) counts[n.mood] += 1;
+  const first = (counts.MIX && "MIX") || (counts.POS && "POS") || (counts.NEG && "NEG") || "MIX";
+  const [tab, setTab] = useState<"POS" | "MIX" | "NEG" | null>(null);
+  const active = tab ?? (first as "POS" | "MIX" | "NEG");
+  const shown = notes.filter(n => n.mood === active).sort((a, b) => b.pulse.createdAt - a.pulse.createdAt).slice(0, 3);
+  if (!notes.length) return null;
+  return <div className="spot-examples">
+    <div className="spot-examples-tabs" role="tablist" aria-label="Example comments">
+      {(["POS", "MIX", "NEG"] as const).map(k => <button key={k} type="button" role="tab" aria-selected={active === k} data-mood={k} onClick={() => setTab(k)}>{TAB_LABEL[k]} <span>{counts[k]}</span></button>)}
+    </div>
+    {shown.length ? <ul>{shown.map(n => <li key={n.pulse.id}>
+      <p>{n.pulse.body.length > 150 ? `${n.pulse.body.slice(0, 150).trim()}…` : n.pulse.body}</p>
+      <time>{ago(n.pulse.createdAt)}</time>
+    </li>)}</ul> : <p className="spot-examples-empty">No {TAB_LABEL[active].toLowerCase()} comments yet.</p>}
+  </div>;
+}
 
 export function SpotPage() {
   const params = useParams();
@@ -77,7 +99,8 @@ export function SpotPage() {
 
   const commentSentiment = useMemo(() => {
     const comments = pulses.filter((p) => p.channelId === channel?.id && p.body.trim());
-    const words = tallyScans(scanPulses(comments));
+    const notes = scanPulses(comments);
+    const words = tallyScans(notes);
     const summary = comments.length === 0
       ? "No written comments yet"
       : words.total === 0
@@ -87,7 +110,7 @@ export function SpotPage() {
           : words.neg > words.total / 2
             ? "Mostly negative comments"
             : "Mixed / OK comments";
-    return { words, summary, unclassified: comments.length - words.total };
+    return { words, notes, summary, unclassified: comments.length - words.total, comments: comments.length };
   }, [pulses, channel?.id]);
 
   if (!channel) throw notFound();
@@ -112,12 +135,18 @@ export function SpotPage() {
                 {channel.name}
               </h1>
               <p className="spot-description mt-4 leading-relaxed text-muted">{channel.blurb}</p>
+              <ul className="spot-facts" aria-label="At a glance">
+                <li className={tally.total === 0 ? "" : tally.pos > tally.total / 2 ? "is-good" : tally.neg > tally.total / 2 ? "is-bad" : "is-mixed"}>{tally.total === 0 ? "No ratings yet" : tally.pos > tally.total / 2 ? "Mostly positive" : tally.neg > tally.total / 2 ? "Mostly negative" : "Mixed feelings"}</li>
+                <li>{tally.total} {tally.total === 1 ? "rating" : "ratings"}</li>
+                <li>{commentSentiment.comments} {commentSentiment.comments === 1 ? "written story" : "written stories"}</li>
+                {photos.length ? <li>{photos.length} {photos.length === 1 ? "photo" : "photos"}</li> : null}
+              </ul>
               <FaceGauge tally={tally} title="Visitor feelings · latest shared entries" className="spot-desktop-gauge mt-5" />
               <div className="spot-mobile-ratings" aria-label="Visitor emoji ratings">
                 <div><strong>{tally.total === 0 ? "No ratings yet" : tally.pos > tally.total / 2 ? "Mostly positive" : tally.neg > tally.total / 2 ? "Mostly negative" : "Mixed visitor feelings"}</strong><span>{tally.total} {tally.total === 1 ? "rating" : "ratings"}</span></div>
                 <ul>{FACES.map(face => <li key={face.id}><span aria-hidden="true">{face.glyph}</span><span className="sr-only">{face.label}: </span><strong>{pulses.filter(p => p.channelId === channel.id && !p.parentId && p.face === face.id).length}</strong></li>)}</ul>
               </div>
-              <div className="order-3 mt-4 min-w-0" aria-label="Comment sentiment for this place">
+              <div className="spot-hero-sentiment order-3 mt-4 min-w-0" aria-label="Comment sentiment for this place">
                 <WordMeter tally={commentSentiment.words} title="Comment sentiment analysis" className="border border-line !p-4" />
                 <p className="mt-2 text-sm font-medium text-ink">{commentSentiment.summary}</p>
                 <p className="mt-1 text-xs leading-relaxed text-muted">
@@ -190,6 +219,16 @@ export function SpotPage() {
             </section>
           </div>
 
+          <aside className="spot-side" aria-label="Visitor sentiment summary">
+            <FaceGauge tally={tally} title="Visitor feelings" />
+            <div className="spot-side-comments">
+              <WordMeter tally={commentSentiment.words} title="Comment sentiment" className="border border-line !p-4" />
+              <p className="spot-side-summary">{commentSentiment.summary}</p>
+              <SentimentExamples notes={commentSentiment.notes} />
+              {commentSentiment.unclassified > 0 ? <p className="spot-side-note">{commentSentiment.unclassified} {commentSentiment.unclassified === 1 ? "comment" : "comments"} could not be classified.</p> : null}
+            </div>
+            <Button type="button" className="spot-side-cta h-12" onClick={() => setRate(true)}>Share your experience</Button>
+          </aside>
         </div>
         {related.length ? (
           <section className="spot-related page-width" aria-labelledby="related-title">
