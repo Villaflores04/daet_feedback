@@ -2644,3 +2644,12 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-inline .mt-card, .mt-inline .mt-head, .mt-inline .mt-cta { opacity: 1 !important; transform: none !important; }
   .mt-inline .mt-layer { transform: none !important; }
 }
+
+/* Phones: no skyline strip; the grass flows straight into "How it works". */
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  .mt-hill { display: none; }
+  .mt-inline { padding-top: 40px; background: linear-gradient(#143d33 0, #2a6b58 22px, #a9d6df 110px, #f7efd0 300px, #f6f9fb 100%); }
+  .mt-inline .mt-head .mh-eyebrow { color: #e6f3c9; }
+  .mt-inline .mt-head .mh-eyebrow span { background: #f6c453; }
+  .mt-inline .mt-head h2 { color: #fff; text-shadow: 0 2px 14px rgb(5 30 40 / .35); }
+}
