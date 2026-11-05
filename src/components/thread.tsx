@@ -115,10 +115,16 @@ export function ReplyForm({
 export function PlaceThread({
   channel,
   replyTo,
+  limit,
+  columns,
 }: {
   channel: Channel;
   replyTo?: string;
+  /** Show only the first N stories, with a "Show more" button. */
+  limit?: number;
+  columns?: boolean;
 }) {
+  const [all, setAll] = useState(false);
   const pulses = usePulse((s) => s.pulses);
   const [openReply, setOpenReply] = useState<string | null>(null);
 
@@ -137,6 +143,10 @@ export function PlaceThread({
     [pulses, channel.id],
   );
 
+  // a reply link must always be visible
+  const cap = limit && !all && !(replyTo && roots.findIndex((r) => r.id === replyTo) >= limit) ? limit : undefined;
+  const list = cap ? roots.slice(0, cap) : roots;
+
   if (roots.length === 0) {
     return (
       <p className="rounded-2xl bg-plate px-4 py-8 text-center text-sm text-muted shadow-plate">
@@ -146,8 +156,9 @@ export function PlaceThread({
   }
 
   return (
-    <ol className="space-y-3">
-      {roots.map((root) => {
+    <>
+    <ol className={columns ? "thread-cols" : "space-y-3"}>
+      {list.map((root) => {
         const replies = pulses
           .filter((p) => p.parentId === root.id)
           .sort((a, b) => a.createdAt - b.createdAt);
@@ -182,5 +193,7 @@ export function PlaceThread({
         );
       })}
     </ol>
+    {cap && roots.length > cap ? <button type="button" className="thread-more" onClick={() => setAll(true)}>Show {roots.length - cap} more {roots.length - cap === 1 ? "story" : "stories"}</button> : null}
+    </>
   );
 }
