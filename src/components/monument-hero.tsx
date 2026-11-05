@@ -178,7 +178,6 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
       </div>
     </section>
     <section id="how-it-works" className="mt-inline" aria-label="How it works">
-      <div className="mt-hill" aria-hidden="true"><TrailScenery /></div>
       <div className="page-width">
         <TrailHead />
         <TrailSteps data={trail} />
