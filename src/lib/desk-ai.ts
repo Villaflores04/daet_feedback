@@ -4,6 +4,7 @@ import { buildInsights } from "@/lib/pulse/insights";
 import { buildAttention } from "@/lib/pulse/attention";
 import { buildComments } from "@/lib/pulse/briefing";
 import type { Channel, Pulse } from "@/lib/pulse/types";
+import { ttlCache } from "@/lib/desk-fast";
 
 export const MODEL_NAME = /^[a-zA-Z0-9.-]+$/;
 const RETRYABLE = [500, 502, 503, 504];
@@ -68,7 +69,7 @@ export async function ask(opts: { key: string; models: string[]; system: string;
 }
 
 /** Reads the latest shared data and returns what the AI may see: aggregate counts, rule-based attention items and redacted comment text. */
-export async function loadDeskContext() {
+async function buildDeskContext() {
   const db = supabaseServer();
   const [p, c] = await Promise.all([
     db.from("pulses").select("id,channel_id,parent_id,face,body,created_at,reacts_up,reacts_down").order("created_at", { ascending: false }).limit(500),
@@ -89,3 +90,6 @@ export async function loadDeskContext() {
     comments: buildComments(pulses, channels, 50),
   });
 }
+
+/** The built context is reused for 45 seconds, so follow-up questions do not re-read the 500 latest entries or rebuild the statistics. */
+export const loadDeskContext = ttlCache(45_000, buildDeskContext);
