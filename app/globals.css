@@ -2519,7 +2519,9 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 @media (min-width: 768px) and (min-aspect-ratio: 1/1) {
   .mt-inline { display: none; }
-  .mt-panel { display: block; position: absolute; inset: 0; z-index: 7; overflow: hidden; transform: translate3d(0, 100%, 0); will-change: transform; contain: layout paint style; box-shadow: 0 -22px 34px -14px rgb(20 61 51 / .35); }
+  .mt-panel { display: block; position: absolute; inset: 0; z-index: 7; transform: translate3d(0, 100%, 0); will-change: transform; }
+  /* Soft misty top edge: a plain alpha-gradient strip that travels with the panel (a mask would be re-composited every frame). */
+  .mt-panel::before { content: ""; position: absolute; left: 0; right: 0; top: -130px; height: 130px; pointer-events: none; background: linear-gradient(to bottom, rgb(120 191 228 / 0), rgb(120 191 228 / .1) 22%, rgb(120 191 228 / .38) 52%, rgb(120 191 228 / .75) 80%, #78bfe4); }
   .mt-sky { position: absolute; inset: 0; background: linear-gradient(#78bfe4 0%, #b9e0ee 46%, #f1f0d6 80%, #f7e4b0 100%); }
   .mt-warm { position: absolute; inset: 0; opacity: 0; background: linear-gradient(rgb(255 190 120 / 0) 20%, rgb(255 160 90 / .55) 100%); pointer-events: none; }
   .mt-sun { position: absolute; right: 12%; top: 14%; width: clamp(90px, 10vw, 150px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fff8d8 0 36%, rgb(255 226 140 / .65) 40% 60%, transparent 70%); }
@@ -2665,3 +2667,12 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 }
 
 .mh-sentinel { position: absolute; left: 0; top: 23%; width: 1px; height: 1px; pointer-events: none; }
+
+/* ===== Phones and tablets: keep the GPU free while scrolling ===== */
+@media (max-width: 1023px) {
+  /* Live blur over a moving page is one of the costliest things on mid-range phones. */
+  .site-header, .site-header-landing.is-scrolled { backdrop-filter: none; -webkit-backdrop-filter: none; background: #fafcfd; }
+  .mh-light { animation: none !important; opacity: .75; }
+  .mh-layer .mh-stem { will-change: auto; }
+  .mh-stage.mh-scrolling :is(.mh-sway, .mh-grass, .mh-drift span, .mh-stem, .mh-feelings a) { animation-play-state: paused !important; }
+}

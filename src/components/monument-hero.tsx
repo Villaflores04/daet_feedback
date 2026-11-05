@@ -104,6 +104,14 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     if (sentinel) so.observe(sentinel);
     io.observe(node); ro.observe(node); ro.observe(stage);
     if (!native) window.addEventListener("scroll", update, { passive: true });
+    // Phones: pause the endless sway/drift loops while the finger is scrolling so only the parallax is being composited.
+    let scrollTimer = 0, scrolling = false;
+    const onScrollState = () => {
+      if (!scrolling) { scrolling = true; stage.classList.add("mh-scrolling"); }
+      clearTimeout(scrollTimer);
+      scrollTimer = window.setTimeout(() => { scrolling = false; stage.classList.remove("mh-scrolling"); }, 160);
+    };
+    window.addEventListener("scroll", onScrollState, { passive: true });
     window.addEventListener("resize", measure, { passive: true });
     stage.addEventListener("pointermove", onPointer, { passive: true });
     reduced.addEventListener("change", measure);
@@ -112,6 +120,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     return () => {
       io.disconnect(); so.disconnect(); ro.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
       window.removeEventListener("scroll", update);
+      window.removeEventListener("scroll", onScrollState); clearTimeout(scrollTimer);
       window.removeEventListener("resize", measure);
       stage.removeEventListener("pointermove", onPointer);
       reduced.removeEventListener("change", measure);
