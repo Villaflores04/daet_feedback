@@ -23,6 +23,23 @@ import { shareLink } from "@/lib/share";
 import { OVERALL_ID } from "@/lib/pulse/scope";
 import { usePulse } from "@/lib/pulse/store";
 
+/** Sticky section tabs with scrollspy (desktop only). */
+function SpotTabs({ items, active, onActive }: { items: [string, string][]; active: string; onActive: (id: string) => void }) {
+  const key = items.map(i => i[0]).join();
+  useEffect(() => {
+    const els = key.split(",").map(id => document.getElementById(id)).filter((e): e is HTMLElement => !!e);
+    const io = new IntersectionObserver(entries => {
+      const hit = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (hit) onActive(hit.target.id);
+    }, { rootMargin: "-150px 0px -60% 0px" });
+    els.forEach(e => io.observe(e));
+    return () => io.disconnect();
+  }, [key, onActive]);
+  return <nav className="spot-tabs" aria-label="On this page">
+    {items.map(([id, label]) => <a key={id} href={`#${id}`} aria-current={active === id ? "true" : undefined} onClick={e => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }); onActive(id); }}>{label}</a>)}
+  </nav>;
+}
+
 const TAB_LABEL = { POS: "Positive", MIX: "Mixed", NEG: "Negative" } as const;
 
 /** Three short examples of each kind of written comment, so the numbers above are easy to check. */
@@ -53,6 +70,15 @@ export function SpotPage() {
   const channel = usePulse((s) => s.channels.find((c) => c.slug === slug));
   const pulses = usePulse((s) => s.pulses);
   const [rate, setRate] = useState(false);
+  const [wide, setWide] = useState(false);
+  const [spy, setSpy] = useState("overview");
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const on = () => setWide(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
   const [range, setRange] = useState<Range>(30);
   const [photo, setPhoto] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -172,12 +198,23 @@ export function SpotPage() {
               <ArrowLeft className="size-4" />
               All places
             </Link>
-            <h2 className="spot-about-heading">About this place</h2>
+            {wide ? <SpotTabs
+              active={spy}
+              onActive={setSpy}
+              items={[
+                ["overview", "Overview"],
+                ...(photos.length ? [["photos", "Photos"]] : []),
+                ...(hydrated && (says.praise.length || says.concerns.length) ? [["says", "What visitors say"]] : []),
+                ...(hydrated && tally.total ? [["trends", "Trends"]] : []),
+                ["stories", "Stories"],
+              ] as [string, string][]}
+            /> : null}
+            <h2 className="spot-about-heading" id="overview">About this place</h2>
             <p className="mt-4 text-[0.95rem] leading-relaxed text-muted">
               {channel.about}
             </p>
             {photos.length ? (
-              <section className="spot-gallery" aria-labelledby="gallery-title">
+              <section className="spot-gallery" id="photos" aria-labelledby="gallery-title">
                 <h2 id="gallery-title" className="font-display text-2xl tracking-tight">Visitor photos</h2>
                 <ul>
                   {photos.map((p) => (
@@ -189,7 +226,7 @@ export function SpotPage() {
               </section>
             ) : null}
             {hydrated && (says.praise.length || says.concerns.length) ? (
-              <section className="spot-says" aria-label="What visitors say">
+              <section className="spot-says" id="says" aria-label="What visitors say">
                 <h2 className="font-display text-2xl tracking-tight">What visitors say</h2>
                 {says.praise.length ? <p><span className="spot-says-tag is-good">Praised for</span>{says.praise.join(", ")}</p> : null}
                 {says.concerns.length ? <p><span className="spot-says-tag is-bad">Concerns</span>{says.concerns.join(", ")}</p> : null}
@@ -197,7 +234,7 @@ export function SpotPage() {
               </section>
             ) : null}
             {hydrated && tally.total ? (
-              <section className="spot-analysis" aria-labelledby="analysis-title">
+              <section className="spot-analysis" id="trends" aria-labelledby="analysis-title">
                 <div className="spot-analysis-head"><h2 id="analysis-title" className="font-display text-2xl tracking-tight">How visitors feel</h2><RangeSwitch value={range} onChange={setRange} /></div>
                 <div className="sentiment-charts spot-charts">
                   <MoodTrend d={sd} />
@@ -206,7 +243,7 @@ export function SpotPage() {
                 </div>
               </section>
             ) : null}
-            <section className="mt-10">
+            <section className="mt-10 spot-stories" id="stories">
               <h2 className="font-display text-2xl tracking-tight">
                 Visitor stories
               </h2>
@@ -214,7 +251,7 @@ export function SpotPage() {
                 Tap agree if this matches what you saw.
               </p>
               <div className="mt-4">
-                <PlaceThread channel={channel} replyTo={reply} />
+                <PlaceThread channel={channel} replyTo={reply} limit={wide ? 6 : undefined} columns={wide} />
               </div>
             </section>
           </div>
