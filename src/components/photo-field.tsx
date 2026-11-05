@@ -26,7 +26,7 @@ export function PhotoField({
       <p className="mb-2 text-sm font-medium text-ink">{label}</p>
       <label className="mb-3 flex min-h-11 cursor-pointer items-start gap-3 rounded-xl bg-cool p-3 text-sm leading-5">
         <input type="checkbox" checked={consent} disabled={busy} className="mt-1 size-5 shrink-0 accent-blue-600" onChange={e => { setConsent(e.target.checked); if (!e.target.checked) onChange(undefined); }} />
-        <span>I have permission to share this photo and allow it to be displayed publicly within DAET-CONNECT. Avoid private information or photos of people without their permission.</span>
+        <span>I have permission to share this photo and allow it to be displayed publicly within CONNECT-Daet. Avoid private information or photos of people without their permission.</span>
       </label>
       {value ? (
         <div className="relative w-40">

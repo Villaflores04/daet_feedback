@@ -140,7 +140,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
 
   return (
     <>
-    <section ref={root} className="mh-journey" aria-label="DAET-CONNECT visitor feedback">
+    <section ref={root} className="mh-journey" aria-label="CONNECT-Daet visitor feedback">
       <span className="mh-sentinel" aria-hidden="true" />
       <div className="mh-stage">
         <div className="mh-bg" aria-hidden="true">

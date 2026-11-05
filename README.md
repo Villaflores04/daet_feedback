@@ -1,4 +1,4 @@
-# DAET-CONNECT · Team 9 Feedback
+# CONNECT-Daet · Team 9 Feedback
 
 The parallax landing page is restored at `/`, with feedback-focused messaging and emoji shortcuts. `/feedback` remains the direct module entry for the future main dashboard. Saved feedback adds 15 clearly labeled demo points to a browser-only preview; this is not a real wallet.
 

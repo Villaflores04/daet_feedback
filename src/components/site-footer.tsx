@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="page-width">
         <div className="flex flex-col justify-between gap-8 sm:flex-row">
           <div>
-            <Link href="/" aria-label="DAET-CONNECT home">
+            <Link href="/" aria-label="CONNECT-Daet home">
               <Wordmark />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted">
