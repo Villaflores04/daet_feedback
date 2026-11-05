@@ -110,6 +110,7 @@ export function TransmitPage() {
             {error && <div role="alert" className="feedback-error">{error}<br />Your draft is still here. Check your connection and try again.</div>}
             <Button type="submit" className="feedback-primary" disabled={!face || !channel || sending || photoBusy}>{sending ? "Saving your feedback…" : "Submit feedback"}<ArrowUpRight size={18} /></Button>
             <p className="feedback-privacy"><ShieldCheck size={15} /> No account required to share feedback.</p>
+            <p className="feedback-privacy"><Link href="/help?type=bug&from=/feedback" className="feedback-help-link">Having trouble? Report a problem</Link></p>
           </form>}
         </section>
         <aside className="feedback-context">
