@@ -23,6 +23,7 @@ export function SiteFooter() {
             <Link href="/feedback">Give feedback</Link>
             <Link href="/spots">Places</Link>
             <Link href="/board">Sentiment</Link>
+            <Link href="/help">Help & support</Link>
             <Link href="/desk" className="inline-flex items-center gap-2">
               Municipal desk <ArrowUpRight size={14} />
             </Link>

@@ -11,6 +11,7 @@ export const LINKS = [
   { to: "/live", label: "Visitor stories" },
   { to: "/board", label: "Sentiment" },
   { to: "/feedback", label: "Feedback" },
+  { to: "/help", label: "Help" },
 ];
 export function SiteHeader({
   landing = false,
