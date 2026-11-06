@@ -41,7 +41,7 @@ export const SEED_CHANNELS: Channel[] = [
     id: "ch-mercedes",
     slug: "mercedes-island-views",
     name: "Mercedes Island Views",
-    category: "Island",
+    category: "Coast",
     featured: true,
     cover: "/spots/mercedes.jpg",
     blurb:

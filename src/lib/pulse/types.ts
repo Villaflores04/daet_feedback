@@ -1,4 +1,4 @@
-export type Category = "Coast" | "Heritage" | "Island" | "Civic" | "Park";
+export type Category = "Coast" | "Heritage" | "Market" | "Resort" | "Civic" | "Park";
 
 export type FaceId = "wow" | "happy" | "medium" | "sad";
 
@@ -52,7 +52,8 @@ export type MoodTally = {
 export const CATEGORIES: Category[] = [
   "Coast",
   "Heritage",
-  "Island",
+  "Market",
+  "Resort",
   "Civic",
   "Park",
 ];
