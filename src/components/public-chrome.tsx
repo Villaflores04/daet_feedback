@@ -19,23 +19,35 @@ export function PublicChrome({
   useEffect(() => {
     if (!landing) return;
     let idle: ReturnType<typeof setTimeout> | undefined;
-    const onScroll = () => {
+    let raf = 0, heroH = 0;
+    let lastScrolled = false, lastScrolling = false;
+    // The hero height is measured once (and on resize), never inside the scroll handler: reading it there forced a
+    // synchronous layout on every scroll event while the hero was also changing classes, which is what made fast
+    // back-and-forth scrolling stutter on phones.
+    const hero = document.querySelector<HTMLElement>(".mh-journey");
+    const measure = () => { heroH = hero ? hero.offsetHeight : 0; };
+    const ro = hero && typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    if (hero) ro?.observe(hero);
+    measure();
+    const run = () => {
+      raf = 0;
       const y = window.scrollY;
-      setScrolled(y > 48);
+      const sc = y > 48;
+      if (sc !== lastScrolled) { lastScrolled = sc; setScrolled(sc); }
       // Hide the header only while the hero is moving; it returns shortly after scrolling stops.
-      const hero = document.querySelector<HTMLElement>(".mh-journey");
-      if (y > 2 && hero && y < hero.offsetHeight) {
-        setScrolling(true);
+      if (y > 2 && heroH && y < heroH) {
+        if (!lastScrolling) { lastScrolling = true; setScrolling(true); }
         clearTimeout(idle);
-        idle = setTimeout(() => setScrolling(false), 260);
+        idle = setTimeout(() => { lastScrolling = false; setScrolling(false); }, 260);
       } else {
         clearTimeout(idle);
-        setScrolling(false);
+        if (lastScrolling) { lastScrolling = false; setScrolling(false); }
       }
     };
-    onScroll();
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(run); };
+    run();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); clearTimeout(idle); };
+    return () => { window.removeEventListener("scroll", onScroll); clearTimeout(idle); if (raf) cancelAnimationFrame(raf); ro?.disconnect(); };
   }, [landing]);
 
   return (

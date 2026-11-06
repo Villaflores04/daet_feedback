@@ -2830,3 +2830,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes scroll-hint-nudge { 0%, 55% { transform: translateY(0) rotate(45deg); opacity: .35; } 80% { transform: translateY(4px) rotate(45deg); opacity: 1; } 100% { transform: translateY(0) rotate(45deg); opacity: .35; } }
 @media (prefers-reduced-motion: reduce) { .scroll-hint-dot, .scroll-hint-arrow { animation: none; } .scroll-hint-dot { top: 28px; } }
 @media (max-width: 767px) { .scroll-hint { right: 10px; } .scroll-hint-track { height: 52px; } @keyframes scroll-hint-fall { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { transform: translateY(46px); opacity: 0; } } }
+
+/* ===== Scroll hint: stop animating while it is hidden ===== */
+.scroll-hint[data-show="0"] { visibility: hidden; transition: opacity .25s ease, visibility 0s linear .25s; }
+.scroll-hint[data-show="0"] :is(.scroll-hint-dot, .scroll-hint-arrow) { animation-play-state: paused; }
