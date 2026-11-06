@@ -3,7 +3,7 @@
 import { FEEDBACK_PREVIEW_POINTS } from "@/lib/rewards";
 import { FACES } from "@/lib/pulse/faces";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowUpRight, Waves } from "lucide-react";
 import { DriftingLeaves, GrassRow, LeafCluster } from "./hero-foliage";
 import { TrailHead, TrailScenery, TrailSteps, type TrailData } from "./landing-trail";
@@ -26,6 +26,8 @@ const STEPS = [0.1, 0.36, 0.46, 0.62, 0.78, 0.9];
 
 export function MonumentHero({ trail }: { trail: TrailData }) {
   const root = useRef<HTMLElement>(null);
+  const enableTilt = useRef<(() => void) | null>(null);
+  const [tiltAsk, setTiltAsk] = useState(false);
   useEffect(() => {
     const node = root.current;
     const stage = node?.querySelector<HTMLElement>(".mh-stage");
@@ -48,6 +50,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     let past = false, steps = 0;
     let frame = 0, pointerFrame = 0, travel = 1, dirty = true, visible = true, p = -1;
     let tx = 0, ty = 0, mx = 0, my = 0; // pointer target / eased value, -1..1
+    let amp = 1; // 1 for the mouse, smaller for phone tilt
 
     // Fallback only: same maths as the keyframes in globals.css.
     const draw = () => {
@@ -82,7 +85,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
       mx += (tx - mx) * 0.08; my += (ty - my) * 0.08;
       for (const [key, [fx, fy]] of Object.entries(POINTER)) {
         const el = layers[key as keyof typeof layers];
-        if (el) el.style.translate = `${(mx * fx).toFixed(2)}px ${(my * fy).toFixed(2)}px`;
+        if (el) el.style.translate = `${(mx * fx * amp).toFixed(2)}px ${(my * fy * amp).toFixed(2)}px`;
       }
       if (Math.abs(tx - mx) > 0.002 || Math.abs(ty - my) > 0.002) pointerFrame = requestAnimationFrame(drawPointer);
     };
@@ -93,6 +96,28 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
       ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
       if (!pointerFrame) pointerFrame = requestAnimationFrame(drawPointer);
     };
+
+
+    // Phones: tilt the device to shift the layers, like the mouse does on desktop. Android Chrome needs no permission;
+    // iPhone asks, so a small "Tilt" button appears there. Skipped for reduced motion, weak phones and in-app browsers.
+    let g0 = 0, b0 = 0, haveBase = false, tiltOn = false;
+    const onTilt = (e: DeviceOrientationEvent) => {
+      if (e.gamma == null || e.beta == null || !visible || scrolling || document.hidden || reduced.matches) return;
+      if (!haveBase) { g0 = e.gamma; b0 = e.beta; haveBase = true; }
+      // Neutral follows how the phone is being held, slowly, so the picture settles instead of drifting to an edge.
+      g0 += (e.gamma - g0) * 0.015; b0 += (e.beta - b0) * 0.015;
+      tx = Math.max(-1, Math.min(1, (e.gamma - g0) / 14));
+      ty = Math.max(-1, Math.min(1, (e.beta - b0) / 14));
+      if (!pointerFrame) pointerFrame = requestAnimationFrame(drawPointer);
+    };
+    const startTilt = () => { if (tiltOn) return; tiltOn = true; amp = 0.5; window.addEventListener("deviceorientation", onTilt, { passive: true }); };
+    const DOE = typeof window !== "undefined" ? (window as unknown as { DeviceOrientationEvent?: { requestPermission?: () => Promise<string> } }).DeviceOrientationEvent : undefined;
+    if (DOE && !finePointer.matches && !lite && !reduced.matches) {
+      if (typeof DOE.requestPermission === "function") {
+        enableTilt.current = () => { DOE.requestPermission!().then(r => { if (r === "granted") { startTilt(); setTiltAsk(false); } }).catch(() => setTiltAsk(false)); };
+        setTiltAsk(true);
+      } else startTilt();
+    }
 
     const measure = () => { dirty = true; update(); };
     // Off-screen: pause the endless sway/drift animations (the CSS reads this class).
@@ -123,6 +148,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
       window.removeEventListener("scroll", onScrollState); clearTimeout(scrollTimer);
       window.removeEventListener("resize", measure);
       stage.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("deviceorientation", onTilt); enableTilt.current = null;
       reduced.removeEventListener("change", measure);
       document.removeEventListener("visibilitychange", update);
     };
@@ -186,6 +212,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
             <div className="mt-trail mt-clip" aria-hidden="true"><svg className="mt-trail-gold" viewBox="0 0 1200 420" preserveAspectRatio="none" focusable="false"><path d="M-20 430C140 400 170 250 330 262S560 380 700 330 900 150 1030 170 1180 120 1230 60" /></svg></div>
           </div>
         </div>
+        {tiltAsk ? <button type="button" className="mh-tilt" onClick={() => enableTilt.current?.()}>Tilt to explore</button> : null}
         <div className="mh-progress" aria-hidden="true"><span /></div>
       </div>
     </section>

@@ -2834,3 +2834,10 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 /* ===== Scroll hint: stop animating while it is hidden ===== */
 .scroll-hint[data-show="0"] { visibility: hidden; transition: opacity .25s ease, visibility 0s linear .25s; }
 .scroll-hint[data-show="0"] :is(.scroll-hint-dot, .scroll-hint-arrow) { animation-play-state: paused; }
+
+/* ===== Phone tilt parallax: iPhone needs one tap to allow motion ===== */
+.mh-tilt { display: none; }
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  .mh-tilt { display: inline-flex; position: absolute; right: 14px; bottom: 74px; z-index: 12; align-items: center; min-height: 34px; padding: 0 14px; border: 1px solid rgb(255 255 255 / .55); border-radius: 999px; background: rgb(18 52 73 / .62); color: #fff; font-size: .72rem; font-weight: 600; letter-spacing: .02em; }
+}
+.mh-stage.mh-past .mh-tilt { visibility: hidden; }
