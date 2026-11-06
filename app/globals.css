@@ -2818,7 +2818,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 /* ===== Landing: scroll hint (right edge, middle). No panel: a thin track with a travelling dot. ===== */
 .scroll-hint { position: fixed; right: 20px; top: 50%; z-index: 40; display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 0; padding: 8px 6px; border: 0; background: none; color: #fff; cursor: pointer; transform: translateY(-50%); transition: opacity .35s ease; -webkit-tap-highlight-color: transparent; }
-.scroll-hint[data-show="0"] { opacity: 0; pointer-events: none; }
+.scroll-hint[data-show="0"] { opacity: 0; pointer-events: none; transition-duration: .25s; }
 .scroll-hint[data-tone="dark"] { color: #164b63; }
 .scroll-hint-label { font-size: .62rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; writing-mode: vertical-rl; text-shadow: 0 1px 6px rgba(8,30,44,.55); }
 .scroll-hint[data-tone="dark"] .scroll-hint-label { text-shadow: none; }

@@ -5,17 +5,15 @@ import { useEffect, useRef, useState } from "react";
 /** Small "scroll" hint on the right edge of the landing page: a thin track with a dot that falls along it. */
 export function ScrollHint() {
   const [state, setState] = useState({ show: true, dark: false });
-  const last = useRef("1-0");
+  const last = useRef("1");
   useEffect(() => {
     let raf = 0;
     const check = () => {
       raf = 0;
       const y = window.scrollY;
-      const left = document.documentElement.scrollHeight - window.innerHeight - y;
-      const show = left > 240;
-      const dark = y > window.innerHeight * 0.85; // past the photo hero, the page background is light
-      const key = `${show ? 1 : 0}-${dark ? 1 : 0}`;
-      if (key !== last.current) { last.current = key; setState({ show, dark }); }
+      const show = y < 40; // only a hint for the first moment; gone as soon as the visitor scrolls
+      const key = show ? "1" : "0";
+      if (key !== last.current) { last.current = key; setState({ show, dark: false }); }
     };
     const on = () => { if (!raf) raf = requestAnimationFrame(check); };
     check();
