@@ -4,6 +4,7 @@ import { OVERALL_ID } from "@/lib/pulse/scope";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { PublicChrome } from "@/components/public-chrome";
+import { ScrollCue } from "@/components/scroll-cue";
 import { MonumentHero } from "@/components/monument-hero";
 import { PlaceCard } from "@/components/place-card";
 import { PulseCard } from "@/components/pulse-card";
@@ -25,6 +26,7 @@ export function HomePage() {
   return (
     <PublicChrome landing>
       <main id="main-content">
+        <ScrollCue />
         <MonumentHero trail={{ places: featured.map(c => c.name), moods: { pos: tally.pos, mix: tally.mix, neg: tally.neg, total: tally.total }, story: latest.find(x => x.body && x.body.length > 20 && x.body.length < 140)?.body }} />
         <section id="discover" className="page-width section-space">
           <div className="section-heading">
