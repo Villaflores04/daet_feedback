@@ -2815,3 +2815,12 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .spot-side-note { margin-top: 10px; font-size: .74rem; color: var(--color-muted); line-height: 1.5; }
   .spot-side-cta { width: 100%; border-radius: 999px; }
 }
+
+/* ===== Landing: scroll-down cue (right edge, middle) ===== */
+.scroll-cue { position: fixed; right: 14px; top: 50%; z-index: 40; width: 44px; padding: 10px 0 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; border: 1px solid rgba(255,255,255,.7); border-radius: 999px; background: rgba(255,255,255,.88); color: #164b63; box-shadow: 0 6px 18px rgba(15,58,80,.18); transform: translateY(-50%); transition: opacity .3s ease; }
+.scroll-cue[data-show="0"] { opacity: 0; pointer-events: none; }
+.scroll-cue-label { font-size: .58rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; writing-mode: vertical-rl; }
+.scroll-cue-arrow { animation: scroll-cue-bob 1.6s ease-in-out infinite; will-change: transform; }
+@keyframes scroll-cue-bob { 0%, 100% { transform: translateY(-3px); opacity: .55; } 50% { transform: translateY(4px); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .scroll-cue-arrow { animation: none; } }
+@media (max-width: 767px) { .scroll-cue { right: 8px; width: 38px; padding: 8px 0 4px; } }
