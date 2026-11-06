@@ -2816,11 +2816,17 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .spot-side-cta { width: 100%; border-radius: 999px; }
 }
 
-/* ===== Landing: scroll-down cue (right edge, middle) ===== */
-.scroll-cue { position: fixed; right: 14px; top: 50%; z-index: 40; width: 44px; padding: 10px 0 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; border: 1px solid rgba(255,255,255,.7); border-radius: 999px; background: rgba(255,255,255,.88); color: #164b63; box-shadow: 0 6px 18px rgba(15,58,80,.18); transform: translateY(-50%); transition: opacity .3s ease; }
-.scroll-cue[data-show="0"] { opacity: 0; pointer-events: none; }
-.scroll-cue-label { font-size: .58rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; writing-mode: vertical-rl; }
-.scroll-cue-arrow { animation: scroll-cue-bob 1.6s ease-in-out infinite; will-change: transform; }
-@keyframes scroll-cue-bob { 0%, 100% { transform: translateY(-3px); opacity: .55; } 50% { transform: translateY(4px); opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .scroll-cue-arrow { animation: none; } }
-@media (max-width: 767px) { .scroll-cue { right: 8px; width: 38px; padding: 8px 0 4px; } }
+/* ===== Landing: scroll hint (right edge, middle). No panel: a thin track with a travelling dot. ===== */
+.scroll-hint { position: fixed; right: 20px; top: 50%; z-index: 40; display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 0; padding: 8px 6px; border: 0; background: none; color: #fff; cursor: pointer; transform: translateY(-50%); transition: opacity .35s ease; -webkit-tap-highlight-color: transparent; }
+.scroll-hint[data-show="0"] { opacity: 0; pointer-events: none; }
+.scroll-hint[data-tone="dark"] { color: #164b63; }
+.scroll-hint-label { font-size: .62rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; writing-mode: vertical-rl; text-shadow: 0 1px 6px rgba(8,30,44,.55); }
+.scroll-hint[data-tone="dark"] .scroll-hint-label { text-shadow: none; }
+.scroll-hint-track { position: relative; width: 2px; height: 64px; border-radius: 2px; background: currentColor; opacity: .38; box-shadow: 0 0 6px rgba(8,30,44,.35); }
+.scroll-hint-dot { position: absolute; left: -3px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px rgba(8,30,44,.45); animation: scroll-hint-fall 2s cubic-bezier(.6,0,.3,1) infinite; will-change: transform, opacity; }
+.scroll-hint-arrow { width: 10px; height: 10px; margin-top: -4px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); opacity: .9; animation: scroll-hint-nudge 2s ease-in-out infinite; filter: none; }
+.scroll-hint:hover .scroll-hint-track { opacity: .7; }
+@keyframes scroll-hint-fall { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { transform: translateY(58px); opacity: 0; } }
+@keyframes scroll-hint-nudge { 0%, 55% { transform: translateY(0) rotate(45deg); opacity: .35; } 80% { transform: translateY(4px) rotate(45deg); opacity: 1; } 100% { transform: translateY(0) rotate(45deg); opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .scroll-hint-dot, .scroll-hint-arrow { animation: none; } .scroll-hint-dot { top: 28px; } }
+@media (max-width: 767px) { .scroll-hint { right: 10px; } .scroll-hint-track { height: 52px; } @keyframes scroll-hint-fall { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { transform: translateY(46px); opacity: 0; } } }
