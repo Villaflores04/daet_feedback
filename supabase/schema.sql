@@ -11,7 +11,7 @@ create table if not exists public.channels (
   id text primary key,
   slug text not null unique,
   name text not null,
-  category text not null check (category in ('Coast','Heritage','Island','Civic','Park')),
+  category text not null check (category in ('Coast','Heritage','Market','Resort','Civic','Park')),
   featured boolean not null default false,
   cover text not null default '',
   blurb text not null default '',
@@ -37,7 +37,7 @@ create table if not exists public.wishes (
   name text not null,
   where_in_daet text not null default '',
   why text not null default '',
-  category text not null check (category in ('Coast','Heritage','Island','Civic','Park')),
+  category text not null check (category in ('Coast','Heritage','Market','Resort','Civic','Park')),
   callsign text not null,
   photo text,
   status text not null default 'open' check (status in ('open','kept','burned')),
@@ -77,7 +77,7 @@ insert into public.channels (id, slug, name, category, featured, cover, blurb, a
 ('ch-bagasbas','bagasbas-beach','Bagasbas Beach','Coast',true,'/spots/bagasbas-surf.jpg','Long dark-sand surfing beach on the Pacific side of Daet. Dawn glass-off and the town''s most photographed horizon.','Bagasbas faces due east, so first light hits the water before it hits town.'),
 ('ch-cathedral','cathedral-st-john','Cathedral of St. John the Baptist','Heritage',true,'/spots/st-john.jpg','Daet mother church. Franciscan stone, evening mass light, and the civic pulse of the old town plaza.','Raised by Franciscan friars in 1611, the Parroquia de San Juan Bautista is one of the oldest churches in Camarines Norte.'),
 ('ch-rizal','first-rizal-monument','First Rizal Monument','Heritage',false,'/spots/rizal.jpg','The earliest known monument to Jose Rizal in the Philippines, raised in Daet in 1898 — a pylon, not a standing statue.','Unveiled 30 December 1898 by Lt. Col. Antonio Sanz and Ildefonso Alegre.'),
-('ch-mercedes','mercedes-island-views','Mercedes Island Views','Island',true,'/spots/mercedes.jpg','Jump-off from Daet toward Apuao and Canimog. Sandbars, outrigger crossings, and gin-clear shallows.','Daet is the jump-off; Mercedes holds the islands.'),
+('ch-mercedes','mercedes-island-views','Mercedes Island Views','Coast',true,'/spots/mercedes.jpg','Jump-off from Daet toward Apuao and Canimog. Sandbars, outrigger crossings, and gin-clear shallows.','Daet is the jump-off; Mercedes holds the islands.'),
 ('ch-capitol','provincial-capitol','Camarines Norte Provincial Capitol','Civic',false,'/spots/capitol.jpg','The formal seat of the province. Grounds, flags, and a working picture of Camarines Norte governance.','Daet is the provincial capital. The capitol grounds are part of the civic walk.'),
 ('ch-park','friendship-park','Friendship Park','Park',false,'/spots/friendship-park.jpg','Shaded civic park in the heart of Daet — trees, path, and the afternoon crowd.','The town''s living room when the beach is too far and the plaza is too loud.')
 on conflict (id) do nothing;

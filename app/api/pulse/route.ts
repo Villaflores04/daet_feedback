@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const faces = new Set(["wow", "happy", "medium", "sad"]);
-const categories = new Set(["Coast", "Heritage", "Island", "Civic", "Park"]);
+const categories = new Set(["Coast", "Heritage", "Market", "Resort", "Civic", "Park"]);
 
 function toMillis(value: string | number | null | undefined) {
   const time = typeof value === "number" ? value : Date.parse(value || "");
