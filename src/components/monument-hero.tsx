@@ -99,7 +99,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
 
 
     // Phones: tilt the device to shift the layers, like the mouse does on desktop. Android Chrome needs no permission;
-    // iPhone asks, so a small "Tilt" button appears there. Skipped for reduced motion, weak phones and in-app browsers.
+    // iPhone asks, so a small "Tilt" button appears there. Skipped for reduced motion and weak phones (in-app browsers such as Messenger are allowed).
     let g0 = 0, b0 = 0, haveBase = false, tiltOn = false;
     const onTilt = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null || !visible || scrolling || document.hidden || reduced.matches) return;
@@ -112,7 +112,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     };
     const startTilt = () => { if (tiltOn) return; tiltOn = true; amp = 0.5; window.addEventListener("deviceorientation", onTilt, { passive: true }); };
     const DOE = typeof window !== "undefined" ? (window as unknown as { DeviceOrientationEvent?: { requestPermission?: () => Promise<string> } }).DeviceOrientationEvent : undefined;
-    if (DOE && !finePointer.matches && !lite && !reduced.matches) {
+    if (DOE && !finePointer.matches && !weak && !reduced.matches) {
       // Newer Chrome builds also expose requestPermission, so the button is for Apple devices only.
       const apple = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
       if (apple && typeof DOE.requestPermission === "function") {
