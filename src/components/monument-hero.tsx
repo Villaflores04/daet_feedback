@@ -113,7 +113,9 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     const startTilt = () => { if (tiltOn) return; tiltOn = true; amp = 0.5; window.addEventListener("deviceorientation", onTilt, { passive: true }); };
     const DOE = typeof window !== "undefined" ? (window as unknown as { DeviceOrientationEvent?: { requestPermission?: () => Promise<string> } }).DeviceOrientationEvent : undefined;
     if (DOE && !finePointer.matches && !lite && !reduced.matches) {
-      if (typeof DOE.requestPermission === "function") {
+      // Newer Chrome builds also expose requestPermission, so the button is for Apple devices only.
+      const apple = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (apple && typeof DOE.requestPermission === "function") {
         enableTilt.current = () => { DOE.requestPermission!().then(r => { if (r === "granted") { startTilt(); setTiltAsk(false); } }).catch(() => setTiltAsk(false)); };
         setTiltAsk(true);
       } else startTilt();
