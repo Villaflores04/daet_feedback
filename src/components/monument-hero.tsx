@@ -20,9 +20,9 @@ import { TrailHead, TrailScenery, TrailSteps, type TrailData } from "./landing-t
 const POINTER: Record<string, [number, number]> = { bg: [-10, -6], ll: [16, 10], lr: [16, 10], gb: [-10, 0], gf: [-24, 0] };
 
 /** Share of the scroll used by the hero itself; the rest belongs to the trail scene that rises out of the grass (desktop). */
-const HERO = 0.22;
+const HERO = 0.11;
 /** Scroll positions where each trail step switches on in the script fallback. */
-const STEPS = [0.1, 0.36, 0.46, 0.62, 0.78, 0.9];
+const STEPS = [0.07, 0.33, 0.43, 0.59, 0.75, 0.87];
 
 export function MonumentHero({ trail }: { trail: TrailData }) {
   const root = useRef<HTMLElement>(null);
