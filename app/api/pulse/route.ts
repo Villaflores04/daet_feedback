@@ -22,6 +22,7 @@ function pulseFromRow(row: Record<string, unknown>) {
     face: String(row.face),
     body: String(row.body || ""),
     photo: row.photo ? String(row.photo) : undefined,
+    source: typeof row.source === "string" ? row.source : "visitor",
     createdAt: toMillis(row.created_at as string),
     reacts: {
       up: Number(row.reacts_up || 0),
@@ -70,6 +71,16 @@ function readFailure(resource: string, error: unknown) {
   return `${resource} could not load from Supabase. Check the project connection and retry.`;
 }
 
+const PULSE_COLUMNS = "id,channel_id,parent_id,callsign,face,body,photo,reacts_up,reacts_down,created_at";
+
+/** Reads feedback with its source; falls back to the older columns if the source migration has not been run yet. */
+async function readPulses(db: ReturnType<typeof supabaseServer>) {
+  const run = (cols: string) => db.from("pulses").select(cols).order("created_at", { ascending: false }).limit(500);
+  const first = await run(`${PULSE_COLUMNS},source`);
+  if (first.error?.code === "42703") return run(PULSE_COLUMNS);
+  return first;
+}
+
 export async function GET() {
   try {
     const db = supabaseServer();
@@ -78,13 +89,7 @@ export async function GET() {
         .from("channels")
         .select("id,slug,name,category,featured,cover,blurb,about")
         .order("name"),
-      db
-        .from("pulses")
-        .select(
-          "id,channel_id,parent_id,callsign,face,body,photo,reacts_up,reacts_down,created_at",
-        )
-        .order("created_at", { ascending: false })
-        .limit(500),
+      readPulses(db),
       db
         .from("wishes")
         .select(
@@ -101,7 +106,7 @@ export async function GET() {
     const allFailed = Boolean(channels.error && pulses.error && wishes.error);
     return NextResponse.json({
       channels: channels.error ? null : (channels.data || []).map(channelFromRow),
-      pulses: pulses.error ? null : (pulses.data || []).map(pulseFromRow),
+      pulses: pulses.error ? null : ((pulses.data || []) as unknown as Record<string, unknown>[]).map(pulseFromRow),
       wishes: wishes.error ? null : (wishes.data || []).map(wishFromRow),
       issues,
       ...(allFailed ? { error: issues.join(" ") } : {}),

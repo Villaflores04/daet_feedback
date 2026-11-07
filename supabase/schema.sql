@@ -27,6 +27,7 @@ create table if not exists public.pulses (
   face text not null check (face in ('wow','happy','medium','sad')),
   body text not null default '',
   photo text,
+  source text not null default 'visitor' check (source in ('visitor','facebook','google','tripadvisor','survey','walkin','other')),
   reacts_up integer not null default 0,
   reacts_down integer not null default 0,
   created_at timestamptz not null default now()

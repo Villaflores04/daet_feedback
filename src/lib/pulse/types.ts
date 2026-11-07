@@ -2,6 +2,18 @@ export type Category = "Coast" | "Heritage" | "Market" | "Resort" | "Civic" | "P
 
 export type FaceId = "wow" | "happy" | "medium" | "sad";
 
+export type Source = "visitor" | "facebook" | "google" | "tripadvisor" | "survey" | "walkin" | "other";
+
+export const SOURCES: { id: Source; label: string }[] = [
+  { id: "visitor", label: "Site feedback" },
+  { id: "facebook", label: "Facebook" },
+  { id: "google", label: "Google reviews" },
+  { id: "tripadvisor", label: "TripAdvisor" },
+  { id: "survey", label: "Survey" },
+  { id: "walkin", label: "Walk-in / office" },
+  { id: "other", label: "Other" },
+];
+
 export type Mood = "POS" | "MIX" | "NEG";
 
 export type Channel = {
@@ -23,6 +35,8 @@ export type Pulse = {
   face: FaceId;
   body: string;
   photo?: string;
+  /** Where the entry came from. Missing means collected on the site. */
+  source?: Source;
   createdAt: number;
   reacts: { up: number; down: number };
 };
