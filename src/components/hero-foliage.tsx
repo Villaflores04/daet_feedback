@@ -20,8 +20,20 @@ const f = (n: number) => Math.round(n * 10) / 10;
 /** A pointed leaf drawn upward from (0,0); scaled and rotated per instance. */
 const LEAF = "M0 0C13-14 15-46 0-82C-15-46-13-14 0 0Z";
 const RIB = "M0-4V-66";
-
-type Leaf = { x: number; y: number; r: number; s: number; c: string; o: number };
+// Painted-style leaf: a curved midrib splits it into a sunlit half and a shaded half, with a few faint side veins.
+const HALF_R = "M0 0Q-2-42 2-86C21-50 17-12 0 0Z";
+const HALF_L = "M0 0Q-2-42 2-86C-13-54-17-14 0 0Z";
+const MIDRIB = "M0-3Q-2-42 2-84";
+const VEINS_R = "M-.5-16L10-28M-1-32L12-46M-.5-50L9-62M0-66L5-74";
+const VEINS_L = "M-.5-16L-9-27M-1-32L-11-44M-.5-50L-8-60M0-66L-4-73";
+// [lit base, lit tip, shade base, shade tip]
+const LEAF_PAINT: [string, string, string, string][] = [
+  ["#3f7d4e", "#b9d05c", "#1b4a45", "#5f9a48"],
+  ["#2b6a5c", "#86b95e", "#133f40", "#3f8450"],
+  ["#6a9a3c", "#dcd86c", "#3f7a3d", "#8fb34a"],
+  ["#173f3c", "#4d8a55", "#0c2c2f", "#2f6a4c"], // deep back leaves for depth
+];
+type Leaf = { x: number; y: number; r: number; s: number; v: number; o: number };
 
 function branchLeaves(rand: () => number, x0: number, y0: number, x1: number, y1: number, bend: number, count: number): { d: string; leaves: Leaf[] } {
   const cx = (x0 + x1) / 2 + bend;
@@ -37,10 +49,10 @@ function branchLeaves(rand: () => number, x0: number, y0: number, x1: number, y1
     const side = i % 2 ? 1 : -1;
     const spread = 38 + rand() * 26;
     const size = (1.25 - t * 0.55) * (0.85 + rand() * 0.45);
-    leaves.push({ x, y, r: tangent + side * spread, s: size, c: GREENS[Math.floor(rand() * GREENS.length)], o: 0.92 + rand() * 0.08 });
+    leaves.push({ x, y, r: tangent + side * spread, s: size, v: rand() < 0.22 ? 3 : Math.floor(rand() * 3), o: 0.94 + rand() * 0.06 });
   }
   // Terminal leaf continues the branch direction.
-  leaves.push({ x: x1, y: y1, r: (Math.atan2(y1 - cy, x1 - cx) * 180) / Math.PI + 90, s: 0.7, c: GREENS[4], o: 1 });
+  leaves.push({ x: x1, y: y1, r: (Math.atan2(y1 - cy, x1 - cx) * 180) / Math.PI + 90, s: 0.7, v: 0, o: 1 });
   return { d: `M${f(x0)} ${f(y0)}Q${f(cx)} ${f(cy)} ${f(x1)} ${f(y1)}`, leaves };
 }
 
@@ -60,11 +72,11 @@ const STEM_MOTION = [
 export function LeafCluster({ seed }: { seed: number; className?: string }) {
   const rand = rng(seed);
   const stems = [
-    { x1: 560, y1: 130, bend: 70, n: 11 },
-    { x1: 470, y1: 300, bend: 40, n: 10 },
-    { x1: 330, y1: 430, bend: 10, n: 9 },
-    { x1: 175, y1: 500, bend: -20, n: 7 },
-    { x1: 610, y1: 30, bend: 40, n: 8 },
+    { x1: 560, y1: 130, bend: 70, n: 15 },
+    { x1: 470, y1: 300, bend: 40, n: 13 },
+    { x1: 330, y1: 430, bend: 10, n: 12 },
+    { x1: 175, y1: 500, bend: -20, n: 10 },
+    { x1: 610, y1: 30, bend: 40, n: 11 },
   ].map(s => branchLeaves(rand, -20 + rand() * 20, -20 + rand() * 20, s.x1 + rand() * 30, s.y1 + rand() * 30, s.bend, s.n));
   return (
     <div className="mh-cluster" aria-hidden="true">
@@ -80,18 +92,20 @@ export function LeafCluster({ seed }: { seed: number; className?: string }) {
           >
             {i === 0 && (
               <defs>
-                <linearGradient id={`leaf-shade-${seed}`} x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0" stopColor="#fff" stopOpacity=".22" />
-                  <stop offset="1" stopColor="#0b2a2a" stopOpacity=".28" />
-                </linearGradient>
+                {LEAF_PAINT.flatMap((c, v) => [
+                  <linearGradient key={`l${v}`} id={`lf-${seed}-${v}l`} x1="0" x2="0" y1="1" y2="0"><stop offset="0" stopColor={c[0]} /><stop offset="1" stopColor={c[1]} /></linearGradient>,
+                  <linearGradient key={`d${v}`} id={`lf-${seed}-${v}d`} x1="0" x2="0" y1="1" y2="0"><stop offset="0" stopColor={c[2]} /><stop offset="1" stopColor={c[3]} /></linearGradient>,
+                ])}
               </defs>
             )}
             <path d={stem.d} fill="none" stroke="#25412f" strokeWidth={5 - i * 0.4} strokeLinecap="round" />
             {stem.leaves.map((l, j) => (
               <g key={j} transform={`translate(${f(l.x)} ${f(l.y)}) rotate(${f(l.r)}) scale(${f(l.s)})`} opacity={l.o}>
-                <path d={LEAF} fill={l.c} />
-                <path d={LEAF} fill={`url(#leaf-shade-${seed})`} />
-                <path d={RIB} stroke="#e6f3c9" strokeOpacity=".45" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+                <path d={HALF_R} fill={`url(#lf-${seed}-${l.v}l)`} stroke="#0f3330" strokeOpacity=".3" strokeWidth=".9" strokeLinejoin="round" />
+                <path d={HALF_L} fill={`url(#lf-${seed}-${l.v}d)`} stroke="#0f3330" strokeOpacity=".3" strokeWidth=".9" strokeLinejoin="round" />
+                <path d={VEINS_R} stroke="#f1f8cf" strokeOpacity=".26" strokeWidth="1" fill="none" strokeLinecap="round" />
+                <path d={VEINS_L} stroke="#0c2a2a" strokeOpacity=".22" strokeWidth="1" fill="none" strokeLinecap="round" />
+                <path d={MIDRIB} stroke="#eef7c8" strokeOpacity=".6" strokeWidth="1.5" fill="none" strokeLinecap="round" />
               </g>
             ))}
           </svg>
@@ -159,7 +173,7 @@ export function DriftingLeaves() {
     <div className="mh-drift" aria-hidden="true">
       {leaves.map((l, i) => (
         <span key={i} style={{ left: `${f(l.left)}%`, width: f(l.size), height: f(l.size * 1.7), animationDuration: `${f(l.dur)}s`, animationDelay: `${f(l.delay)}s`, ["--sway" as string]: `${f(l.sway)}px`, ["--rot" as string]: `${f(l.rot)}deg` }}>
-          <svg viewBox="-16 -86 32 90" width="100%" height="100%" focusable="false"><path d={LEAF} fill={l.color} /><path d={RIB} stroke="#e6f3c9" strokeOpacity=".5" strokeWidth="2" fill="none" /></svg>
+          <svg viewBox="-20 -88 40 92" width="100%" height="100%" focusable="false"><path d={HALF_R} fill={LEAF_PAINT[i % 3][1]} /><path d={HALF_L} fill={LEAF_PAINT[i % 3][3]} /><path d={MIDRIB} stroke="#eef7c8" strokeOpacity=".6" strokeWidth="2" fill="none" /></svg>
         </span>
       ))}
     </div>
