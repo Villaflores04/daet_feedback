@@ -61,7 +61,7 @@ export function DeskImport() {
   }
 
   return (
-    <div className="desk-activity">
+    <div className="desk-activity min-w-0">
       <header className="desk-page-heading">
         <p className="text-xs uppercase tracking-[0.18em] text-muted">Sources</p>
         <h1 className="mt-1 font-display text-3xl tracking-tight">Add outside feedback</h1>
@@ -70,7 +70,7 @@ export function DeskImport() {
         </p>
       </header>
 
-      <div className="mt-6 grid gap-4 rounded-2xl bg-plate p-4 shadow-plate sm:p-6">
+      <div className="mt-6 grid grid-cols-1 gap-4 rounded-2xl bg-plate p-4 shadow-plate sm:p-6">
         <div className="activity-rating-filters" role="group" aria-label="Where did this feedback come from?">
           {OUTSIDE.map((s) => (
             <button
@@ -85,30 +85,30 @@ export function DeskImport() {
           ))}
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="grid gap-1 text-sm">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label className="grid min-w-0 grid-cols-1 gap-1 text-sm">
             <span className="text-muted">Place</span>
-            <select value={place} onChange={(e) => setPlace(e.target.value)} className="h-11 rounded-xl border border-line bg-plate px-3 text-sm">
+            <select value={place} onChange={(e) => setPlace(e.target.value)} className="h-11 w-full min-w-0 max-w-full rounded-xl border border-line bg-plate px-3 text-sm">
               <option value="">Choose a place</option>
               {channels.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
           </label>
-          <label className="grid gap-1 text-sm">
+          <label className="grid min-w-0 grid-cols-1 gap-1 text-sm">
             <span className="text-muted">Date of the feedback (optional)</span>
-            <input type="date" value={date} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setDate(e.target.value)} className="h-11 rounded-xl border border-line bg-plate px-3 text-sm" />
+            <input type="date" value={date} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setDate(e.target.value)} className="h-11 w-full min-w-0 max-w-full rounded-xl border border-line bg-plate px-3 text-sm" />
           </label>
         </div>
 
-        <label className="grid gap-1 text-sm">
+        <label className="grid min-w-0 grid-cols-1 gap-1 text-sm">
           <span className="text-muted">Comments, one per line. Start a line with a rating to include stars, like “5 - Beautiful sunrise” or “2/5: too crowded”.</span>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={8}
             placeholder={"5 - Beautiful sunrise, very friendly staff\n2/5: too crowded and dirty comfort room\nMaganda ang lugar, malinis"}
-            className="rounded-xl border border-line bg-plate p-3 text-sm"
+            className="w-full min-w-0 max-w-full rounded-xl border border-line bg-plate p-3 text-sm"
           />
         </label>
 
