@@ -83,6 +83,13 @@ export function TrailScenery() {
       <path fill="currentColor" fillRule="evenodd" d="M250 270V210H266V164L280 132 294 164V210H326V190Q348 150 370 190V210H402V164L416 132 430 164V210H446V270ZM330 270V232Q348 214 366 232V270ZM268 196v14h8V196ZM284 196v14h8V196ZM424 196v14h-8V196Z" />
       <path fill="currentColor" fillRule="evenodd" d="M790 270V238H822V226L940 192 1058 226V238H1090V270ZM830 270V246H840V270ZM856 270V246H866V270ZM882 270V246H892V270ZM908 270V246H918V270ZM934 270V246H944V270ZM960 270V246H970V270ZM986 270V246H996V270ZM1012 270V246H1022V270ZM1038 270V246H1048V270ZM920 214h40v8h-40Z" />
     </svg>
+    <svg className="mt-layer mt-mid mt-lights" viewBox="0 0 1600 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+      <g fill="currentColor">
+        <rect x="268" y="196" width="8" height="14" rx="3" /><rect x="284" y="196" width="8" height="14" rx="3" /><rect x="416" y="196" width="8" height="14" rx="3" />
+        <rect x="336" y="222" width="24" height="12" rx="6" />
+        {[830, 856, 882, 908, 934, 960, 986, 1012, 1038].map(x => <rect key={x} x={x} y="248" width="10" height="20" rx="1.5" />)}
+      </g>
+    </svg>
     <svg className="mt-layer mt-near" viewBox="0 0 1600 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
       <path d="M0 300V270C220 252 420 268 640 260S1040 272 1260 258 1500 264 1600 268V300Z" fill="currentColor" />
       <path d="M1290 275V262H1330V250H1346V150L1356 112 1366 150V250H1382V262H1422V275Z" fill="currentColor" />
