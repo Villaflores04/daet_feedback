@@ -11,17 +11,36 @@ export type TrailData = {
 
 const pct = (n: number, total: number) => (total ? Math.round((n / total) * 100) : 0);
 
-function Palm({ x, s = 1 }: { x: number; s?: number }) {
-  const fronds = [-70, -35, 0, 35, 70, -105, 105];
-  return <g transform={`translate(${x} 300) scale(${s})`}>
-    <path d="M0 0 Q14 -70 -4 -150" stroke="currentColor" strokeWidth="7" fill="none" strokeLinecap="round" />
-    <g transform="translate(-4 -150)">
-      {fronds.map(a => <path key={a} d="M0 0 Q36 -30 78 -2 Q38 -14 0 0Z" transform={`rotate(${a - 90})`} fill="currentColor" />)}
+/** Palm with a tapered, leaning trunk and drooping feathery fronds. */
+function Palm({ x, s = 1, lean = 1 }: { x: number; s?: number; lean?: number }) {
+  const fronds: [number, number][] = [[-165, 1], [-135, 1.1], [-105, 1.15], [-75, 1.15], [-45, 1.1], [-15, 1], [-195, .8], [15, .8], [-90, .7]];
+  return <g transform={`translate(${x} 300) scale(${s * lean} ${s})`}>
+    <path d="M-5 0 C-2 -60 6 -110 16 -158 L24 -158 C16 -108 10 -58 7 0Z" fill="currentColor" />
+    <g transform="translate(20 -158)">
+      {fronds.map(([a, k], i) => <path key={i} d="M0 0 C22 -30 58 -34 96 -8 C60 -22 26 -18 0 0Z" transform={`rotate(${a}) scale(${k})`} fill="currentColor" />)}
+      <circle cx="-3" cy="6" r="4.5" fill="currentColor" /><circle cx="5" cy="8" r="4" fill="currentColor" />
     </g>
   </g>;
 }
 
-/** Simple, generic skyline shapes (not copies of any real artwork): twin-tower church, columned hall, memorial column, palms. */
+/** Round-crowned shade tree (generic mango/acacia silhouette). */
+function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <path d="M-3 0 L-2 -34 L2 -34 L3 0Z" fill="currentColor" />
+    <circle cx="0" cy="-46" r="19" fill="currentColor" /><circle cx="-16" cy="-38" r="14" fill="currentColor" /><circle cx="16" cy="-39" r="15" fill="currentColor" /><circle cx="3" cy="-60" r="13" fill="currentColor" />
+  </g>;
+}
+
+/** Soft cumulus built from overlapping puffs on a flat base. */
+function Cloud({ x, y, s = 1, o = 1 }: { x: number; y: number; s?: number; o?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`} opacity={o}>
+    <g fill="url(#mtg-cloud)">
+      <ellipse cx="0" cy="0" rx="90" ry="14" /><circle cx="-34" cy="-10" r="22" /><circle cx="2" cy="-22" r="30" /><circle cx="40" cy="-12" r="22" /><circle cx="68" cy="-3" r="14" />
+    </g>
+    <ellipse cx="-4" cy="-30" rx="16" ry="8" fill="#fff" opacity=".55" />
+  </g>;
+}
+
 // Fixed star field (seeded, so server and client agree): [x%, y%, radius].
 const STARS: [number, number, number][] = (() => {
   const out: [number, number, number][] = [];
@@ -41,21 +60,33 @@ export function TrailScenery() {
     </svg>
     <div className="mt-sun" aria-hidden="true" />
     <div className="mt-moon" aria-hidden="true" />
+    <svg className="mt-clouds" viewBox="0 0 1600 400" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
+      <defs><linearGradient id="mtg-cloud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" /><stop offset=".7" stopColor="#f3f7fb" /><stop offset="1" stopColor="#d6e4f0" /></linearGradient></defs>
+      <Cloud x={760} y={120} s={1} o={.95} /><Cloud x={1180} y={215} s={1.2} o={.9} /><Cloud x={1480} y={120} s={.75} o={.8} /><Cloud x={540} y={270} s={.85} o={.8} />
+    </svg>
+    <svg className="mt-birds" viewBox="0 0 1600 400" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="#35566b" strokeWidth="2.4" strokeLinecap="round">
+        <path d="M930 70q9-9 18 0q9-9 18 0" /><path d="M978 48q7-7 14 0q7-7 14 0" /><path d="M904 100q6-6 12 0q6-6 12 0" /><path d="M1330 60q8-8 16 0q8-8 16 0" /><path d="M1370 86q6-6 12 0q6-6 12 0" />
+      </g>
+    </svg>
     <svg className="mt-layer mt-far" viewBox="0 0 1600 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-      <ellipse cx="300" cy="70" rx="120" ry="16" fill="#fff" opacity=".5" /><ellipse cx="380" cy="58" rx="80" ry="14" fill="#fff" opacity=".5" />
-      <ellipse cx="1180" cy="100" rx="130" ry="15" fill="#fff" opacity=".42" />
-      <path d="M0 300V232C120 202 220 216 330 206S520 172 640 202 860 216 980 192 1220 162 1340 196 1520 206 1600 192V300Z" fill="currentColor" />
-      <path d="M1040 222Q1110 150 1180 222Z" fill="currentColor" />
+      <defs><linearGradient id="mtg-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity=".55" /><stop offset="1" stopColor="currentColor" stopOpacity=".95" /></linearGradient></defs>
+      <path d="M0 300V168C90 150 150 110 230 132S360 100 430 128 560 70 650 118 790 96 860 124C930 78 990 40 1052 30 1112 42 1176 92 1232 130 1330 110 1420 136 1500 120 1560 132 1600 128V300Z" fill="url(#mtg-far)" />
+      <path d="M0 300V222C110 196 210 170 320 196S500 168 610 200 790 176 890 206 1060 160 1170 196 1380 176 1600 208V300Z" fill="currentColor" opacity=".92" />
     </svg>
     <svg className="mt-layer mt-mid" viewBox="0 0 1600 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-      <path d="M0 300V262C200 242 360 256 520 246S900 266 1100 252 1450 246 1600 260V300Z" fill="currentColor" />
-      <path d="M250 270V206H270V160L282 138 294 160V206H330V184Q350 148 370 184V206H406V160L418 138 430 160V206H450V270Z" fill="currentColor" />
-      <path d="M800 270V236H832V224L940 196 1048 224V236H1080V270Z" fill="currentColor" />
+      <path d="M0 300V258C200 236 360 252 520 242S900 262 1100 246 1450 240 1600 256V300Z" fill="currentColor" />
+      <g fill="currentColor">
+        <Tree x={90} y={252} s={1.1} /><Tree x={150} y={250} s={.85} /><Tree x={540} y={244} s={1.05} /><Tree x={600} y={246} s={.8} />
+        <Tree x={1120} y={248} s={1.1} /><Tree x={1180} y={250} s={.8} /><Tree x={1500} y={246} s={1} />
+      </g>
+      <path fill="currentColor" fillRule="evenodd" d="M250 270V210H266V164L280 132 294 164V210H326V190Q348 150 370 190V210H402V164L416 132 430 164V210H446V270ZM330 270V232Q348 214 366 232V270ZM268 196v14h8V196ZM284 196v14h8V196ZM424 196v14h-8V196Z" />
+      <path fill="currentColor" fillRule="evenodd" d="M790 270V238H822V226L940 192 1058 226V238H1090V270ZM830 270V246H840V270ZM856 270V246H866V270ZM882 270V246H892V270ZM908 270V246H918V270ZM934 270V246H944V270ZM960 270V246H970V270ZM986 270V246H996V270ZM1012 270V246H1022V270ZM1038 270V246H1048V270ZM920 214h40v8h-40Z" />
     </svg>
     <svg className="mt-layer mt-near" viewBox="0 0 1600 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-      <path d="M0 300V272C220 256 420 270 640 262S1040 274 1260 260 1500 266 1600 270V300Z" fill="currentColor" />
-      <path d="M1290 275V262H1330V250H1346V150L1356 118 1366 150V250H1382V262H1422V275Z" fill="currentColor" />
-      <Palm x={130} s={0.85} /><Palm x={560} s={0.7} /><Palm x={1000} s={0.9} /><Palm x={1520} s={0.8} />
+      <path d="M0 300V270C220 252 420 268 640 260S1040 272 1260 258 1500 264 1600 268V300Z" fill="currentColor" />
+      <path d="M1290 275V262H1330V250H1346V150L1356 112 1366 150V250H1382V262H1422V275Z" fill="currentColor" />
+      <Palm x={110} s={.9} /><Palm x={380} s={.62} lean={-1} /><Palm x={760} s={.74} /><Palm x={1010} s={.95} lean={-1} /><Palm x={1530} s={.82} />
     </svg>
     <div className="mt-dim" aria-hidden="true" />
     <div className="mt-warm" aria-hidden="true" />

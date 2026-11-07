@@ -2504,7 +2504,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mt-react span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #f1f7fa; font-size: .74rem; color: #164b63; }
 .mt-more { display: inline-flex; align-items: center; gap: 4px; margin-top: 12px; min-height: 36px; font-size: .82rem; font-weight: 600; color: #1d4ed8; }
 .mt-trail { display: none; }
-.mt-dusk, .mt-night, .mt-stars, .mt-moon, .mt-dim, .mt-title-night { display: none; }
+.mt-dusk, .mt-night, .mt-stars, .mt-moon, .mt-dim, .mt-title-night, .mt-clouds, .mt-birds { display: none; }
 .mt-inline .mt-cta .primary-link { border-radius: 999px; }
 
 /* Phones and portrait tablets: no scene parallax. Steps stack as cards that fade in. */
@@ -2597,12 +2597,16 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-moon::before { width: 20%; height: 20%; left: 56%; top: 24%; box-shadow: -34px 40px 0 -2px rgb(150 168 205 / .26), 8px 56px 0 -5px rgb(150 168 205 / .24); }
   .mt-moon::after { width: 13%; height: 13%; left: 22%; top: 52%; }
   .mt-dim { display: block; position: absolute; inset: 0; opacity: 0; pointer-events: none; background: linear-gradient(rgb(8 16 48 / 0) 0%, rgb(8 16 48 / .42) 55%, rgb(6 12 38 / .62) 100%); }
+  .mt-clouds, .mt-birds { display: block; position: absolute; left: -4%; top: 0; width: 108%; height: 54%; pointer-events: none; will-change: transform, opacity; }
+  .mt-birds { opacity: 1; }
   .mt-title-night { display: block; opacity: 0; }
   .mt-title-night .mh-eyebrow { color: #cfe2ff; text-shadow: none; }
   .mt-title-night .mh-eyebrow span { background: #f6c453; }
   .mt-night-h { margin-top: 6px; font: 500 clamp(28px, 3.2vw, 46px)/1.08 var(--font-display); letter-spacing: -.04em; color: #f4f7ff; }
   @supports (animation-timeline: view()) {
-    .mh-stage:not(.mh-lite) :is(.mt-dusk, .mt-night, .mt-stars, .mt-moon, .mt-dim, .mt-title-night, .mt-title > :first-child) { animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --mh; animation-range: contain 0% contain 100%; }
+    .mh-stage:not(.mh-lite) :is(.mt-dusk, .mt-night, .mt-stars, .mt-moon, .mt-dim, .mt-title-night, .mt-title > :first-child, .mt-clouds, .mt-birds) { animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --mh; animation-range: contain 0% contain 100%; }
+    .mh-stage:not(.mh-lite) .mt-clouds { animation-name: mt-clouds; }
+    .mh-stage:not(.mh-lite) .mt-birds { animation-name: mt-birds; }
     .mh-stage:not(.mh-lite) .mt-dusk { animation-name: mt-dusk; }
     .mh-stage:not(.mh-lite) .mt-night { animation-name: mt-night; }
     .mh-stage:not(.mh-lite) .mt-stars { animation-name: mt-stars; }
@@ -2615,8 +2619,11 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-stage.mh-lite.st4 .mt-dusk, .mh-stage.mh-lite.st5 .mt-night, .mh-stage.mh-lite.st5 .mt-stars, .mh-stage.mh-lite.st5 .mt-dim, .mh-stage.mh-lite.st5 .mt-title-night { opacity: 1; }
   .mh-stage.mh-lite.st5 .mt-moon { opacity: 1; transform: none; }
   .mh-stage.mh-lite.st5 .mt-sun { opacity: 0; }
+  .mh-stage.mh-lite.st5 .mt-clouds { opacity: .15; } .mh-stage.mh-lite.st4 .mt-birds, .mh-stage.mh-lite.st5 .mt-birds { opacity: 0; }
   .mh-stage.mh-lite.st5 .mt-title > :first-child { opacity: 0; }
 }
+@keyframes mt-clouds { 0% { opacity: 1; transform: translate3d(0, 0, 0); } 40% { opacity: 1; } 62% { opacity: .55; } 84%, 100% { opacity: .1; } 100% { transform: translate3d(-5%, 0, 0); } }
+@keyframes mt-birds { 0%, 30% { opacity: 1; transform: translate3d(0, 0, 0); } 56%, 100% { opacity: 0; } 100% { transform: translate3d(90px, -30px, 0); } }
 @keyframes mt-dusk { 0%, 30% { opacity: 0; } 56%, 100% { opacity: 1; } }
 @keyframes mt-night { 0%, 58% { opacity: 0; } 82%, 100% { opacity: 1; } }
 @keyframes mt-stars { 0%, 66% { opacity: 0; } 86%, 100% { opacity: 1; } }
