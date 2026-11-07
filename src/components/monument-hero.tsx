@@ -19,6 +19,11 @@ import { TrailHead, TrailScenery, TrailSteps, type TrailData } from "./landing-t
  * properties, which would force a style recalculation of every foliage node on every frame.
  */
 const POINTER: Record<string, [number, number]> = { bg: [-10, -6], ll: [16, 10], lr: [16, 10], gb: [-10, 0], gf: [-24, 0] };
+/** Night-scene depth: far things barely move, near things move more; cards drift the other way for separation. */
+const TRAIL_POINTER: [string, number, number][] = [
+  [".mt-clouds", -6, -2], [".mt-sun", -4, -2], [".mt-moon", -4, -2], [".mt-far", -4, -2], [".mt-mid", -9, -4], [".mt-lights", -9, -4], [".mt-near", -18, -7],
+  [".mt-s1", 5, 3], [".mt-s2", 8, 4], [".mt-s3", 11, 5],
+];
 
 /** Share of the scroll used by the hero itself; the rest belongs to the trail scene that rises out of the grass (desktop). */
 const HERO = 0.11;
@@ -84,6 +89,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     const update = () => { if (!frame && !native && visible && !document.hidden) frame = requestAnimationFrame(draw); };
 
     // Desktop pointer parallax uses the independent `translate` property, so it composes with the scroll transform.
+    const trailEls: [HTMLElement, number, number][] | null = finePointer.matches && !lite ? TRAIL_POINTER.flatMap(([sel, fx, fy]) => node.querySelectorAll<HTMLElement>(sel).length ? [[node.querySelector<HTMLElement>(sel)!, fx, fy] as [HTMLElement, number, number]] : []) : null;
     const drawPointer = () => {
       pointerFrame = 0;
       mx += (tx - mx) * 0.08; my += (ty - my) * 0.08;
@@ -91,6 +97,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
         const el = layers[key as keyof typeof layers];
         if (el) el.style.translate = `${(mx * fx * amp).toFixed(2)}px ${(my * fy * amp).toFixed(2)}px`;
       }
+      if (trailEls && stage.classList.contains("mh-past")) for (const [el, fx, fy] of trailEls) el.style.translate = `${(mx * fx * amp).toFixed(2)}px ${(my * fy * amp).toFixed(2)}px`;
       if (Math.abs(tx - mx) > 0.002 || Math.abs(ty - my) > 0.002) pointerFrame = requestAnimationFrame(drawPointer);
     };
     const onPointer = (e: PointerEvent) => {
