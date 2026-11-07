@@ -221,6 +221,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
           <TrailScenery />
           <div className="mt-body page-width"><TrailHead /><TrailSteps data={trail} />
             <svg className="mt-trail mt-trail-base" viewBox="0 0 1200 420" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M-20 430C140 400 170 250 330 262S560 380 700 330 900 150 1030 170 1180 120 1230 60" /></svg>
+            <div className="mt-trail mt-spark" aria-hidden="true"><i /></div>
             <div className="mt-trail mt-clip" aria-hidden="true"><svg className="mt-trail-gold" viewBox="0 0 1200 420" preserveAspectRatio="none" focusable="false"><path d="M-20 430C140 400 170 250 330 262S560 380 700 330 900 150 1030 170 1180 120 1230 60" /></svg></div>
           </div>
         </div>

@@ -2946,3 +2946,23 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes mh-how-bob { 0%, 100% { transform: translateY(-3px); } 50% { transform: translateY(3px); } }
 @keyframes mh-how-pulse { 0% { transform: scale(1); opacity: .9; } 70%, 100% { transform: scale(1.16, 1.5); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .mh-how::before, .mh-how-arrow svg { animation: none !important; } }
+
+/* ===== Night scene, step 3: travelling spark, lit windows, moonlit card glow ===== */
+.mt-lights, .mt-spark { display: none; }
+@media (min-width: 768px) and (min-aspect-ratio: 1/1) {
+  .mt-spark { display: block; z-index: 0; }
+  .mt-spark i { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; will-change: transform, opacity; }
+  .mt-spark i::after { content: ""; position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle, #fffbe6 0 22%, rgb(255 213 106 / .85) 40%, rgb(246 196 83 / 0) 72%); box-shadow: 0 0 18px 6px rgb(255 205 90 / .45); }
+  .mt-lights { display: block; color: #ffd479; opacity: 0; }
+  .mt-card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; opacity: 0; box-shadow: 0 0 0 1.5px rgb(190 212 255 / .7), 0 0 38px 4px rgb(160 190 255 / .42); }
+  @supports (animation-timeline: view()) {
+    .mh-stage:not(.mh-lite) .mt-spark i { animation: mt-spark 1ms linear both; animation-timeline: --mh; animation-range: contain 0% contain 100%; }
+    .mh-stage:not(.mh-lite) .mt-lights { animation-name: mt-mid, mt-lights; animation-duration: 1ms, 1ms; animation-timing-function: linear, linear; animation-fill-mode: both, both; animation-timeline: --mh, --mh; animation-range: contain 0% contain 100%, contain 0% contain 100%; }
+    .mh-stage:not(.mh-lite) .mt-card::after { animation: mt-glow 1ms linear both; animation-timeline: --mh; animation-range: contain 0% contain 100%; }
+  }
+  .mh-stage.mh-lite .mt-lights, .mh-stage.mh-lite .mt-card::after { transition: opacity 1.2s ease; }
+  .mh-stage.mh-lite.st5 .mt-lights, .mh-stage.mh-lite.st5 .mt-card::after { opacity: 1; }
+}
+@keyframes mt-lights { 0%, 60% { opacity: 0; } 82%, 100% { opacity: .95; } }
+@keyframes mt-glow { 0%, 58% { opacity: 0; } 84%, 100% { opacity: 1; } }
+@keyframes mt-spark { 0%, 34.9% { opacity: 0; transform: translate3d(0, 101.25%, 0); } 35.5%, 87% { opacity: 1; } 89%, 100% { opacity: 0; } 35.00% { transform: translate3d(0.00%, 101.25%, 0); } 37.25% { transform: translate3d(4.17%, 96.81%, 0); } 39.50% { transform: translate3d(8.33%, 89.22%, 0); } 41.75% { transform: translate3d(12.50%, 79.77%, 0); } 44.00% { transform: translate3d(16.67%, 70.44%, 0); } 46.25% { transform: translate3d(20.83%, 64.61%, 0); } 48.50% { transform: translate3d(25.00%, 62.29%, 0); } 50.75% { transform: translate3d(29.17%, 62.90%, 0); } 53.00% { transform: translate3d(33.33%, 65.23%, 0); } 55.25% { transform: translate3d(37.50%, 69.06%, 0); } 57.50% { transform: translate3d(41.67%, 73.75%, 0); } 59.75% { transform: translate3d(45.83%, 78.46%, 0); } 62.00% { transform: translate3d(50.00%, 81.32%, 0); } 64.25% { transform: translate3d(54.17%, 81.41%, 0); } 66.50% { transform: translate3d(58.33%, 78.57%, 0); } 68.75% { transform: translate3d(62.50%, 73.08%, 0); } 71.00% { transform: translate3d(66.67%, 65.57%, 0); } 73.25% { transform: translate3d(70.83%, 56.73%, 0); } 75.50% { transform: translate3d(75.00%, 48.18%, 0); } 77.75% { transform: translate3d(79.17%, 42.19%, 0); } 80.00% { transform: translate3d(83.33%, 39.99%, 0); } 82.25% { transform: translate3d(87.50%, 41.07%, 0); } 84.50% { transform: translate3d(91.67%, 40.81%, 0); } 86.75% { transform: translate3d(95.83%, 36.34%, 0); } 89.00% { transform: translate3d(100.00%, 23.81%, 0); } }
