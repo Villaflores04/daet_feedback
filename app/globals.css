@@ -2930,3 +2930,19 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @media (max-width: 767px), (max-aspect-ratio: 1/1) {
   .mh-lede strong { font-weight: 700; }
 }
+
+/* ===== "How it works" pill: centered, bigger, with a bobbing arrow and a soft pulse ring (transform/opacity only) ===== */
+@media (min-width: 768px) and (min-aspect-ratio: 1/1) {
+  .mh-caption { justify-content: flex-end; }
+  .mh-caption .mh-how { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 22px 6px 8px; border-radius: 999px; color: #0f3a50; background: linear-gradient(160deg, #fffdf6, #fff1d2); border: 1px solid rgb(236 201 128 / .95); box-shadow: 0 16px 34px -14px rgb(5 30 40 / .7); text-decoration: none; }
+  .mh-how::before { content: ""; position: absolute; inset: -2px; border-radius: inherit; border: 2px solid rgb(246 196 83 / .85); opacity: 0; animation: mh-how-pulse 2.6s ease-out infinite; pointer-events: none; }
+  .mh-how-arrow { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: #164b63; color: #fff; }
+  .mh-how-arrow svg { animation: mh-how-bob 1.5s ease-in-out infinite; }
+  .mh-how strong { display: block; font-size: .95rem; font-weight: 700; letter-spacing: 0; line-height: 1.1; }
+  .mh-how small { display: block; margin-top: 2px; font-size: .72rem; font-weight: 500; color: #4a6b7c; letter-spacing: .01em; }
+  .mh-how:hover { background: linear-gradient(160deg, #fff, #ffe9b5); }
+  .mh-stage.mh-scrolling .mh-how::before, .mh-stage.mh-scrolling .mh-how-arrow svg, .mh-stage.mh-idle .mh-how::before, .mh-stage.mh-idle .mh-how-arrow svg { animation-play-state: paused; }
+}
+@keyframes mh-how-bob { 0%, 100% { transform: translateY(-3px); } 50% { transform: translateY(3px); } }
+@keyframes mh-how-pulse { 0% { transform: scale(1); opacity: .9; } 70%, 100% { transform: scale(1.16, 1.5); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mh-how::before, .mh-how-arrow svg { animation: none !important; } }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { glideTo } from "@/lib/glide";
 
 /** Small "scroll" hint on the right edge of the landing page: a thin track with a dot that falls along it. */
 export function ScrollHint() {
@@ -21,38 +22,11 @@ export function ScrollHint() {
     window.addEventListener("resize", on);
     return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on); if (raf) cancelAnimationFrame(raf); };
   }, []);
-  // Click: glide down through the whole journey (the day-to-night scene on desktop) at a gentle, constant pace.
-  // Any touch, wheel, key press or scrollbar drag by the visitor stops it immediately.
-  const playing = useRef(false);
+  // Click: glide down through the whole journey (the day-to-night scene on desktop) at a gentle pace.
   const play = () => {
-    if (playing.current) return;
     const journey = document.querySelector<HTMLElement>(".mh-journey");
-    const startY = window.scrollY;
-    const endY = journey ? Math.round(journey.getBoundingClientRect().bottom + startY - window.innerHeight) : startY + window.innerHeight * 0.85;
-    const dist = endY - startY;
-    if (dist < 40) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { window.scrollTo({ top: endY, behavior: "auto" }); return; }
-    playing.current = true;
-    const SPEED = 1560; // px per second on average (about 4 s for the whole journey)
-    const dur = Math.min(9000, Math.max(1800, (dist / SPEED) * 1000));
-    const t0 = performance.now();
-    let last = startY, raf = 0;
-    const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); // gentle start and stop
-    const stop = () => {
-      playing.current = false;
-      cancelAnimationFrame(raf);
-      for (const ev of ["wheel", "touchstart", "keydown", "pointerdown"]) window.removeEventListener(ev, stop);
-    };
-    for (const ev of ["wheel", "touchstart", "keydown", "pointerdown"]) window.addEventListener(ev, stop, { passive: true });
-    const step = (now: number) => {
-      if (!playing.current) return;
-      if (Math.abs(window.scrollY - last) > 4) { stop(); return; } // the visitor moved the page themselves
-      const t = Math.min(1, (now - t0) / dur);
-      last = Math.round(startY + dist * ease(t));
-      window.scrollTo({ top: last, behavior: "instant" as ScrollBehavior });
-      if (t < 1) raf = requestAnimationFrame(step); else stop();
-    };
-    raf = requestAnimationFrame(step);
+    const endY = journey ? journey.getBoundingClientRect().bottom + window.scrollY - window.innerHeight : window.scrollY + window.innerHeight * 0.85;
+    glideTo(endY);
   };
   return (
     <button

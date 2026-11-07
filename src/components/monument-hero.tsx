@@ -1,6 +1,7 @@
 "use client";
 
 import { FEEDBACK_PREVIEW_POINTS } from "@/lib/rewards";
+import { glideTo } from "@/lib/glide";
 import { FACES, type FaceId } from "@/lib/pulse/faces";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -169,8 +170,9 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     e.preventDefault();
     const phone = window.matchMedia("(max-width: 767px), (max-aspect-ratio: 1/1)").matches;
     const target = phone ? document.getElementById("how-it-works") : null;
-    const top = target ? target.getBoundingClientRect().top + window.scrollY - 70 : node.offsetTop + (node.offsetHeight - window.innerHeight) * 0.5;
-    window.scrollTo({ top, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    // Desktop: the scene is pinned, so land where the first step card has appeared (about 42% through the journey).
+    const top = target ? target.getBoundingClientRect().top + window.scrollY - 70 : node.offsetTop + (node.offsetHeight - window.innerHeight) * 0.42;
+    glideTo(top);
   };
 
   return (
@@ -212,7 +214,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
         </div>
 
         <div className="mh-caption page-width">
-          <a href="#how-it-works" className="scroll-cue" onClick={goHow}><ArrowDown size={16} /> How it works</a>
+          <a href="#how-it-works" className="scroll-cue mh-how" onClick={goHow}><span className="mh-how-arrow" aria-hidden="true"><ArrowDown size={18} /></span><span><strong>How it works</strong><small>3 simple steps</small></span></a>
           <span className="mh-caption-note"><Waves size={18} /> Emoji feedback · Sentiment · Rewards preview</span>
         </div>
         <div className="mt-panel">
