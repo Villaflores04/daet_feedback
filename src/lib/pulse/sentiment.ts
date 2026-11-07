@@ -2,7 +2,7 @@ import { FACES, moodOf, tallyFaces } from "./faces";
 import { TOPICS } from "./insights";
 import { OVERALL_ID } from "./scope";
 import { scanPulses } from "./words";
-import type { Channel, Mood, Pulse } from "./types";
+import { SOURCES, type Channel, type Mood, type Pulse } from "./types";
 
 export type Range = 7 | 30 | 90 | 0;
 export const DAY = 86400000;
@@ -77,14 +77,20 @@ export function buildSentiment(all: Pulse[], channels: Channel[], scope: "places
       .map(p => ({ id: p.id, place: names.get(p.channelId)?.name ?? "Unknown place", glyph: FACES.find(f => f.id === p.face)?.glyph ?? "", mood: moodOf(p.face), body: p.body, up: p.reacts.up, down: p.reacts.down })),
   };
 
-  return { inScope, originals, faces, reactions, places, ranked, unranked, trend, topics, heat, heatMax, matrixPlaces, matrix, weekday, mismatch, days };
+  // Where the feedback came from: the site's emoji feedback versus outside sources imported by staff.
+  const sources = SOURCES.map(src => {
+    const t = tallyFaces(originals.filter(p => (p.source ?? "visitor") === src.id));
+    return { id: src.id, label: src.label, ...t };
+  }).filter(x => x.total > 0);
+
+  return { inScope, originals, faces, sources, reactions, places, ranked, unranked, trend, topics, heat, heatMax, matrixPlaces, matrix, weekday, mismatch, days };
 }
 export type SentimentData = ReturnType<typeof buildSentiment>;
 
 export function csvOf(rows: Pulse[], channels: Channel[]) {
   const names = new Map(channels.map(c => [c.id, c.name]));
   const esc = (v: string | number) => `"${String(v).replace(/"/g, '""').replace(/^[=+\-@]/, "'$&")}"`;
-  const lines = [["date", "place", "type", "emoji", "mood", "comment", "agree", "disagree"].join(",")];
-  for (const p of rows) lines.push([new Date(p.createdAt).toISOString(), names.get(p.channelId) ?? "", p.parentId ? "reply" : "rating", p.face, moodOf(p.face), p.body, p.reacts.up, p.reacts.down].map(esc).join(","));
+  const lines = [["date", "place", "type", "emoji", "mood", "source", "comment", "agree", "disagree"].join(",")];
+  for (const p of rows) lines.push([new Date(p.createdAt).toISOString(), names.get(p.channelId) ?? "", p.parentId ? "reply" : "rating", p.face, moodOf(p.face), p.source ?? "visitor", p.body, p.reacts.up, p.reacts.down].map(esc).join(","));
   return lines.join("\n");
 }
