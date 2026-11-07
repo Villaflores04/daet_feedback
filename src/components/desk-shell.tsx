@@ -9,6 +9,7 @@ import {
   Inbox,
   ScrollText,
   LifeBuoy,
+  FilePlus2,
   LockKeyhole,
   ArrowUpRight,
 } from "lucide-react";
@@ -24,6 +25,7 @@ const LINKS = [
   { to: "/desk/channels", label: "Places", icon: MapPinned },
   { to: "/desk/wishes", label: "Suggestions", icon: Inbox },
   { to: "/desk/help", label: "Help & support", icon: LifeBuoy },
+  { to: "/desk/import", label: "Add feedback", icon: FilePlus2 },
   { to: "/desk/log", label: "Activity", icon: ScrollText },
 ];
 export function DeskShell({ children }: { children: ReactNode }) {

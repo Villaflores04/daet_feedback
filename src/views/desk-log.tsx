@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { faceById, moodOf } from "@/lib/pulse/faces";
 import { usePulse } from "@/lib/pulse/store";
-import type { Mood } from "@/lib/pulse/types";
+import { SOURCES, type Mood } from "@/lib/pulse/types";
 import { cn } from "@/lib/utils";
 
 export function DeskLog() {
@@ -90,6 +90,7 @@ export function DeskLog() {
                 <p className="font-medium">
                   {pulse.callsign}
                   <span className="ml-2 text-xs text-teal">{pulse.parentId ? "Reply" : "Comment"}</span>
+                  {pulse.source && pulse.source !== "visitor" ? <span className="ml-2 rounded-full bg-cool px-2 py-0.5 text-xs text-muted">{SOURCES.find((x) => x.id === pulse.source)?.label}</span> : null}
                 </p>
                   <p className="activity-place text-xs font-normal text-muted">
                     {channel?.name}
