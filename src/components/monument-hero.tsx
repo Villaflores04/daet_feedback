@@ -129,6 +129,10 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     const sentinel = node.querySelector<HTMLElement>(".mh-sentinel");
     const so = new IntersectionObserver(([entry]) => stage.classList.toggle("mh-past", !entry.isIntersecting && entry.boundingClientRect.top < 0));
     if (sentinel) so.observe(sentinel);
+    // Once the sky is fully night, the day and dusk skies beneath it are pure overdraw: a class lets CSS drop them.
+    const nightMark = node.querySelector<HTMLElement>(".mh-night-mark");
+    const no = new IntersectionObserver(([entry]) => stage.classList.toggle("mh-night", !entry.isIntersecting && entry.boundingClientRect.top < 0));
+    if (nightMark) no.observe(nightMark);
     io.observe(node); ro.observe(node); ro.observe(stage);
     if (!native) window.addEventListener("scroll", update, { passive: true });
     // Phones: pause the endless sway/drift loops while the finger is scrolling so only the parallax is being composited.
@@ -145,7 +149,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     document.addEventListener("visibilitychange", update);
     update();
     return () => {
-      io.disconnect(); so.disconnect(); ro.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
+      io.disconnect(); so.disconnect(); no.disconnect(); ro.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
       window.removeEventListener("scroll", update);
       window.removeEventListener("scroll", onScrollState); clearTimeout(scrollTimer);
       window.removeEventListener("resize", measure);
@@ -170,6 +174,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     <>
     <section ref={root} className="mh-journey" aria-label="CONNECT-Daet visitor feedback">
       <span className="mh-sentinel" aria-hidden="true" />
+      <span className="mh-night-mark" aria-hidden="true" />
       <div className="mh-stage">
         <div className="mh-bg" aria-hidden="true">
           <picture>
