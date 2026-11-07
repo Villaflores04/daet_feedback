@@ -1270,8 +1270,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .reward-preview-copy > p:last-of-type { font-size:.8rem; }
 .reward-preview small { display:block; font-size:.7rem; line-height:1.5; margin-top:7px; max-width:34ch; color:#475569; }
 .hero-feelings { display:flex; gap:10px; margin-top:22px; }
-.hero-feelings a { display:flex; flex-direction:column; align-items:center; justify-content:center; width:66px; min-height:72px; border:1px solid #ffffffb3; border-radius:16px; background:#ffffffb8; box-shadow:0 8px 22px -16px #123d69; transition:transform .2s,background .2s; }
-.hero-feelings a:hover { background:white; transform:translateY(-4px); }
+.hero-feelings :is(a, button) { display:flex; flex-direction:column; align-items:center; justify-content:center; width:66px; min-height:72px; border:1px solid #ffffffb3; border-radius:16px; background:#ffffffb8; box-shadow:0 8px 22px -16px #123d69; transition:transform .2s,background .2s; }
+.hero-feelings :is(a, button):hover { background:white; transform:translateY(-4px); }
 .hero-feelings span { font-size:1.8rem; line-height:1.2; }
 .hero-feelings small { font-size:.65rem; font-weight:600; margin-top:4px; }
 .hero-reward-panel { position:absolute; right:max(5vw,calc((100vw - 1280px)/2)); top:24%; z-index:5; max-width:290px; }
@@ -1286,7 +1286,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
  .coastal-content h1 { font-size:clamp(48px,13vw,72px); }
  .coastal-content .hero-description { margin-top:14px; max-width:310px; font-size:14px; }
  .hero-feelings { margin-top:16px; gap:8px; }
- .hero-feelings a { min-height:62px; width:58px; }
+ .hero-feelings :is(a, button) { min-height:62px; width:58px; }
  .coastal-content .hero-actions { margin-top:16px; gap:8px; }
  .hero-reward-panel { top:auto; bottom:68px; left:20px; right:20px; max-width:335px; }
  .hero-reward-panel .reward-preview { padding:12px 16px; gap:12px; }
@@ -1300,8 +1300,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
  .coastal-location { display:none; }
 }
 @media(prefers-reduced-motion:reduce) {
- .hero-feelings a { transition:none; }
- .hero-feelings a:hover { transform:none; }
+ .hero-feelings :is(a, button) { transition:none; }
+ .hero-feelings :is(a, button):hover { transform:none; }
 }
 .reward-balance-link { display:flex; align-items:center; justify-content:center; gap:7px; min-width:88px; min-height:44px; border:1px solid #bfdbfe; border-radius:999px; padding:6px 12px; background:#eff6ff; color:#1d4ed8; }
 .reward-balance-link strong { display:block; font-size:.78rem; font-variant-numeric:tabular-nums; }
@@ -1330,7 +1330,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
  .coastal-content h1 { font-size:clamp(43px,12vw,60px); line-height:1.02; margin-top:16px; }
  .coastal-content .hero-description { font-size:13px; line-height:1.6; max-width:270px; margin-top:16px; }
  .hero-feelings { gap:8px; margin-top:18px; }
- .hero-feelings a { width:54px; min-height:60px; border-radius:16px; background:#ffffffd9; }
+ .hero-feelings :is(a, button) { width:54px; min-height:60px; border-radius:16px; background:#ffffffd9; }
  .hero-feelings span { font-size:1.5rem; }
  .hero-feelings small { font-size:.6rem; }
  .hero-reward-note { font-size:.64rem; margin-top:12px; }
@@ -1851,12 +1851,12 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mh-card { margin-top: clamp(18px, 3vh, 30px); margin-top: clamp(18px, 3svh, 30px); padding: 22px 24px 20px; border-radius: 28px; color: var(--color-ink); background: rgb(255 255 255 / .68); border: 1px solid rgb(255 255 255 / .7); backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); box-shadow: 0 34px 80px -34px rgb(6 32 46 / .6), inset 0 1px 0 rgb(255 255 255 / .85); }
 .mh-lede { font-size: 16.5px; line-height: 1.55; color: #173b4f; }
 .mh-feelings.hero-feelings { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
-.mh-feelings.hero-feelings a { width: auto; min-height: 84px; border-radius: 18px; background: rgb(255 255 255 / .88); border: 1px solid #fff; transition: transform .25s cubic-bezier(.2, .8, .3, 1), box-shadow .25s, background .2s; }
-.mh-feelings.hero-feelings a:hover { transform: translateY(-5px) scale(1.04); background: #fff; }
-.mh-feelings.hero-feelings a:nth-child(1):hover { box-shadow: 0 16px 28px -14px #22c55e; }
-.mh-feelings.hero-feelings a:nth-child(2):hover { box-shadow: 0 16px 28px -14px #84cc16; }
-.mh-feelings.hero-feelings a:nth-child(3):hover { box-shadow: 0 16px 28px -14px #eab308; }
-.mh-feelings.hero-feelings a:nth-child(4):hover { box-shadow: 0 16px 28px -14px #3b82f6; }
+.mh-feelings.hero-feelings :is(a, button) { width: auto; min-height: 84px; border-radius: 18px; background: rgb(255 255 255 / .88); border: 1px solid #fff; transition: transform .25s cubic-bezier(.2, .8, .3, 1), box-shadow .25s, background .2s; }
+.mh-feelings.hero-feelings :is(a, button):hover { transform: translateY(-5px) scale(1.04); background: #fff; }
+.mh-feelings.hero-feelings :is(a, button):nth-child(1):hover { box-shadow: 0 16px 28px -14px #22c55e; }
+.mh-feelings.hero-feelings :is(a, button):nth-child(2):hover { box-shadow: 0 16px 28px -14px #84cc16; }
+.mh-feelings.hero-feelings :is(a, button):nth-child(3):hover { box-shadow: 0 16px 28px -14px #eab308; }
+.mh-feelings.hero-feelings :is(a, button):nth-child(4):hover { box-shadow: 0 16px 28px -14px #3b82f6; }
 .mh-feelings.hero-feelings span { font-size: 2.1rem; }
 .mh-feelings.hero-feelings small { font-size: .72rem; }
 .mh-reward { width: fit-content; max-width: 100%; margin-top: 14px; padding: 6px 12px; border-radius: 999px; background: #fff1bd; color: #713f12; font-size: 12px; font-weight: 600; }
@@ -1897,16 +1897,16 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
   /* Emoji bubbles: no container, each face floats on its own with a mood-colored glow. */
   .mh-feelings.hero-feelings { display: flex; justify-content: space-between; gap: 6px; margin-top: 10px; padding-inline: 4px; }
-  .mh-feelings.hero-feelings a, .mh-feelings.hero-feelings a:hover { flex: 1 1 0; min-width: 0; width: auto; min-height: 0; padding: 0; gap: 5px; border: 0; border-radius: 0; background: none; box-shadow: none; transform: none; animation: mh-bob 4.2s ease-in-out infinite; }
-  .mh-feelings.hero-feelings a:nth-child(n):hover { box-shadow: none; }
-  .mh-feelings.hero-feelings a:nth-child(2) { animation-delay: -1s; }
-  .mh-feelings.hero-feelings a:nth-child(3) { animation-delay: -2s; }
-  .mh-feelings.hero-feelings a:nth-child(4) { animation-delay: -3s; }
+  .mh-feelings.hero-feelings :is(a, button), .mh-feelings.hero-feelings :is(a, button):hover { flex: 1 1 0; min-width: 0; width: auto; min-height: 0; padding: 0; gap: 5px; border: 0; border-radius: 0; background: none; box-shadow: none; transform: none; animation: mh-bob 4.2s ease-in-out infinite; }
+  .mh-feelings.hero-feelings :is(a, button):nth-child(n):hover { box-shadow: none; }
+  .mh-feelings.hero-feelings :is(a, button):nth-child(2) { animation-delay: -1s; }
+  .mh-feelings.hero-feelings :is(a, button):nth-child(3) { animation-delay: -2s; }
+  .mh-feelings.hero-feelings :is(a, button):nth-child(4) { animation-delay: -3s; }
   .mh-feelings.hero-feelings span { --glow: #22c55e; display: grid; place-items: center; width: clamp(44px, 12.5vw, 54px); aspect-ratio: 1; border-radius: 50%; font-size: clamp(1.35rem, 5.8vw, 1.7rem); line-height: 1; background: radial-gradient(circle at 30% 25%, #fff, #f3f8fb); box-shadow: 0 0 0 2px rgb(255 255 255 / .85), 0 0 0 5px color-mix(in srgb, var(--glow) 38%, transparent), 0 10px 18px -8px var(--glow); transition: transform .2s cubic-bezier(.2, .8, .3, 1); }
-  .mh-feelings.hero-feelings a:nth-child(2) span { --glow: #84cc16; }
-  .mh-feelings.hero-feelings a:nth-child(3) span { --glow: #eab308; }
-  .mh-feelings.hero-feelings a:nth-child(4) span { --glow: #f87171; }
-  .mh-feelings.hero-feelings a:active span { transform: scale(.92); }
+  .mh-feelings.hero-feelings :is(a, button):nth-child(2) span { --glow: #84cc16; }
+  .mh-feelings.hero-feelings :is(a, button):nth-child(3) span { --glow: #eab308; }
+  .mh-feelings.hero-feelings :is(a, button):nth-child(4) span { --glow: #f87171; }
+  .mh-feelings.hero-feelings :is(a, button):active span { transform: scale(.92); }
   .mh-feelings.hero-feelings small { margin: 0; padding: 2px 8px; border-radius: 999px; font-size: .66rem; font-weight: 600; letter-spacing: .02em; color: #fff; background: rgb(8 36 52 / .62); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 
   .mh-actions { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 0; margin-top: 10px; }
@@ -1929,7 +1929,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-journey { height: auto; }
   .mh-stage { position: relative; height: 100vh; height: 100svh; }
   .mh-drift { display: none; }
-  .mh-sway, .mh-grass, .mh-feelings.hero-feelings a { animation: none !important; }
+  .mh-sway, .mh-grass, .mh-feelings.hero-feelings :is(a, button) { animation: none !important; }
   .mh-bg img, .mh-layer, .mh-content, .mh-tagline { transform: none !important; }
   .mh-tagline, .mh-progress { display: none; }
 }
@@ -1944,7 +1944,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 /* Inset 0: otherwise the page's scroll-padding-top shifts the range start and the progress runs ahead of the JS fallback. */
 .mh-journey { view-timeline: --mh block; view-timeline-inset: 0px; }
 .mh-layer { contain: layout style; }
-.mh-stage.mh-idle .mh-sway, .mh-stage.mh-idle .mh-grass, .mh-stage.mh-idle .mh-drift span, .mh-stage.mh-idle .mh-feelings a { animation-play-state: paused !important; }
+.mh-stage.mh-idle .mh-sway, .mh-stage.mh-idle .mh-grass, .mh-stage.mh-idle .mh-drift span, .mh-stage.mh-idle .mh-feelings :is(a, button) { animation-play-state: paused !important; }
 .site-dock { backdrop-filter: none; -webkit-backdrop-filter: none; }
 @supports (animation-timeline: view()) {
   .mh-bg img, .mh-light, .mh-leaves-l, .mh-leaves-r, .mh-grass-back, .mh-grass-front, .mh-content, .mh-tagline, .mh-progress span { animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --mh; animation-range: contain 0% contain 100%; }
@@ -2029,7 +2029,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 /* ===== Lite mode: in-app browsers, old WebViews and weak phones =====
    Static scene + lean JS parallax: no endless animations, no blur over moving layers, no per-frame opacity changes. */
-.mh-stage.mh-lite .mh-feelings a { animation: none !important; }
+.mh-stage.mh-lite .mh-feelings :is(a, button) { animation: none !important; }
 /* Leaves and grass keep their looping sway in lite mode; each is promoted to its own layer so the loop stays on the compositor. */
 .mh-stage.mh-lite .mh-sway, .mh-stage.mh-lite .mh-grass { will-change: transform; animation-duration: 1.6s; animation-timing-function: ease-in-out; }
 .mh-stage.mh-lite .mh-sway-b { animation-duration: 2s; animation-delay: -.7s; }
@@ -2726,7 +2726,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .site-header, .site-header-landing.is-scrolled { backdrop-filter: none; -webkit-backdrop-filter: none; background: #fafcfd; }
   .mh-light { animation: none !important; opacity: .75; }
   .mh-layer .mh-stem { will-change: auto; }
-  .mh-stage.mh-scrolling :is(.mh-sway, .mh-grass, .mh-drift span, .mh-stem, .mh-feelings a) { animation-play-state: paused !important; }
+  .mh-stage.mh-scrolling :is(.mh-sway, .mh-grass, .mh-drift span, .mh-stem, .mh-feelings :is(a, button)) { animation-play-state: paused !important; }
 }
 
 /* ===== Help & support ===== */
@@ -2899,4 +2899,16 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-stage.mh-night :is(.mt-sky, .mt-dusk, .mt-clouds, .mt-birds, .mt-sun, .mt-warm) { visibility: hidden; }
   /* The tint and the warm glow only matter over the hills, so they cover the lower part of the scene, not all of it. */
   .mt-dim, .mt-warm { top: auto; bottom: 0; height: 62%; }
+}
+
+/* ===== Hero faces select (highlight) instead of navigating ===== */
+.hero-feelings button { appearance: none; font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.mh-feelings.hero-feelings button { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.mh-feelings.hero-feelings button[aria-pressed="true"] { transform: translateY(-5px) scale(1.06); background: #fff; border-color: #2563eb; box-shadow: 0 0 0 3px rgb(37 99 235 / .85), 0 16px 28px -12px rgb(37 99 235 / .7); }
+.mh-feelings.hero-feelings button[aria-pressed="true"] small { color: #1d4ed8; font-weight: 700; }
+.mh-feelings.hero-feelings:has(button[aria-pressed="true"]) button[aria-pressed="false"] { opacity: .72; }
+.mh-feelings.hero-feelings button:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  .mh-feelings.hero-feelings button[aria-pressed="true"] { background: none; border: 0; box-shadow: none; transform: none; }
+  .mh-feelings.hero-feelings button[aria-pressed="true"] span { box-shadow: 0 0 0 3px #2563eb, 0 8px 18px -6px rgb(37 99 235 / .8); transform: scale(1.12); }
 }
