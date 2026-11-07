@@ -1,7 +1,7 @@
 "use client";
 
 import { FEEDBACK_PREVIEW_POINTS } from "@/lib/rewards";
-import { FACES } from "@/lib/pulse/faces";
+import { FACES, type FaceId } from "@/lib/pulse/faces";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowUpRight, Waves } from "lucide-react";
@@ -27,6 +27,9 @@ const STEPS = [0.07, 0.33, 0.43, 0.59, 0.75, 0.87];
 export function MonumentHero({ trail }: { trail: TrailData }) {
   const root = useRef<HTMLElement>(null);
   const enableTilt = useRef<(() => void) | null>(null);
+  // The faces only select (highlight); the main button takes the visitor to the form with that feeling picked.
+  const [picked, setPicked] = useState<FaceId | null>(null);
+  const pickedFace = FACES.find(f => f.id === picked) ?? null;
   const [tiltAsk, setTiltAsk] = useState(false);
   useEffect(() => {
     const node = root.current;
@@ -196,12 +199,12 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
             <h1>Your visit.<br />Your <em>voice.</em></h1>
             <div className="mh-card">
               <p className="mh-lede">How was your time in Daet?<br className="hidden sm:block" /> Choose a feeling.<span className="mh-lede-more"> Help shape a better visit.</span></p>
-              <div className="hero-feelings mh-feelings" aria-label="Choose a feeling to start feedback">
-                {FACES.map(face => <Link key={face.id} href={`/feedback?feeling=${face.id}`} aria-label={`Give ${face.label.toLowerCase()} feedback`}><span aria-hidden="true">{face.glyph}</span><small>{face.label}</small></Link>)}
+              <div className="hero-feelings mh-feelings" role="group" aria-label="Choose how your visit felt">
+                {FACES.map(face => <button key={face.id} type="button" aria-pressed={picked === face.id} aria-label={face.label} onClick={() => setPicked(p => (p === face.id ? null : face.id))}><span aria-hidden="true">{face.glyph}</span><small>{face.label}</small></button>)}
               </div>
               <p className="mh-reward">+{FEEDBACK_PREVIEW_POINTS} demo points with saved feedback <span>· Preview only</span></p>
               <div className="mh-actions">
-                <Link href="/feedback" className="primary-link">Give feedback <ArrowUpRight size={18} /></Link>
+                <Link href={pickedFace ? `/feedback?feeling=${pickedFace.id}` : "/feedback"} className="primary-link" aria-live="polite">{pickedFace ? `Continue with ${pickedFace.label}` : "Give feedback"} <ArrowUpRight size={18} /></Link>
                 <Link href="/board" className="text-link">See visitor sentiment <ArrowUpRight size={16} /></Link>
               </div>
             </div>
