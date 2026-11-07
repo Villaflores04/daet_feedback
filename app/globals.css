@@ -2631,19 +2631,19 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes mt-dim { 0%, 36% { opacity: 0; } 84%, 100% { opacity: 1; } }
 @keyframes mt-title-night { 0%, 56% { opacity: 0; } 76%, 100% { opacity: 1; } }
 @keyframes mt-title-day { 0%, 56% { opacity: 1; } 76%, 100% { opacity: 0; } }
-@keyframes mt-panel { 0%, 3% { transform: translate3d(0, 100%, 0); } 27%, 97% { transform: none; } }
-@keyframes mt-far { 0%, 5% { transform: translate3d(0, 60%, 0); } 31% { transform: translate3d(0, 0, 0); } 97% { transform: translate3d(-5%, 0, 0); } }
-@keyframes mt-mid { 0%, 7% { transform: translate3d(0, 80%, 0); } 33% { transform: translate3d(0, 0, 0); } 97% { transform: translate3d(-10%, 0, 0); } }
-@keyframes mt-near { 0%, 9% { transform: translate3d(0, 100%, 0); } 35% { transform: translate3d(0, 0, 0); } 97% { transform: translate3d(-18%, 0, 0); } }
+@keyframes mt-panel { 0%, 3% { transform: translate3d(0, 100%, 0); } 27%, 100% { transform: none; } }
+@keyframes mt-far { 0%, 5% { transform: translate3d(0, 60%, 0); } 31% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-5%, 0, 0); } }
+@keyframes mt-mid { 0%, 7% { transform: translate3d(0, 80%, 0); } 33% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-10%, 0, 0); } }
+@keyframes mt-near { 0%, 9% { transform: translate3d(0, 100%, 0); } 35% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-18%, 0, 0); } }
 @keyframes mt-warm { 0%, 33% { opacity: 0; } 55% { opacity: .6; } 80%, 100% { opacity: 0; } }
 @keyframes mt-sun { 0%, 33% { transform: translate3d(0, 0, 0); opacity: 1; } 58% { transform: translate3d(0, 150px, 0); opacity: 1; } 68%, 100% { transform: translate3d(0, 230px, 0) scale(.9); opacity: 0; } }
-@keyframes mt-head { 0%, 27% { opacity: 0; transform: translate3d(0, 24px, 0); } 35%, 97% { opacity: 1; transform: none; } }
-@keyframes mt-clip { 0%, 35% { transform: translate3d(-100%, 0, 0); } 89%, 97% { transform: none; } }
-@keyframes mt-gold { 0%, 35% { transform: translate3d(100%, 0, 0); } 89%, 97% { transform: none; } }
-@keyframes mt-s1 { 0%, 37% { opacity: 0; transform: translate3d(0, 44px, 0); } 45%, 97% { opacity: 1; transform: none; } }
-@keyframes mt-s2 { 0%, 53% { opacity: 0; transform: translate3d(0, 44px, 0); } 61%, 97% { opacity: 1; transform: none; } }
-@keyframes mt-s3 { 0%, 69% { opacity: 0; transform: translate3d(0, 44px, 0); } 77%, 97% { opacity: 1; transform: none; } }
-@keyframes mt-cta { 0%, 83% { opacity: 0; } 91%, 97% { opacity: 1; } }
+@keyframes mt-head { 0%, 27% { opacity: 0; transform: translate3d(0, 24px, 0); } 35%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-clip { 0%, 35% { transform: translate3d(-100%, 0, 0); } 89%, 100% { transform: none; } }
+@keyframes mt-gold { 0%, 35% { transform: translate3d(100%, 0, 0); } 89%, 100% { transform: none; } }
+@keyframes mt-s1 { 0%, 37% { opacity: 0; transform: translate3d(0, 44px, 0); } 45%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-s2 { 0%, 53% { opacity: 0; transform: translate3d(0, 44px, 0); } 61%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-s3 { 0%, 69% { opacity: 0; transform: translate3d(0, 44px, 0); } 77%, 100% { opacity: 1; transform: none; } }
+@keyframes mt-cta { 0%, 83% { opacity: 0; } 91%, 100% { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
   .mh-journey { height: auto; }
