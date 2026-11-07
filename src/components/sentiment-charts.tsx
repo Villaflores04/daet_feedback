@@ -226,3 +226,25 @@ export function TopReacted({ d }: { d: SentimentData }) {
     </ChartCard>
   );
 }
+
+export function SourceChart({ d }: { d: SentimentData }) {
+  const max = Math.max(1, ...d.sources.map(x => x.total));
+  const outside = d.sources.some(x => x.id !== "visitor");
+  return (
+    <ChartCard title="Feedback by source" hint="Site emoji feedback compared with comments the office added from Facebook, reviews, surveys and walk-ins. Bar length is the number of ratings.">
+      {d.sources.length ? (
+        <>
+          <ul className="grid gap-3">
+            {d.sources.map(x => (
+              <li key={x.id}>
+                <div className="flex items-baseline justify-between gap-3 text-sm"><span className="font-medium">{x.label}</span><span className="text-xs tabular-nums text-muted">{x.total} ratings · {pct(x.pos, x.total)}% positive</span></div>
+                <div className="mt-1.5" style={{ width: `${Math.max(6, (x.total / max) * 100)}%` }}><Stack pos={x.pos} mix={x.mix} neg={x.neg} className="h-3" /></div>
+              </li>
+            ))}
+          </ul>
+          {!outside ? <p className="mt-3 text-xs text-muted">Only site feedback so far. Use Add feedback to bring in outside comments.</p> : null}
+        </>
+      ) : <EmptyChart>No ratings in this period yet.</EmptyChart>}
+    </ChartCard>
+  );
+}

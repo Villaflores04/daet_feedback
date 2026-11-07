@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ChevronDown, Download, Smile, MessageSquareText } from "lucide-react";
 import { PageHero } from "@/components/page-hero";
-import { MismatchList, MoodDonut, MoodHeatmap, MoodTrend, PlaceCompare, RangeSwitch, ReactionsCard, TopReacted, TopicPlaceMatrix, TopicTone, WeekdayChart } from "@/components/sentiment-charts";
+import { MismatchList, MoodDonut, MoodHeatmap, MoodTrend, PlaceCompare, RangeSwitch, ReactionsCard, SourceChart, TopReacted, TopicPlaceMatrix, TopicTone, WeekdayChart } from "@/components/sentiment-charts";
 import { buildSentiment, csvOf, DAY, type Range } from "@/lib/pulse/sentiment";
 import { MoodBar } from "@/components/mood-bar";
 import { WordMeter } from "@/components/word-meter";
@@ -135,7 +135,7 @@ export function BoardView({
             <MoodTrend d={sd} />
             <ReactionsCard d={sd} desk={desk} />
             <TopReacted d={sd} />
-            {desk ? <><MoodHeatmap d={sd} /><WeekdayChart d={sd} /></> : null}
+            {desk ? <><SourceChart d={sd} /><MoodHeatmap d={sd} /><WeekdayChart d={sd} /></> : null}
           </div>
         ) : (
           <div className="sentiment-charts">
