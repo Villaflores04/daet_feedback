@@ -22,10 +22,25 @@ function Palm({ x, s = 1 }: { x: number; s?: number }) {
 }
 
 /** Simple, generic skyline shapes (not copies of any real artwork): twin-tower church, columned hall, memorial column, palms. */
+// Fixed star field (seeded, so server and client agree): [x%, y%, radius].
+const STARS: [number, number, number][] = (() => {
+  const out: [number, number, number][] = [];
+  let a = 17;
+  const r = () => { a = (a * 1103515245 + 12345) & 0x7fffffff; return a / 0x7fffffff; };
+  for (let i = 0; i < 70; i++) out.push([Math.round(r() * 1000) / 10, Math.round(r() * 520) / 10, r() < 0.14 ? 1.7 : r() < 0.5 ? 1.1 : 0.75]);
+  return out;
+})();
+
 export function TrailScenery() {
   return <>
     <div className="mt-sky" aria-hidden="true" />
+    <div className="mt-dusk" aria-hidden="true" />
+    <div className="mt-night" aria-hidden="true" />
+    <svg className="mt-stars" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      {STARS.map(([x, y, rad], i) => <ellipse key={i} cx={x} cy={y * 0.6} rx={rad * 0.12} ry={rad * 0.2} fill="#fff" opacity={rad > 1 ? 0.95 : 0.7} />)}
+    </svg>
     <div className="mt-sun" aria-hidden="true" />
+    <div className="mt-moon" aria-hidden="true" />
     <svg className="mt-layer mt-far" viewBox="0 0 1600 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
       <ellipse cx="300" cy="70" rx="120" ry="16" fill="#fff" opacity=".5" /><ellipse cx="380" cy="58" rx="80" ry="14" fill="#fff" opacity=".5" />
       <ellipse cx="1180" cy="100" rx="130" ry="15" fill="#fff" opacity=".42" />
@@ -42,6 +57,7 @@ export function TrailScenery() {
       <path d="M1290 275V262H1330V250H1346V150L1356 118 1366 150V250H1382V262H1422V275Z" fill="currentColor" />
       <Palm x={130} s={0.85} /><Palm x={560} s={0.7} /><Palm x={1000} s={0.9} /><Palm x={1520} s={0.8} />
     </svg>
+    <div className="mt-dim" aria-hidden="true" />
     <div className="mt-warm" aria-hidden="true" />
   </>;
 }
@@ -82,7 +98,10 @@ export function TrailSteps({ data }: { data: TrailData }) {
 
 export function TrailHead() {
   return <div className="mt-head">
-    <div><p className="mh-eyebrow"><span aria-hidden="true" /> How it works</p><h2>From a feeling to a story</h2></div>
+    <div className="mt-title">
+      <div><p className="mh-eyebrow"><span aria-hidden="true" /> How it works</p><h2>From a feeling to a story</h2></div>
+      <div className="mt-title-night" aria-hidden="true"><p className="mh-eyebrow"><span /> How it works</p><p className="mt-night-h">From a feeling to a story</p></div>
+    </div>
     <div className="mt-cta"><Link href="/feedback" className="primary-link">Share how it felt <ArrowUpRight size={18} /></Link></div>
   </div>;
 }
