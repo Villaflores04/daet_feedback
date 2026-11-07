@@ -2717,6 +2717,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-inline .mt-head h2 { color: #fff; text-shadow: 0 2px 14px rgb(5 30 40 / .35); }
 }
 
+.mh-night-mark { position: absolute; left: 0; top: 84%; width: 1px; height: 1px; pointer-events: none; }
 .mh-sentinel { position: absolute; left: 0; top: 11.5%; width: 1px; height: 1px; pointer-events: none; }
 
 /* ===== Phones and tablets: keep the GPU free while scrolling ===== */
@@ -2892,3 +2893,10 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-tilt { display: inline-flex; position: absolute; right: 14px; bottom: 74px; z-index: 12; align-items: center; min-height: 34px; padding: 0 14px; border: 1px solid rgb(255 255 255 / .55); border-radius: 999px; background: rgb(18 52 73 / .62); color: #fff; font-size: .72rem; font-weight: 600; letter-spacing: .02em; }
 }
 .mh-stage.mh-past .mh-tilt { visibility: hidden; }
+
+/* ===== Night scene: cut overdraw (this is what dropped frames during the auto-glide) ===== */
+@media (min-width: 768px) and (min-aspect-ratio: 1/1) {
+  .mh-stage.mh-night :is(.mt-sky, .mt-dusk, .mt-clouds, .mt-birds, .mt-sun, .mt-warm) { visibility: hidden; }
+  /* The tint and the warm glow only matter over the hills, so they cover the lower part of the scene, not all of it. */
+  .mt-dim, .mt-warm { top: auto; bottom: 0; height: 62%; }
+}

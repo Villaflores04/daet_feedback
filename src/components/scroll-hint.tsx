@@ -33,8 +33,8 @@ export function ScrollHint() {
     if (dist < 40) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { window.scrollTo({ top: endY, behavior: "auto" }); return; }
     playing.current = true;
-    const SPEED = 520; // px per second on average: slow enough to enjoy each scene
-    const dur = Math.min(16000, Math.max(2800, (dist / SPEED) * 1000));
+    const SPEED = 1560; // px per second on average (about 4 s for the whole journey)
+    const dur = Math.min(9000, Math.max(1800, (dist / SPEED) * 1000));
     const t0 = performance.now();
     let last = startY, raf = 0;
     const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); // gentle start and stop
