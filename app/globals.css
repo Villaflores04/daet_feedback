@@ -2925,3 +2925,46 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .activity-photo img { transition: transform 0.2s ease; }
 .activity-photo:hover img { transform: scale(1.03); }
 @media (min-width: 640px) { .activity-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+
+/* =====================================================================
+   How it works on phones: a fixed scene behind the cards, morning -> sunset -> night by step.
+   Only opacity and transform change, so it stays on the compositor.
+   ===================================================================== */
+.mm-scene { display: none; }
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  .mt-inline { isolation: isolate; background: #1f6f8b; }
+  .mt-inline-body { position: relative; z-index: 1; }
+  .mm-scene { display: block; position: sticky; top: 0; height: 100vh; height: 100svh; margin-bottom: -100vh; margin-bottom: -100svh; z-index: 0; overflow: hidden; pointer-events: none; }
+  .mm-scene > * { position: absolute; }
+  .mm-sky, .mm-dusk, .mm-night, .mm-dim, .mm-warm { inset: 0; }
+  .mm-sky { background: linear-gradient(#1d6e95 0%, #4a9fc4 34%, #a8d8e6 62%, #fbe6b4 100%); }
+  .mm-dusk { opacity: 0; background: linear-gradient(#2b4f86 0%, #7a6fa3 32%, #e58f6e 62%, #ffc978 100%); transition: opacity 1.1s ease; }
+  .mm-night { opacity: 0; background: linear-gradient(#050f2a 0%, #0c2552 40%, #1a3d6b 74%, #2b5c80 100%); transition: opacity 1.1s ease; }
+  .mm-stars { left: 0; top: 0; width: 100%; height: 55%; opacity: 0; transition: opacity 1.1s ease .2s; }
+  .mm-sun { left: 66%; top: 9%; width: 110px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fff8d8 0 36%, rgb(255 226 140 / .65) 40% 60%, transparent 70%); will-change: transform, opacity; transition: transform 1.2s cubic-bezier(.4, .1, .2, 1), opacity 1s ease; }
+  .mm-moon { left: 66%; top: 12%; width: 70px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 36% 34%, #fffef4 0 55%, #dfe6ef 100%); box-shadow: 0 0 38px 10px rgb(220 232 255 / .32); opacity: 0; transform: translate3d(0, 60px, 0); will-change: transform, opacity; transition: transform 1.3s cubic-bezier(.3, .1, .2, 1), opacity 1s ease; }
+  .mm-clouds { left: 0; top: 4%; width: 100%; height: 34%; opacity: 1; will-change: opacity; transition: opacity 1s ease; }
+  .mm-layer { left: 0; width: 100%; display: block; }
+  .mm-far { bottom: calc(15% + 40px); height: 30%; color: #6fa8bd; }
+  .mm-mid { bottom: calc(7% + 30px); height: 28%; color: #3e7f78; }
+  .mm-near { bottom: 0; height: 26%; color: #1f5a45; }
+  .mm-dim { opacity: 0; background: linear-gradient(rgb(4 12 40 / .35), rgb(4 12 40 / .72)); transition: opacity 1.1s ease; }
+  .mm-warm { opacity: 0; background: linear-gradient(rgb(255 180 110 / 0) 30%, rgb(255 150 80 / .4) 100%); transition: opacity 1.1s ease; }
+  .mt-inline[data-step="2"] .mm-dusk { opacity: 1; }
+  .mt-inline[data-step="2"] .mm-warm { opacity: 1; }
+  .mt-inline[data-step="2"] .mm-sun { transform: translate3d(-8vw, 34vh, 0); }
+  .mt-inline[data-step="2"] .mm-clouds { opacity: .6; }
+  .mt-inline[data-step="3"] .mm-dusk { opacity: 0; }
+  .mt-inline[data-step="3"] .mm-night { opacity: 1; }
+  .mt-inline[data-step="3"] .mm-dim { opacity: 1; }
+  .mt-inline[data-step="3"] .mm-stars { opacity: 1; }
+  .mt-inline[data-step="3"] .mm-sun { opacity: 0; transform: translate3d(-14vw, 62vh, 0); }
+  .mt-inline[data-step="3"] .mm-moon { opacity: 1; transform: translate3d(0, 0, 0); }
+  .mt-inline[data-step="3"] .mm-clouds { opacity: .18; }
+  .mt-inline .mt-card { background: rgb(255 255 255 / .92); }
+  .mt-inline .mt-end .text-link { color: #fff; text-shadow: 0 1px 10px rgb(4 12 40 / .55); }
+  /* Each step gets its own stretch of scroll, so the scene visibly changes between cards. */
+  .mt-inline { min-height: 100vh; min-height: 100svh; padding-bottom: 96px; }
+  .mt-inline .mt-steps { gap: clamp(110px, 24svh, 240px); margin-top: 40px; }
+  @media (prefers-reduced-motion: reduce) { .mm-scene * { transition: none !important; } }
+}
