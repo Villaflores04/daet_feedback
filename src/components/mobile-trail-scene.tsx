@@ -43,6 +43,12 @@ export function MobileTrailScene() {
       if (el.mid) el.mid.style.transform = `translate3d(${(-34 * k).toFixed(1)}px,0,0)`;
       if (el.near) el.near.style.transform = `translate3d(${(-70 * k).toFixed(1)}px,0,0)`;
       if (el.stars) el.stars.style.transform = `translate3d(0,${(14 * k).toFixed(1)}px,0)`;
+      const steps = section.querySelector<HTMLElement>(".mt-steps");
+      if (steps) {
+        // The gold line follows a reading point about halfway down the screen.
+        const sr = steps.getBoundingClientRect();
+        section.style.setProperty("--ms", Math.max(0, Math.min(1, (window.innerHeight * 0.55 - sr.top) / sr.height)).toFixed(3));
+      }
     };
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(drawScroll); };
     if (!nativeScroll && !reduced.matches) { window.addEventListener("scroll", onScroll, { passive: true }); drawScroll(); }
