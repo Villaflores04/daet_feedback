@@ -1,3 +1,4 @@
+import { SourceTagCapture } from "@/components/source-tag-capture";
 import type { Metadata, Viewport } from "next";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -35,7 +36,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-svh bg-page font-sans text-ink">
-        <Providers>{children}</Providers>
+        <Providers>
+          <SourceTagCapture />
+          {children}
+        </Providers>
       </body>
     </html>
   );

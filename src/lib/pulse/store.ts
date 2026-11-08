@@ -14,7 +14,7 @@ import {
   acceptSharedWish,
   saveSharedChannel, deleteSharedChannel, deleteSharedPulse,
 } from "./remote";
-import type { Category, Channel, FaceId, Pulse, Wish } from "./types";
+import type { Category, Channel, FaceId, Pulse, Source, Wish } from "./types";
 export const PULSE_KEY = "daet-pulse-v6";
 
 type DraftPulse = {
@@ -25,6 +25,7 @@ type DraftPulse = {
   face: FaceId;
   body?: string;
   photo?: string;
+  source?: Source;
 };
 
 type DraftWish = {
@@ -119,6 +120,7 @@ export const usePulse = create<PulseState>()(
           face: draft.face,
           body: (draft.body ?? "").trim(),
           photo: photo || undefined,
+          source: draft.source,
           createdAt: Date.now(),
           reacts: { up: 0, down: 0 },
         };
