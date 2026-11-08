@@ -2940,11 +2940,12 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mm-sky { background: linear-gradient(#1d6e95 0%, #4a9fc4 34%, #a8d8e6 62%, #fbe6b4 100%); }
   .mm-dusk { opacity: 0; background: linear-gradient(#2b4f86 0%, #7a6fa3 32%, #e58f6e 62%, #ffc978 100%); transition: opacity 1.1s ease; }
   .mm-night { opacity: 0; background: linear-gradient(#050f2a 0%, #0c2552 40%, #1a3d6b 74%, #2b5c80 100%); transition: opacity 1.1s ease; }
-  .mm-stars { left: 0; top: 0; width: 100%; height: 55%; opacity: 0; transition: opacity 1.1s ease .2s; }
+  .mm-stars { left: 0; top: -30px; width: 100%; height: 58%; opacity: 0; transition: opacity 1.1s ease .2s; }
   .mm-sun { left: 66%; top: 9%; width: 110px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fff8d8 0 36%, rgb(255 226 140 / .65) 40% 60%, transparent 70%); will-change: transform, opacity; transition: transform 1.2s cubic-bezier(.4, .1, .2, 1), opacity 1s ease; }
   .mm-moon { left: 66%; top: 12%; width: 70px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 36% 34%, #fffef4 0 55%, #dfe6ef 100%); box-shadow: 0 0 38px 10px rgb(220 232 255 / .32); opacity: 0; transform: translate3d(0, 60px, 0); will-change: transform, opacity; transition: transform 1.3s cubic-bezier(.3, .1, .2, 1), opacity 1s ease; }
-  .mm-clouds { left: 0; top: 4%; width: 100%; height: 34%; opacity: 1; will-change: opacity; transition: opacity 1s ease; }
-  .mm-layer { left: 0; width: 100%; display: block; }
+  .mm-t { inset: 0; will-change: translate; }
+  .mm-clouds { left: -20%; top: 4%; width: 140%; height: 34%; opacity: 1; will-change: opacity; transition: opacity 1s ease; }
+  .mm-layer { left: -20%; width: 140%; display: block; will-change: transform; }
   .mm-far { bottom: calc(15% + 40px); height: 30%; color: #6fa8bd; }
   .mm-mid { bottom: calc(7% + 30px); height: 28%; color: #3e7f78; }
   .mm-near { bottom: 0; height: 26%; color: #1f5a45; }
@@ -2967,4 +2968,23 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-inline { min-height: 100vh; min-height: 100svh; padding-bottom: 96px; }
   .mt-inline .mt-steps { gap: clamp(110px, 24svh, 240px); margin-top: 40px; }
   @media (prefers-reduced-motion: reduce) { .mm-scene * { transition: none !important; } }
+  /* Scroll-driven depth: each layer slides sideways at its own speed as the section passes (compositor only). */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .mt-inline { view-timeline: --mj block; }
+      .mm-clouds, .mm-far, .mm-mid, .mm-near, .mm-stars, .mm-moon { animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --mj; animation-range: cover 0% cover 100%; }
+      .mm-clouds { animation-name: mm-clouds; }
+      .mm-far { animation-name: mm-far; }
+      .mm-mid { animation-name: mm-mid; }
+      .mm-near { animation-name: mm-near; }
+      .mm-stars { animation-name: mm-stars; }
+      .mm-moon { animation-name: mm-moon; }
+    }
+  }
 }
+@keyframes mm-clouds { from { transform: translate3d(60px, 0, 0); } to { transform: translate3d(-60px, 0, 0); } }
+@keyframes mm-far { from { transform: translate3d(16px, 0, 0); } to { transform: translate3d(-16px, 0, 0); } }
+@keyframes mm-mid { from { transform: translate3d(34px, 0, 0); } to { transform: translate3d(-34px, 0, 0); } }
+@keyframes mm-near { from { transform: translate3d(70px, 0, 0); } to { transform: translate3d(-70px, 0, 0); } }
+@keyframes mm-stars { from { transform: translate3d(0, -14px, 0); } to { transform: translate3d(0, 14px, 0); } }
+@keyframes mm-moon { from { translate: -12px 8px; } to { translate: 12px -8px; } }
