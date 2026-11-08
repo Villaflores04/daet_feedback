@@ -2064,16 +2064,14 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 /* Phones: shorter intro line, no reward pill; the freed space goes to taller, higher grass with a wider sway. */
 @media (max-width: 767px), (max-aspect-ratio: 1/1) {
   .mh-lede-more, .mh-reward { display: none; }
-  /* Grass sits on the bottom edge and is filled down to it (behind the dock), so no gap shows under it while scrolling.
-     Only a low strip of blades rises above the dock, leaving the buttons clear. */
+  /* The grass is rooted on the bottom edge of the scene (the dock covers its base), so it meets the next section directly when the scene scrolls away. */
   .mh-stage { --mh-dock: calc(60px + env(safe-area-inset-bottom)); }
-  .mh-grass-back, .mh-grass-front { bottom: 0; }
-  .mh-grass-front { height: calc(var(--mh-dock) + clamp(192px, 52vw, 280px)); background: linear-gradient(to top, #143d33 calc(var(--mh-dock) + 3px), transparent calc(var(--mh-dock) + 3px)); }
-  .mh-grass-back { height: calc(var(--mh-dock) + clamp(220px, 60vw, 320px)); background: linear-gradient(to top, #245c43 calc(var(--mh-dock) + 3px), transparent calc(var(--mh-dock) + 3px)); }
-  .mh-grass-back svg, .mh-grass-front svg { position: absolute; left: 0; bottom: calc(var(--mh-dock) - 2px); width: 100%; }
-  .mh-grass-front svg { height: clamp(192px, 52vw, 280px); }
-  .mh-grass-back svg { height: clamp(220px, 60vw, 320px); }
-  .mh-content { padding-bottom: calc(190px + env(safe-area-inset-bottom)); }
+  .mh-grass-back, .mh-grass-front { bottom: 0; background: none; }
+  .mh-grass-front { height: clamp(260px, 78vw, 400px); }
+  .mh-grass-back { height: clamp(280px, 89vw, 430px); }
+  .mh-grass-back svg, .mh-grass-front svg { position: static; width: 100%; height: 100%; }
+  /* Keep the buttons just above the grass tips: tips rise to about 46% of the back grass height. */
+  .mh-content { padding-bottom: calc(clamp(280px, 89vw, 430px) * .46 + 6px); }
   .mh-grass, .mh-grass.mh-sway-b { animation-name: mh-grass-wide; }
   @keyframes mh-grass-wide { from { transform: skewX(-4.2deg); } to { transform: skewX(4.2deg); } }
 }
