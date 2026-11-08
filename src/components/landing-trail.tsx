@@ -71,7 +71,7 @@ export function TrailScenery() {
     </svg>
     <svg className="mt-layer mt-far" viewBox="0 0 1600 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
       <defs><linearGradient id="mtg-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity=".55" /><stop offset="1" stopColor="currentColor" stopOpacity=".95" /></linearGradient></defs>
-      <path d="M0 300V168C90 150 150 110 230 132S360 100 430 128 560 70 650 118 790 96 860 124C930 78 990 40 1052 30 1112 42 1176 92 1232 130 1330 110 1420 136 1500 120 1560 132 1600 128V300Z" fill="url(#mtg-far)" />
+      <path d="M0 300V168C90 150 150 110 230 132S360 100 430 128 560 70 650 118 790 96 860 124C930 78 990 40 1052 30 1112 42 1176 92 1232 130 1330 110 1420 136 1500 120S1560 132 1600 128V300Z" fill="url(#mtg-far)" />
       <path d="M0 300V222C110 196 210 170 320 196S500 168 610 200 790 176 890 206 1060 160 1170 196 1380 176 1600 208V300Z" fill="currentColor" opacity=".92" />
     </svg>
     <svg className="mt-layer mt-mid" viewBox="0 0 1600 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
