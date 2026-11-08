@@ -5,7 +5,7 @@ import { FileSpreadsheet, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { ShareLinkCard } from "@/components/share-link-card";
 import { Button } from "@/components/ui/button";
-import { parseCsv } from "@/lib/csv";
+import { detectColumns, parseCsv } from "@/lib/csv";
 import { getPhotoBlob, ingestFile, recordPhotoConsent } from "@/lib/pulse/photos";
 import { uploadSharedPhoto } from "@/lib/pulse/remote";
 import { StoredPhoto } from "@/components/stored-photo";
@@ -79,7 +79,7 @@ export function DeskImport() {
   const [proofBusy, setProofBusy] = useState(false);
   const [csvName, setCsvName] = useState("");
   const [csv, setCsv] = useState<string[][]>([]);
-  const [map, setMap] = useState({ body: NONE, stars: NONE, date: NONE, author: NONE });
+  const [map, setMap] = useState({ body: NONE, title: NONE, stars: NONE, date: NONE, author: NONE });
   const pasted = useMemo(() => parseLines(text), [text]);
   const header = csv[0] ?? [];
   const csvEntries = useMemo<Entry[]>(() => {
@@ -87,7 +87,7 @@ export function DeskImport() {
     return csv.slice(1).map((r) => {
       const when = map.date === NONE ? NaN : Date.parse(r[map.date] ?? "");
       return {
-        body: (r[map.body] ?? "").trim(),
+        body: [map.title === NONE ? "" : (r[map.title] ?? "").trim(), (r[map.body] ?? "").trim()].filter(Boolean).join("\n"),
         stars: map.stars === NONE ? undefined : starsOf(r[map.stars] ?? ""),
         callsign: map.author === NONE ? undefined : (r[map.author] ?? "").trim() || undefined,
         createdAt: Number.isFinite(when) ? when : undefined,
@@ -121,15 +121,8 @@ export function DeskImport() {
     setCsvName(file.name);
     const rows = parseCsv(await file.text());
     if (rows.length < 2) { setCsv([]); return toast.error("That file has no data rows."); }
-    const head = rows[0].map((h) => h.trim().toLowerCase());
-    const find = (...names: string[]) => head.findIndex((h) => names.some((n) => h.includes(n)));
     setCsv(rows);
-    setMap({
-      body: find("comment", "review", "text", "message", "feedback", "body", "response"),
-      stars: find("rating", "stars", "star", "score"),
-      date: find("date", "time", "created"),
-      author: find("author", "name", "user", "reviewer"),
-    });
+    setMap(detectColumns(rows[0]));
   }
 
   // Ctrl+V of a screenshot (for example from the Windows Snipping Tool) attaches it as the proof image.
@@ -257,7 +250,7 @@ export function DeskImport() {
             {csv.length ? (
               <>
                 <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
-                  {([["body", "Comment column (required)"], ["stars", "Rating column (1–5, optional)"], ["date", "Date column (optional)"], ["author", "Name column (optional)"]] as const).map(([key, label]) => (
+                  {([["body", "Comment column (required)"], ["title", "Title column (optional)"], ["stars", "Rating column (1–5, optional)"], ["date", "Date column (optional)"], ["author", "Name column (optional)"]] as const).map(([key, label]) => (
                     <label key={key} className="grid min-w-0 grid-cols-1 gap-1">
                       <span className="text-muted">{label}</span>
                       <select value={map[key]} onChange={(e) => setMap((m) => ({ ...m, [key]: Number(e.target.value) }))} className="h-11 w-full min-w-0 max-w-full rounded-xl border border-line bg-plate px-3 text-sm">
