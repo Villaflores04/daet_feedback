@@ -99,11 +99,54 @@ export function DeskAskAi() {
   useEffect(() => { scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" }); }, [messages, busy]);
   useEffect(() => { if (open && window.matchMedia("(min-width: 768px)").matches) field.current?.focus(); }, [open]);
 
+  // Draggable button: pointer events work for mouse, touch and pen. Position is remembered in this browser.
+  const fab = useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const drag = useRef<{ dx: number; dy: number; sx: number; sy: number; moved: boolean } | null>(null);
+  const clamp = useCallback((x: number, y: number) => {
+    const w = fab.current?.offsetWidth ?? 120, h = fab.current?.offsetHeight ?? 52;
+    return { x: Math.min(Math.max(8, x), window.innerWidth - w - 8), y: Math.min(Math.max(8, y), window.innerHeight - h - 8) };
+  }, []);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("desk-ask-fab");
+      if (raw) { const v = JSON.parse(raw); if (Number.isFinite(v.x) && Number.isFinite(v.y)) setPos(clamp(v.x, v.y)); }
+    } catch { /* storage can be blocked */ }
+    const onResize = () => setPos(p => (p ? clamp(p.x, p.y) : p));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [clamp]);
+  const fabHandlers = {
+    onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      drag.current = { dx: e.clientX - r.left, dy: e.clientY - r.top, sx: e.clientX, sy: e.clientY, moved: false };
+      e.currentTarget.setPointerCapture(e.pointerId);
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLButtonElement>) => {
+      const d = drag.current;
+      if (!d) return;
+      if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 6) return;
+      d.moved = true;
+      setPos(clamp(e.clientX - d.dx, e.clientY - d.dy));
+    },
+    onPointerUp: (e: React.PointerEvent<HTMLButtonElement>) => {
+      const d = drag.current;
+      drag.current = null;
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+      if (d?.moved) {
+        const r = e.currentTarget.getBoundingClientRect();
+        try { localStorage.setItem("desk-ask-fab", JSON.stringify({ x: r.left, y: r.top })); } catch { /* ignore */ }
+      } else setOpen(true);
+    },
+    onPointerCancel: () => { drag.current = null; },
+    onKeyDown: (e: React.KeyboardEvent<HTMLButtonElement>) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } },
+  };
+
   const blocked = status !== "connected";
   return (
     <>
       {!open ? (
-        <button type="button" onClick={() => setOpen(true)} className="desk-ask-fab" aria-label="Ask AI about the feedback">
+        <button ref={fab} type="button" {...fabHandlers} className="desk-ask-fab" style={pos ? { left: pos.x, top: pos.y, right: "auto", bottom: "auto" } : undefined} aria-label="Ask AI about the feedback. Drag to move it.">
           <Sparkles size={18} aria-hidden /><span>Ask AI</span>
         </button>
       ) : null}
