@@ -2066,7 +2066,9 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-lede-more, .mh-reward { display: none; }
   /* The grass is rooted on the bottom edge of the scene (the dock covers its base), so it meets the next section directly when the scene scrolls away. */
   /* The scene ends where the dock begins (--mh-dock is measured in JS; the fallback is a typical dock). */
-  .mh-stage { height: calc(100svh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom)))); min-height: 480px; }
+  .mh-stage { height: calc(var(--mh-vh, 100svh) - var(--mh-dock, calc(70px + env(safe-area-inset-bottom)))); min-height: 480px; }
+  /* Safety net while the toolbar is still moving: anything uncovered under the scene blends with the grass instead of showing white. */
+  .mh-journey { background: #143d33; }
   .mh-grass-back, .mh-grass-front { bottom: 0; background: none; }
   .mh-grass-front { height: clamp(260px, 78vw, 400px); }
   .mh-grass-back { height: clamp(280px, 89vw, 430px); }
