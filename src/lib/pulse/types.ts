@@ -2,7 +2,7 @@ export type Category = "Coast" | "Heritage" | "Market" | "Resort" | "Civic" | "P
 
 export type FaceId = "wow" | "happy" | "medium" | "sad";
 
-export type Source = "visitor" | "facebook" | "google" | "tripadvisor" | "survey" | "walkin" | "other";
+export type Source = "visitor" | "facebook" | "google" | "tripadvisor" | "survey" | "walkin" | "qr" | "other";
 
 export const SOURCES: { id: Source; label: string }[] = [
   { id: "visitor", label: "Site feedback" },
@@ -11,6 +11,7 @@ export const SOURCES: { id: Source; label: string }[] = [
   { id: "tripadvisor", label: "TripAdvisor" },
   { id: "survey", label: "Survey" },
   { id: "walkin", label: "Walk-in / office" },
+  { id: "qr", label: "QR code" },
   { id: "other", label: "Other" },
 ];
 

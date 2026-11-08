@@ -1,3 +1,4 @@
+import { LINK_SOURCES } from "@/lib/pulse/source-tag";
 import { NextResponse } from "next/server";
 import { OVERALL_CHANNEL, OVERALL_ID } from "@/lib/pulse/scope";
 import { supabaseServer } from "@/lib/supabase-server";
@@ -148,33 +149,26 @@ export async function POST(request: Request) {
         }, { onConflict: "id", ignoreDuplicates: true });
         if (error) throw error;
       }
-      const { error } = await db
-        .from("pulses")
-        .upsert(
-          {
-            id: pulse.id,
-            channel_id: pulse.channelId,
-            parent_id: pulse.parentId || null,
-            callsign:
-              String(pulse.callsign || "Visitor")
-                .trim()
-                .slice(0, 40) || "Visitor",
-            face: pulse.face,
-            body: String(pulse.body || "")
-              .trim()
-              .slice(0, 1000),
-            // Local image blobs are intentionally not stored in the shared database.
-            photo:
-              typeof pulse.photo === "string" &&
-              /^https?:\/\//.test(pulse.photo)
-                ? pulse.photo
-                : null,
-            created_at: new Date(
-              Number(pulse.createdAt) || Date.now(),
-            ).toISOString(),
-          },
-          { onConflict: "id", ignoreDuplicates: true },
-        );
+      const row: Record<string, unknown> = {
+        id: pulse.id,
+        channel_id: pulse.channelId,
+        parent_id: pulse.parentId || null,
+        callsign: String(pulse.callsign || "Visitor").trim().slice(0, 40) || "Visitor",
+        face: pulse.face,
+        body: String(pulse.body || "").trim().slice(0, 1000),
+        // Local image blobs are intentionally not stored in the shared database.
+        photo: typeof pulse.photo === "string" && /^https?:\/\//.test(pulse.photo) ? pulse.photo : null,
+        created_at: new Date(Number(pulse.createdAt) || Date.now()).toISOString(),
+      };
+      // Tagged links (?src=) may mark where a visitor came from; anything else counts as site feedback.
+      if (typeof pulse.source === "string" && LINK_SOURCES.includes(pulse.source)) row.source = pulse.source;
+      const save = (r: Record<string, unknown>) => db.from("pulses").upsert(r, { onConflict: "id", ignoreDuplicates: true });
+      let { error } = await save(row);
+      // Older databases without the source migration still accept the feedback.
+      if (error && row.source && (error.code === "42703" || error.code === "23514")) {
+        delete row.source;
+        ({ error } = await save(row));
+      }
       if (error) throw error;
       // A retry after a lost response returns the original row without duplicating it.
       const saved = await db.from("pulses").select("*").eq("id", pulse.id).single();

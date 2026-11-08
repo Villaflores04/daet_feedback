@@ -1,5 +1,6 @@
 "use client";
 
+import { getSourceTag } from "@/lib/pulse/source-tag";
 import { uid } from "@/lib/pulse/ids";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -56,7 +57,7 @@ export function TransmitPage() {
     try {
       const nickname = name.trim() || "Visitor";
       draftId.current ??= uid("p");
-      const saved = await addPulse({ id: draftId.current, channelId: channel.id, callsign: nickname, face, body, photo });
+      const saved = await addPulse({ id: draftId.current, channelId: channel.id, callsign: nickname, face, body, photo, source: getSourceTag() });
       draftId.current = null;
       setCallsign(nickname); setSentId(saved.id);
       setBody(""); setPhoto(undefined); setFace(null);
