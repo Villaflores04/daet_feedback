@@ -6,7 +6,7 @@ import { PhotoField } from "@/components/photo-field";
 import { PulseCard } from "@/components/pulse-card";
 import { Button } from "@/components/ui/button";
 import { usePulse } from "@/lib/pulse/store";
-import type { Channel, FaceId, Pulse } from "@/lib/pulse/types";
+import { SOURCES, type Channel, type FaceId, type Pulse } from "@/lib/pulse/types";
 import { useCallsign } from "@/lib/pulse/visitor";
 import { toast } from "sonner";
 
@@ -121,6 +121,7 @@ export function PlaceThread({
 }) {
   const pulses = usePulse((s) => s.pulses);
   const [openReply, setOpenReply] = useState<string | null>(null);
+  const [source, setSource] = useState<string>("all");
 
   useEffect(() => {
     if (!replyTo) return;
@@ -129,13 +130,21 @@ export function PlaceThread({
     el?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [replyTo]);
 
-  const roots = useMemo(
+  const all = useMemo(
     () =>
       pulses
         .filter((p) => p.channelId === channel.id && !p.parentId)
         .sort((a, b) => b.createdAt - a.createdAt),
     [pulses, channel.id],
   );
+  // Source chips appear only when this place has feedback from more than one kind of source.
+  const present = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const p of all) counts.set(p.source ?? "visitor", (counts.get(p.source ?? "visitor") ?? 0) + 1);
+    return SOURCES.filter((x) => counts.has(x.id)).map((x) => ({ ...x, count: counts.get(x.id) ?? 0 }));
+  }, [all]);
+  const active = present.some((x) => x.id === source) ? source : "all";
+  const roots = useMemo(() => (active === "all" ? all : all.filter((p) => (p.source ?? "visitor") === active)), [all, active]);
 
   if (roots.length === 0) {
     return (
@@ -146,6 +155,22 @@ export function PlaceThread({
   }
 
   return (
+    <>
+      {present.length > 1 ? (
+        <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="Show feedback from">
+          {[{ id: "all", label: "All", count: all.length }, ...present].map((x) => (
+            <button
+              key={x.id}
+              type="button"
+              aria-pressed={active === x.id}
+              onClick={() => setSource(x.id)}
+              className={`min-h-9 rounded-full px-3.5 text-sm font-medium transition-colors ${active === x.id ? "bg-teal text-plate" : "bg-cool text-ink"}`}
+            >
+              {x.id === "visitor" ? "Visitors" : x.label} <span className="opacity-70">{x.count}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
     <ol className="space-y-3">
       {roots.map((root) => {
         const replies = pulses
@@ -182,5 +207,6 @@ export function PlaceThread({
         );
       })}
     </ol>
+    </>
   );
 }

@@ -7,7 +7,7 @@ import { Lightbox } from "@/components/lightbox";
 import { StoredPhoto } from "@/components/stored-photo";
 import { faceById } from "@/lib/pulse/faces";
 import { usePulse } from "@/lib/pulse/store";
-import type { Channel, Pulse } from "@/lib/pulse/types";
+import { SOURCES, type Channel, type Pulse } from "@/lib/pulse/types";
 import { cn } from "@/lib/utils";
 
 function timeAgo(ts: number) {
@@ -55,6 +55,7 @@ export function PulseCard({
   shareable?: boolean;
 }) {
   const face = faceById(pulse.face);
+  const sourceLabel = pulse.source && pulse.source !== "visitor" ? SOURCES.find((x) => x.id === pulse.source)?.label : undefined;
   const mine = usePulse((s) => s.myReacts[pulse.id]);
   const reactPulse = usePulse((s) => s.reactPulse);
   const [reacting, setReacting] = useState(false);
@@ -117,8 +118,9 @@ export function PulseCard({
           {face.glyph}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-ink">
-            {pulse.callsign}
+          <p className="flex min-w-0 items-center gap-2 text-sm font-semibold text-ink">
+            <span className="truncate">{pulse.callsign}</span>
+            {sourceLabel ? <span className="shrink-0 rounded-full bg-cool px-2 py-0.5 text-[11px] font-medium text-muted">via {sourceLabel}</span> : null}
           </p>
           <p className="text-xs text-muted">
             {hidePlace ? null : channel ? (
