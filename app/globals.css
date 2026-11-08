@@ -2935,7 +2935,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-inline { isolation: isolate; background: #1f6f8b; }
   .mt-inline-body { position: relative; z-index: 1; }
   .mm-scene { display: block; position: sticky; top: 0; height: 100vh; height: 100svh; margin-bottom: -100vh; margin-bottom: -100svh; z-index: 0; overflow: hidden; pointer-events: none; }
-  .mm-scene > * { position: absolute; }
+  .mm-scene > *, .mm-t > * { position: absolute; }
   .mm-sky, .mm-dusk, .mm-night, .mm-dim, .mm-warm { inset: 0; }
   .mm-sky { background: linear-gradient(#1d6e95 0%, #4a9fc4 34%, #a8d8e6 62%, #fbe6b4 100%); }
   .mm-dusk { opacity: 0; background: linear-gradient(#2b4f86 0%, #7a6fa3 32%, #e58f6e 62%, #ffc978 100%); transition: opacity 1.1s ease; }
