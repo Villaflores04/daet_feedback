@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   const skipped: { index: number; reason: string }[] = [];
   items.forEach((raw, index) => {
     const item = (raw ?? {}) as Record<string, unknown>;
-    const body = String(item.body ?? "").trim().slice(0, 1000);
+    const body = String(item.body ?? "").trim().slice(0, 2000);
     const channelId = typeof item.channelId === "string" ? item.channelId : "";
     const source = String(item.source ?? "");
     const stars = Number(item.stars);
