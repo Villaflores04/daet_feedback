@@ -2226,7 +2226,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @media (max-width: 767px) { .desk-stat-grid > .desk-kpi > p.desk-kpi-sub { font-size: 11px; } }
 
 /* Desk: Ask AI floating button, panel (side panel on desktop, bottom sheet on phones) and prompt chips. */
-.desk-ask-fab { position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 60; display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 999px; background: #2563eb; color: #fff; font-size: 15px; font-weight: 600; box-shadow: 0 14px 30px -10px rgb(37 99 235 / .7); transition: transform .2s ease, box-shadow .2s ease; }
+.desk-ask-fab { touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 60; display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 999px; background: #2563eb; color: #fff; font-size: 15px; font-weight: 600; box-shadow: 0 14px 30px -10px rgb(37 99 235 / .7); transition: transform .2s ease, box-shadow .2s ease; }
+.desk-ask-fab:active { cursor: grabbing; }
 .desk-ask-fab:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -10px rgb(37 99 235 / .8); }
 .desk-ask-backdrop { display: none; }
 .desk-ask-panel { position: fixed; z-index: 62; right: 20px; bottom: 20px; display: flex; flex-direction: column; width: min(440px, calc(100vw - 40px)); height: min(680px, calc(100vh - 40px)); overflow: hidden; border: 1px solid var(--color-line); border-radius: 24px; background: #f7fafc; box-shadow: 0 30px 70px -20px rgb(7 24 36 / .55); animation: desk-ask-in .22s cubic-bezier(.2, .8, .3, 1); }
