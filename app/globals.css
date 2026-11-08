@@ -2934,9 +2934,10 @@ button, [role="button"] { min-width:44px; min-height:44px; }
    ===================================================================== */
 .mm-scene { display: none; }
 @media (max-width: 767px), (max-aspect-ratio: 1/1) {
-  .mt-inline { isolation: isolate; background: #1f6f8b; }
-  .mt-inline-body { position: relative; z-index: 1; }
-  .mm-scene { display: block; position: sticky; top: 0; height: 100vh; height: 100svh; margin-bottom: -100vh; margin-bottom: -100svh; z-index: 0; overflow: hidden; pointer-events: none; }
+  .mt-inline { isolation: isolate; background: #1f6f8b; padding-bottom: 0; }
+  /* The body is pulled up over the scene (not the scene pulled down), so the sticky scene stops exactly at the end of the section. */
+  .mt-inline-body { position: relative; z-index: 1; margin-top: -100vh; margin-top: -100svh; }
+  .mm-scene { display: block; position: sticky; top: 0; height: 100vh; height: 100svh; z-index: 0; overflow: hidden; pointer-events: none; }
   .mm-scene > *, .mm-t > * { position: absolute; }
   .mm-sky, .mm-dusk, .mm-night, .mm-dim, .mm-warm { inset: 0; }
   .mm-sky { background: linear-gradient(#1d6e95 0%, #4a9fc4 34%, #a8d8e6 62%, #fbe6b4 100%); }
@@ -2967,7 +2968,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-inline .mt-card { background: rgb(255 255 255 / .92); }
   .mt-inline .mt-end .text-link { color: #fff; text-shadow: 0 1px 10px rgb(4 12 40 / .55); }
   /* Each step gets its own stretch of scroll, so the scene visibly changes between cards. */
-  .mt-inline { min-height: 100vh; min-height: 100svh; padding-bottom: 96px; }
+  .mt-inline { min-height: 100vh; min-height: 100svh; padding: 0; }
+  .mt-inline-body { padding-top: 40px; padding-bottom: 96px; }
   .mt-inline .mt-steps { gap: clamp(110px, 24svh, 240px); margin-top: 40px; }
   @media (prefers-reduced-motion: reduce) { .mm-scene * { transition: none !important; } }
   /* Scroll-driven depth: each layer slides sideways at its own speed as the section passes (compositor only). */
