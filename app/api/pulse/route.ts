@@ -1,3 +1,4 @@
+import { hasDeskSession } from "@/lib/desk-session";
 import { LINK_SOURCES } from "@/lib/pulse/source-tag";
 import { NextResponse } from "next/server";
 import { OVERALL_CHANNEL, OVERALL_ID } from "@/lib/pulse/scope";
@@ -83,6 +84,8 @@ async function readPulses(db: ReturnType<typeof supabaseServer>) {
 }
 
 export async function GET() {
+  // Proof images on imported feedback are for staff only.
+  const desk = await hasDeskSession().catch(() => false);
   try {
     const db = supabaseServer();
     const [channels, pulses, wishes] = await Promise.all([
@@ -107,7 +110,10 @@ export async function GET() {
     const allFailed = Boolean(channels.error && pulses.error && wishes.error);
     return NextResponse.json({
       channels: channels.error ? null : (channels.data || []).map(channelFromRow),
-      pulses: pulses.error ? null : ((pulses.data || []) as unknown as Record<string, unknown>[]).map(pulseFromRow),
+      pulses: pulses.error ? null : ((pulses.data || []) as unknown as Record<string, unknown>[]).map((r) => {
+        const pulse = pulseFromRow(r);
+        return !desk && String(r.id).startsWith("imp-") ? { ...pulse, photo: undefined } : pulse;
+      }),
       wishes: wishes.error ? null : (wishes.data || []).map(wishFromRow),
       issues,
       ...(allFailed ? { error: issues.join(" ") } : {}),
