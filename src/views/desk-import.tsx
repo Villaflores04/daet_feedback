@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { ImagePlus, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { FileSpreadsheet, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { ShareLinkCard } from "@/components/share-link-card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,36 @@ import { cn } from "@/lib/utils";
 
 const OUTSIDE = SOURCES.filter((s) => s.id !== "visitor" && s.id !== "qr");
 const NONE = -1;
+
+/** Click, keyboard, or drag-and-drop target for a file. */
+function DropZone({ accept, check, onFile, disabled, icon, title, hint }: { accept: string; check: (f: File) => boolean; onFile: (f: File) => void; disabled?: boolean; icon: React.ReactNode; title: string; hint: string }) {
+  const input = useRef<HTMLInputElement>(null);
+  const [over, setOver] = useState(false);
+  function take(files?: FileList | null) {
+    const f = files?.[0];
+    if (!f) return;
+    if (!check(f)) return toast.error(`That file type isn't supported here. ${hint}`);
+    onFile(f);
+  }
+  return (
+    <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
+      onClick={() => !disabled && input.current?.click()}
+      onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && !disabled) { e.preventDefault(); input.current?.click(); } }}
+      onDragOver={(e) => { e.preventDefault(); if (!disabled) setOver(true); }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => { e.preventDefault(); setOver(false); if (!disabled) take(e.dataTransfer.files); }}
+      className={cn("grid min-w-0 cursor-pointer place-items-center gap-1 rounded-2xl border-2 border-dashed px-4 py-6 text-center text-sm transition-colors", over ? "border-teal bg-cool" : "border-line bg-plate", disabled && "opacity-60")}
+    >
+      <span className="text-muted" aria-hidden>{icon}</span>
+      <span className="font-medium">{title}</span>
+      <span className="text-xs text-muted">{hint}</span>
+      <input ref={input} type="file" accept={accept} className="sr-only" tabIndex={-1} onClick={(e) => e.stopPropagation()} onChange={(e) => { take(e.target.files); e.target.value = ""; }} />
+    </div>
+  );
+}
 
 type Entry = { body: string; stars?: number; callsign?: string; createdAt?: number };
 
@@ -47,8 +77,7 @@ export function DeskImport() {
   const [proof, setProof] = useState("");
   const [proofUrl, setProofUrl] = useState("");
   const [proofBusy, setProofBusy] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const proofRef = useRef<HTMLInputElement>(null);
+  const [csvName, setCsvName] = useState("");
   const [csv, setCsv] = useState<string[][]>([]);
   const [map, setMap] = useState({ body: NONE, stars: NONE, date: NONE, author: NONE });
   const pasted = useMemo(() => parseLines(text), [text]);
@@ -83,13 +112,13 @@ export function DeskImport() {
       toast.error(cause instanceof Error ? cause.message : "Could not upload the image.");
     } finally {
       setProofBusy(false);
-      if (proofRef.current) proofRef.current.value = "";
     }
   }
 
   async function pickCsv(file?: File) {
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) return toast.error("Use a CSV file under 2 MB.");
+    setCsvName(file.name);
     const rows = parseCsv(await file.text());
     if (rows.length < 2) { setCsv([]); return toast.error("That file has no data rows."); }
     const head = rows[0].map((h) => h.trim().toLowerCase());
@@ -102,6 +131,20 @@ export function DeskImport() {
       author: find("author", "name", "user", "reviewer"),
     });
   }
+
+  // Ctrl+V of a screenshot (for example from the Windows Snipping Tool) attaches it as the proof image.
+  const pasteProof = useRef(pickProof);
+  pasteProof.current = pickProof;
+  useEffect(() => {
+    function onPaste(e: ClipboardEvent) {
+      const file = Array.from(e.clipboardData?.files ?? []).find((f) => f.type.startsWith("image/"));
+      if (!file) return;
+      e.preventDefault();
+      void pasteProof.current(file);
+    }
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, []);
 
   async function submit() {
     if (!place) return toast.error("Choose the place these comments are about.");
@@ -133,7 +176,7 @@ export function DeskImport() {
       setCsv([]);
       setProof("");
       setProofUrl("");
-      if (fileRef.current) fileRef.current.value = "";
+      setCsvName("");
       await syncShared();
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : "Could not add the feedback.");
@@ -202,10 +245,15 @@ export function DeskImport() {
           </label>
         ) : (
           <div className="grid min-w-0 grid-cols-1 gap-3 text-sm">
-            <label className="grid min-w-0 grid-cols-1 gap-1">
-              <span className="text-muted">CSV file from a survey, Google Forms or a review export. The first row must be the column names.</span>
-              <input ref={fileRef} type="file" accept=".csv,text/csv" onChange={(e) => void pickCsv(e.target.files?.[0])} className="w-full min-w-0 rounded-xl border border-line bg-plate p-2 text-sm" />
-            </label>
+            <p className="text-muted">CSV file from a survey, Google Forms or a review export. The first row must be the column names.</p>
+            <DropZone
+              accept=".csv,text/csv"
+              check={(f) => /\.csv$/i.test(f.name) || f.type === "text/csv"}
+              onFile={(f) => void pickCsv(f)}
+              icon={<FileSpreadsheet size={26} />}
+              title={csvName ? csvName : "Drop a CSV file here, or click to choose"}
+              hint="CSV files only, up to 2 MB."
+            />
             {csv.length ? (
               <>
                 <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
@@ -236,14 +284,21 @@ export function DeskImport() {
 
         <div className="grid min-w-0 grid-cols-1 gap-2 text-sm">
           <span className="text-muted">Proof image (optional). A screenshot of the original post or review. It is kept for staff only and never shown on the public site. Hide names and faces before uploading.</span>
-          <input ref={proofRef} type="file" accept="image/*" className="sr-only" onChange={(e) => void pickProof(e.target.files?.[0])} />
           {proof ? (
             <div className="relative w-40">
               <StoredPhoto id={proof} alt="Proof image" className="h-28 w-40 rounded-xl object-cover" />
               <button type="button" aria-label="Remove proof image" onClick={() => { setProof(""); setProofUrl(""); }} className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-ink/80 text-white"><X size={16} /></button>
             </div>
           ) : (
-            <button type="button" disabled={proofBusy} onClick={() => proofRef.current?.click()} className="inline-flex h-11 w-fit items-center gap-2 rounded-xl bg-cool px-4 text-sm font-medium"><ImagePlus size={18} />{proofBusy ? "Uploading…" : "Attach proof image"}</button>
+            <DropZone
+              accept="image/*"
+              check={(f) => f.type.startsWith("image/")}
+              onFile={(f) => void pickProof(f)}
+              disabled={proofBusy}
+              icon={<ImagePlus size={26} />}
+              title={proofBusy ? "Uploading…" : "Drop a screenshot here, click to choose, or press Ctrl+V to paste"}
+              hint="PNG or JPG images."
+            />
           )}
         </div>
 
