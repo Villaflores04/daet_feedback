@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { ShareLinkCard } from "@/components/share-link-card";
 import { Button } from "@/components/ui/button";
 import { usePulse } from "@/lib/pulse/store";
 import { SOURCES } from "@/lib/pulse/types";
@@ -117,6 +118,7 @@ export function DeskImport() {
           <Button type="button" onClick={submit} disabled={busy}>{busy ? "Adding…" : "Add feedback"}</Button>
         </div>
       </div>
+      <ShareLinkCard />
     </div>
   );
 }
