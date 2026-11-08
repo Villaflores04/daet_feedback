@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowUpRight, Waves } from "lucide-react";
 import { DriftingLeaves, GrassRow, LeafCluster } from "./hero-foliage";
+import { MobileTrailScene } from "./mobile-trail-scene";
 import { TrailHead, TrailScenery, TrailSteps, type TrailData } from "./landing-trail";
 
 /**
@@ -232,7 +233,8 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
       </div>
     </section>
     <section id="how-it-works" className="mt-inline" aria-label="How it works">
-      <div className="page-width">
+      <MobileTrailScene />
+      <div className="page-width mt-inline-body">
         <TrailHead />
         <TrailSteps data={trail} />
         <div className="mt-end">

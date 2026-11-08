@@ -12,7 +12,7 @@ export type TrailData = {
 const pct = (n: number, total: number) => (total ? Math.round((n / total) * 100) : 0);
 
 /** Palm with a tapered, leaning trunk and drooping feathery fronds. */
-function Palm({ x, s = 1, lean = 1 }: { x: number; s?: number; lean?: number }) {
+export function Palm({ x, s = 1, lean = 1 }: { x: number; s?: number; lean?: number }) {
   const fronds: [number, number][] = [[-165, 1], [-135, 1.1], [-105, 1.15], [-75, 1.15], [-45, 1.1], [-15, 1], [-195, .8], [15, .8], [-90, .7]];
   return <g transform={`translate(${x} 300) scale(${s * lean} ${s})`}>
     <path d="M-5 0 C-2 -60 6 -110 16 -158 L24 -158 C16 -108 10 -58 7 0Z" fill="currentColor" />
@@ -24,7 +24,7 @@ function Palm({ x, s = 1, lean = 1 }: { x: number; s?: number; lean?: number }) 
 }
 
 /** Round-crowned shade tree (generic mango/acacia silhouette). */
-function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+export function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   return <g transform={`translate(${x} ${y}) scale(${s})`}>
     <path d="M-3 0 L-2 -34 L2 -34 L3 0Z" fill="currentColor" />
     <circle cx="0" cy="-46" r="19" fill="currentColor" /><circle cx="-16" cy="-38" r="14" fill="currentColor" /><circle cx="16" cy="-39" r="15" fill="currentColor" /><circle cx="3" cy="-60" r="13" fill="currentColor" />
@@ -42,7 +42,7 @@ function Cloud({ x, y, s = 1, o = 1 }: { x: number; y: number; s?: number; o?: n
 }
 
 // Fixed star field (seeded, so server and client agree): [x%, y%, radius].
-const STARS: [number, number, number][] = (() => {
+export const STARS: [number, number, number][] = (() => {
   const out: [number, number, number][] = [];
   let a = 17;
   const r = () => { a = (a * 1103515245 + 12345) & 0x7fffffff; return a / 0x7fffffff; };
