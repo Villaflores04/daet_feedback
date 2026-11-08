@@ -46,7 +46,8 @@ export async function POST(request: Request) {
       callsign: String(item.callsign || "Imported").trim().slice(0, 40) || "Imported",
       face,
       body,
-      photo: null,
+      // Optional proof image (a screenshot of the original post). Hidden from the public feed.
+      photo: typeof item.photo === "string" && /^https?:\/\//.test(item.photo) ? item.photo : null,
       source,
       created_at: new Date(Number.isFinite(when) && when > 0 && when <= Date.now() ? when : Date.now()).toISOString(),
     });
