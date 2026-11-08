@@ -2068,12 +2068,12 @@ button, [role="button"] { min-width:44px; min-height:44px; }
      Only a low strip of blades rises above the dock, leaving the buttons clear. */
   .mh-stage { --mh-dock: calc(60px + env(safe-area-inset-bottom)); }
   .mh-grass-back, .mh-grass-front { bottom: 0; }
-  .mh-grass-front { height: calc(var(--mh-dock) + clamp(96px, 26vw, 140px)); background: linear-gradient(to top, #143d33 calc(var(--mh-dock) + 3px), transparent calc(var(--mh-dock) + 3px)); }
-  .mh-grass-back { height: calc(var(--mh-dock) + clamp(110px, 30vw, 160px)); background: linear-gradient(to top, #245c43 calc(var(--mh-dock) + 3px), transparent calc(var(--mh-dock) + 3px)); }
+  .mh-grass-front { height: calc(var(--mh-dock) + clamp(192px, 52vw, 280px)); background: linear-gradient(to top, #143d33 calc(var(--mh-dock) + 3px), transparent calc(var(--mh-dock) + 3px)); }
+  .mh-grass-back { height: calc(var(--mh-dock) + clamp(220px, 60vw, 320px)); background: linear-gradient(to top, #245c43 calc(var(--mh-dock) + 3px), transparent calc(var(--mh-dock) + 3px)); }
   .mh-grass-back svg, .mh-grass-front svg { position: absolute; left: 0; bottom: calc(var(--mh-dock) - 2px); width: 100%; }
-  .mh-grass-front svg { height: clamp(96px, 26vw, 140px); }
-  .mh-grass-back svg { height: clamp(110px, 30vw, 160px); }
-  .mh-content { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+  .mh-grass-front svg { height: clamp(192px, 52vw, 280px); }
+  .mh-grass-back svg { height: clamp(220px, 60vw, 320px); }
+  .mh-content { padding-bottom: calc(190px + env(safe-area-inset-bottom)); }
   .mh-grass, .mh-grass.mh-sway-b { animation-name: mh-grass-wide; }
   @keyframes mh-grass-wide { from { transform: skewX(-4.2deg); } to { transform: skewX(4.2deg); } }
 }
