@@ -128,6 +128,11 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     // Off-screen: pause the endless sway/drift animations (the CSS reads this class).
     const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; stage.classList.toggle("mh-idle", !visible); if (visible) update(); });
     const ro = new ResizeObserver(measure);
+    // Phones: the scene ends exactly where the bottom dock begins, so the grass is rooted in view (CSS reads --mh-dock).
+    const dock = document.querySelector<HTMLElement>(".site-dock");
+    const setDock = () => { if (dock) stage.style.setProperty("--mh-dock", `${dock.offsetHeight}px`); };
+    const dockRo = dock ? new ResizeObserver(setDock) : null;
+    if (dock) { setDock(); dockRo?.observe(dock); }
     // Desktop: once the hero has scrolled away, hide it for keyboard/pointer and pause its hidden loops (one cheap observer, no per-frame work).
     const sentinel = node.querySelector<HTMLElement>(".mh-sentinel");
     const so = new IntersectionObserver(([entry]) => stage.classList.toggle("mh-past", !entry.isIntersecting && entry.boundingClientRect.top < 0));
@@ -152,7 +157,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     document.addEventListener("visibilitychange", update);
     update();
     return () => {
-      io.disconnect(); so.disconnect(); no.disconnect(); ro.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
+      io.disconnect(); so.disconnect(); no.disconnect(); ro.disconnect(); dockRo?.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
       window.removeEventListener("scroll", update);
       window.removeEventListener("scroll", onScrollState); clearTimeout(scrollTimer);
       window.removeEventListener("resize", measure);
