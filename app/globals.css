@@ -2066,7 +2066,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-lede-more, .mh-reward { display: none; }
   /* The grass is rooted on the bottom edge of the scene (the dock covers its base), so it meets the next section directly when the scene scrolls away. */
   /* The scene ends where the dock begins (--mh-dock is measured in JS; the fallback is a typical dock). */
-  .mh-stage { height: calc(var(--mh-vh, 100svh) - var(--mh-dock, calc(70px + env(safe-area-inset-bottom)))); min-height: 480px; }
+  /* lvh = the tallest viewport (browser toolbar hidden). It never changes while scrolling, so nothing re-lays out or flickers when the toolbar slides; with the toolbar showing, the bottom few px of grass simply sit behind the dock. */
+  .mh-stage { height: calc(100svh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom)))); height: calc(100lvh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom))) + 6px); min-height: 480px; }
   /* Safety net while the toolbar is still moving: anything uncovered under the scene blends with the grass instead of showing white. */
   .mh-journey { background: #143d33; }
   .mh-grass-back, .mh-grass-front { bottom: 0; background: none; }
@@ -2074,7 +2075,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-grass-back { height: clamp(280px, 89vw, 430px); }
   .mh-grass-back svg, .mh-grass-front svg { position: static; width: 100%; height: 100%; }
   /* Keep the buttons just above the grass tips: tips rise to about 46% of the back grass height. */
-  .mh-content { padding-bottom: calc(clamp(280px, 89vw, 430px) * .46 + 6px); }
+  .mh-content { padding-bottom: calc(clamp(280px, 89vw, 430px) * .40 + 6px); }
   .mh-grass, .mh-grass.mh-sway-b { animation-name: mh-grass-wide; }
   @keyframes mh-grass-wide { from { transform: skewX(-4.2deg); } to { transform: skewX(4.2deg); } }
 }
