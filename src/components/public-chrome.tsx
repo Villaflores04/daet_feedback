@@ -58,7 +58,7 @@ export function PublicChrome({
         Skip to content
       </a>
       {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" && <SiteHeader landing={landing} scrolled={scrolled} hiding={landing && scrolling} />}
-      {landing && !scrolled && process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" ? <LandingMenu /> : null}
+      {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" ? (landing && !scrolled ? <LandingMenu /> : <LandingMenu compact />) : null}
       {children}
       {process.env.NEXT_PUBLIC_FEEDBACK_SHARED_SHELL !== "true" && <><SiteFooter /><SiteDock /></>}
     </div>

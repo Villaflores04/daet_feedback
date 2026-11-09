@@ -2455,7 +2455,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 /* Landing burger menu: desktop only, over the hero. Static, no blur, so it does not touch parallax performance. */
 .landing-menu { display: none; }
-@media (min-width: 1024px) {
+@media (min-width: 1024px), (min-aspect-ratio: 1/1) and (min-width: 640px) {
   .landing-menu { display: block; position: fixed; top: 28px; right: 32px; z-index: 60; animation: landing-menu-in .5s .2s both; }
   .landing-menu-button { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #fff; background: rgb(7 38 46 / .7); border: 1px solid rgb(255 255 255 / .3); box-shadow: 0 8px 22px rgb(3 20 28 / .35); transition: background .2s, transform .2s; cursor: pointer; }
   .landing-menu-button:hover { background: rgb(7 38 46 / .88); transform: scale(1.05); }
@@ -3120,4 +3120,18 @@ html, body { overflow-x: clip; }
   .mh-grass-back { height: clamp(48px, 16vh, 110px); }
   .mh-bg img { object-position: 16% 50%; }
   .mh-content { padding-bottom: calc(var(--mh-dock, 70px) + clamp(10px, 4vh, 24px)); }
+}
+
+/* Small landscape screens (a 14" laptop at 125-200% zoom, a small window): same design as desktop. No bottom bar; a burger menu at the top right on every page. */
+.landing-menu.is-compact { display: none; }
+@media (min-aspect-ratio: 1/1) and (min-width: 640px) and (max-width: 1023px) {
+  .site-dock { display: none !important; }
+  .pb-dock { padding-bottom: 2.5rem; }
+  .site-footer { padding-bottom: 28px; }
+  .mh-content { padding-bottom: clamp(14px, 4.5vh, 72px); }
+  .mh-grass-back, .mh-grass-front { bottom: 0; }
+  .spot-sticky { bottom: 0; }
+  .landing-menu.is-compact { display: block; }
+  .site-header:not(.nav-float) .page-width { padding-right: 64px; }
+  .site-header .header-share { display: none; }
 }

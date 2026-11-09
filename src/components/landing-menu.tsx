@@ -9,7 +9,7 @@ import { LINKS } from "@/components/site-header";
  * Desktop-only menu over the landing hero. Phones already have the bottom bar.
  * It is static and has no blur, so it adds nothing to the parallax scroll work. The page unmounts it once the normal header takes over.
  */
-export function LandingMenu() {
+export function LandingMenu({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
@@ -28,7 +28,7 @@ export function LandingMenu() {
   }, [open]);
 
   return (
-    <div className="landing-menu" ref={root}>
+    <div className={compact ? "landing-menu is-compact" : "landing-menu"} ref={root}>
       <button ref={button} type="button" className="landing-menu-button" aria-expanded={open} aria-controls="landing-menu-panel" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}>
         {open ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
       </button>
