@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PulseCard } from "./pulse-card";
 import { ReplyForm } from "./thread";
+import { participants } from "@/lib/pulse/participants";
 import type { Channel, Pulse } from "@/lib/pulse/types";
 
 export function StoryConversation({ pulse, channel, replies, highlight, hidePlace }: {
@@ -11,8 +12,9 @@ export function StoryConversation({ pulse, channel, replies, highlight, hidePlac
   const [open, setOpen] = useState(false);
   const [composing, setComposing] = useState(false);
   const id = `comments-${pulse.id}`;
+  const who = participants(pulse, replies);
   return <div className="conversation-card">
-    <PulseCard pulse={pulse} channel={channel} highlight={highlight} hidePlace={hidePlace}
+    <PulseCard pulse={pulse} who={replies.length ? who(pulse) : undefined} channel={channel} highlight={highlight} hidePlace={hidePlace}
       compactPhoto={false} photoFirst shareable replyCount={replies.length} onReply={replies.length ? () => setOpen(!open) : undefined}
       onCompose={channel ? () => { setOpen(true); setComposing(true); } : undefined}
       repliesOpen={open} repliesId={id}
@@ -22,7 +24,7 @@ export function StoryConversation({ pulse, channel, replies, highlight, hidePlac
         <h2>Replies <span>{replies.length}</span></h2>
         <p>To {pulse.callsign} · Oldest first</p>
       </div>
-      {replies.length ? <ol className="conversation-replies">{replies.map(reply => <li key={reply.id}><PulseCard pulse={reply} hidePlace /></li>)}</ol>
+      {replies.length ? <ol className="conversation-replies">{replies.map(reply => <li key={reply.id}><PulseCard pulse={reply} hidePlace who={who(reply)} /></li>)}</ol>
         : <p className="conversation-empty">Be the first to reply to this story.</p>}
       {channel && composing ? <ReplyForm channel={channel} parent={pulse} onDone={() => setComposing(false)} /> : null}
       {channel && !composing ? <button type="button" className="conversation-write" onClick={() => setComposing(true)}>Write a reply to {pulse.callsign}…</button> : null}

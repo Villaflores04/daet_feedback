@@ -1,5 +1,6 @@
 import { hasDeskSession } from "@/lib/desk-session";
 import { LINK_SOURCES } from "@/lib/pulse/source-tag";
+import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { OVERALL_CHANNEL, OVERALL_ID } from "@/lib/pulse/scope";
 import { supabaseServer } from "@/lib/supabase-server";
@@ -25,6 +26,7 @@ function pulseFromRow(row: Record<string, unknown>) {
     body: String(row.body || ""),
     photo: row.photo ? String(row.photo) : undefined,
     source: typeof row.source === "string" ? row.source : "visitor",
+    authorKey: typeof row.author_key === "string" && row.author_key ? row.author_key : undefined,
     createdAt: toMillis(row.created_at as string),
     reacts: {
       up: Number(row.reacts_up || 0),
@@ -78,9 +80,11 @@ const PULSE_COLUMNS = "id,channel_id,parent_id,callsign,face,body,photo,reacts_u
 /** Reads feedback with its source; falls back to the older columns if the source migration has not been run yet. */
 async function readPulses(db: ReturnType<typeof supabaseServer>) {
   const run = (cols: string) => db.from("pulses").select(cols).order("created_at", { ascending: false }).limit(500);
-  const first = await run(`${PULSE_COLUMNS},source`);
-  if (first.error?.code === "42703") return run(PULSE_COLUMNS);
-  return first;
+  const first = await run(`${PULSE_COLUMNS},source,author_key`);
+  if (first.error?.code !== "42703") return first;
+  const second = await run(`${PULSE_COLUMNS},source`);
+  if (second.error?.code !== "42703") return second;
+  return run(PULSE_COLUMNS);
 }
 
 export async function GET() {
@@ -168,11 +172,16 @@ export async function POST(request: Request) {
       };
       // Tagged links (?src=) may mark where a visitor came from; anything else counts as site feedback.
       if (typeof pulse.source === "string" && LINK_SOURCES.includes(pulse.source)) row.source = pulse.source;
+      // Only a one-way hash of the visitor's device token is stored.
+      if (typeof pulse.authorKey === "string" && pulse.authorKey.length >= 16 && pulse.authorKey.length <= 80) {
+        row.author_key = createHash("sha256").update(`daet-author:${pulse.authorKey}`).digest("hex").slice(0, 16);
+      }
       const save = (r: Record<string, unknown>) => db.from("pulses").upsert(r, { onConflict: "id", ignoreDuplicates: true });
       let { error } = await save(row);
       // Older databases without the source migration still accept the feedback.
-      if (error && row.source && (error.code === "42703" || error.code === "23514")) {
+      if (error && (error.code === "42703" || error.code === "23514")) {
         delete row.source;
+        delete row.author_key;
         ({ error } = await save(row));
       }
       if (error) throw error;

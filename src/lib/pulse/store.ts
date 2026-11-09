@@ -1,3 +1,4 @@
+import { getDeviceKey } from "@/lib/pulse/visitor";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { OVERALL_CHANNEL, OVERALL_ID } from "./scope";
@@ -121,6 +122,7 @@ export const usePulse = create<PulseState>()(
           body: (draft.body ?? "").trim(),
           photo: photo || undefined,
           source: draft.source,
+          authorKey: getDeviceKey() || undefined,
           createdAt: Date.now(),
           reacts: { up: 0, down: 0 },
         };
@@ -148,6 +150,7 @@ export const usePulse = create<PulseState>()(
           ...draft, parentId: draft.parentId, id: uid("p"), photo,
           callsign: draft.callsign.trim() || "Visitor",
           body: (draft.body ?? "").trim(),
+          authorKey: getDeviceKey() || undefined,
           createdAt: Date.now(), reacts: { up: 0, down: 0 },
         };
         const saved = await saveSharedPulse(pulse);
