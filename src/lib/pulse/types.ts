@@ -38,6 +38,8 @@ export type Pulse = {
   photo?: string;
   /** Where the entry came from. Missing means collected on the site. */
   source?: Source;
+  /** Anonymous, stable per-device id (a one-way hash). Used only to tell who is who inside one conversation. */
+  authorKey?: string;
   createdAt: number;
   reacts: { up: number; down: number };
 };

@@ -26,3 +26,18 @@ export function useCallsign() {
     setCallsign: (name: string) => setCallsign(writeCallsign(name)),
   };
 }
+
+const DEVICE_KEY = "daet-pulse-device";
+
+/** A random per-browser token. The server stores only a one-way hash of it, so it cannot be used to impersonate anyone. */
+export function getDeviceKey() {
+  if (typeof window === "undefined") return "";
+  try {
+    let key = localStorage.getItem(DEVICE_KEY);
+    if (!key || key.length < 16) {
+      key = (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}-${Math.random()}`).replace(/-/g, "");
+      localStorage.setItem(DEVICE_KEY, key);
+    }
+    return key;
+  } catch { return ""; }
+}

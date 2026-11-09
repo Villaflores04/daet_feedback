@@ -6,6 +6,7 @@ import { PhotoField } from "@/components/photo-field";
 import { PulseCard } from "@/components/pulse-card";
 import { Button } from "@/components/ui/button";
 import { usePulse } from "@/lib/pulse/store";
+import { participants } from "@/lib/pulse/participants";
 import { SOURCES, type Channel, type FaceId, type Pulse } from "@/lib/pulse/types";
 import { useCallsign } from "@/lib/pulse/visitor";
 import { toast } from "sonner";
@@ -176,10 +177,12 @@ export function PlaceThread({
         const replies = pulses
           .filter((p) => p.parentId === root.id)
           .sort((a, b) => a.createdAt - b.createdAt);
+        const who = participants(root, replies);
         return (
           <li key={root.id}>
             <PulseCard
               pulse={root}
+              who={replies.length ? who(root) : undefined}
               channel={channel}
               hidePlace
               highlight={replyTo === root.id}
@@ -198,7 +201,7 @@ export function PlaceThread({
               <ol className="mt-2 space-y-2 border-l-2 border-cool pl-3">
                 {replies.map((reply) => (
                   <li key={reply.id}>
-                    <PulseCard pulse={reply} hidePlace compactPhoto />
+                    <PulseCard pulse={reply} hidePlace compactPhoto who={who(reply)} />
                   </li>
                 ))}
               </ol>
