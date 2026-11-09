@@ -24,6 +24,7 @@ export function PublicChrome({
     // The hero height is measured once (and on resize), never inside the scroll handler: reading it there forced a
     // synchronous layout on every scroll event while the hero was also changing classes, which is what made fast
     // back-and-forth scrolling stutter on phones.
+    const compact = window.matchMedia("(max-width: 1023px)");
     const hero = document.querySelector<HTMLElement>(".mh-journey");
     const measure = () => { heroH = hero ? hero.offsetHeight : 0; };
     const ro = hero && typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
@@ -32,7 +33,8 @@ export function PublicChrome({
     const run = () => {
       raf = 0;
       const y = window.scrollY;
-      const sc = y > 48;
+      // Phones: the bar leaves and becomes the fixed bar on the same first pixel, so it never pops between the two states mid-swipe.
+      const sc = y > (compact.matches ? 2 : 48);
       if (sc !== lastScrolled) { lastScrolled = sc; setScrolled(sc); }
       // Hide the header only while the hero is moving; it returns shortly after scrolling stops.
       if (y > 2 && heroH && y < heroH) {
