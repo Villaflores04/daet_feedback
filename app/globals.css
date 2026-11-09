@@ -2224,7 +2224,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .feedback-feelings button { min-height: 92px; }
   .feedback-feelings button > span:first-child { font-size: 2.2rem; }
   .feedback-cover { height: 130px; }
-  .feedback-primary { position: sticky; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 20; box-shadow: 0 14px 28px -12px rgb(37 99 235 / .7); }
+  /* In the normal flow under the form (it used to float over the emoji cards and the helper text). */
+  .feedback-primary { position: static; box-shadow: 0 12px 24px -14px rgb(37 99 235 / .7); }
 }
 .feedback-main { max-width: 1280px; }
 @media (max-width: 767px) { .page-hero-action { display: none; } }
