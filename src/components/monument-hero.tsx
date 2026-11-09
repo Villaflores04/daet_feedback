@@ -203,7 +203,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
         <div className="mh-content page-width">
           <div className="mh-copy">
             <p className="mh-eyebrow"><span aria-hidden="true" /> Daet, Camarines Norte</p>
-            <h1>Your visit.<br />Your <em>voice.</em></h1>
+            <h1>Discover Daet,<br /><em>Home of the First</em></h1>
             <div className="mh-card">
               <p className="mh-lede">How was your time in Daet?<br className="hidden sm:block" /> Choose a feeling.<span className="mh-lede-more"> Help shape a better visit.</span></p>
               <div className="hero-feelings mh-feelings" role="group" aria-label="Choose how your visit felt">
