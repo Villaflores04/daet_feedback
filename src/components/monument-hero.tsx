@@ -131,9 +131,25 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     const ro = new ResizeObserver(measure);
     // Phones: the scene ends exactly where the bottom dock begins, so the grass is rooted in view (CSS reads --mh-dock).
     const dock = document.querySelector<HTMLElement>(".site-dock");
-    const setDock = () => { if (dock) stage.style.setProperty("--mh-dock", `${dock.offsetHeight}px`); };
+    const setDock = () => { if (dock) node.style.setProperty("--mh-dock", `${dock.offsetHeight}px`); };
     const dockRo = dock ? new ResizeObserver(setDock) : null;
     if (dock) { setDock(); dockRo?.observe(dock); }
+
+    // Phones: the hero stays put and "How it works" slides over it. One swipe either way settles on one of the two screens,
+    // so the landing view never rests half-way (no cut grass, no lifted buttons).
+    let snapTimer = 0, rest = 0;
+    const snapOn = portrait.matches && !reduced.matches;
+    const settle = () => {
+      snapTimer = 0;
+      const h = stage.offsetHeight, y = window.scrollY;
+      if (y <= 2) { rest = 0; return; }
+      if (y >= h - 2) { rest = h; return; }
+      const goTo = rest === 0 ? (y > 40 ? h : 0) : (y < h - 40 ? 0 : h);
+      rest = goTo;
+      window.scrollTo({ top: goTo, behavior: "smooth" });
+    };
+    const onSnap = () => { window.clearTimeout(snapTimer); snapTimer = window.setTimeout(settle, 120); };
+    if (snapOn) { rest = window.scrollY > stage.offsetHeight / 2 ? stage.offsetHeight : 0; window.addEventListener("scroll", onSnap, { passive: true }); }
     // Desktop: once the hero has scrolled away, hide it for keyboard/pointer and pause its hidden loops (one cheap observer, no per-frame work).
     const sentinel = node.querySelector<HTMLElement>(".mh-sentinel");
     const so = new IntersectionObserver(([entry]) => stage.classList.toggle("mh-past", !entry.isIntersecting && entry.boundingClientRect.top < 0));
@@ -158,7 +174,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     document.addEventListener("visibilitychange", update);
     update();
     return () => {
-      io.disconnect(); so.disconnect(); no.disconnect(); ro.disconnect(); dockRo?.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
+      io.disconnect(); so.disconnect(); no.disconnect(); ro.disconnect(); dockRo?.disconnect(); window.removeEventListener("scroll", onSnap); window.clearTimeout(snapTimer); cancelAnimationFrame(frame); cancelAnimationFrame(pointerFrame);
       window.removeEventListener("scroll", update);
       window.removeEventListener("scroll", onScrollState); clearTimeout(scrollTimer);
       window.removeEventListener("resize", measure);
@@ -175,7 +191,7 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
     e.preventDefault();
     const phone = window.matchMedia("(max-width: 767px), (max-aspect-ratio: 1/1)").matches;
     const target = phone ? document.getElementById("how-it-works") : null;
-    const top = target ? target.getBoundingClientRect().top + window.scrollY - 70 : node.offsetTop + (node.offsetHeight - window.innerHeight) * 0.5;
+    const top = target ? target.getBoundingClientRect().top + window.scrollY : node.offsetTop + (node.offsetHeight - window.innerHeight) * 0.5;
     window.scrollTo({ top, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   };
 
