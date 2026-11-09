@@ -23,6 +23,10 @@ export function MobileTrailScene() {
       { rootMargin: "-42% 0px -42% 0px" },
     );
     cards.forEach((c) => io.observe(c));
+    // Warm-up: the scene is not painted while the hero is on screen. It switches on about a third of a screen before it is needed,
+    // so its layers are drawn while the hero still covers the view instead of all at once when it first scrolls in.
+    const warm = new IntersectionObserver(([e]) => { section.classList.toggle("mm-live", e.isIntersecting); }, { rootMargin: "60% 0px 35% 0px" });
+    warm.observe(section);
 
     const scene = ref.current!;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -81,7 +85,7 @@ export function MobileTrailScene() {
     }
 
     return () => {
-      io.disconnect(); vio.disconnect();
+      io.disconnect(); vio.disconnect(); warm.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("scroll", onScrollFlag);
       window.removeEventListener("deviceorientation", onTilt);

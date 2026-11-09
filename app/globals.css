@@ -2940,6 +2940,8 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-inline-body { position: relative; z-index: 1; margin-top: -100vh; margin-top: -100svh; }
   .mm-scene { display: block; position: sticky; top: 0; height: 100vh; height: 100svh; z-index: 0; overflow: hidden; pointer-events: none; }
   .mm-scene > *, .mm-t > * { position: absolute; }
+  .mm-scene { contain: layout paint style; visibility: hidden; }
+  .mt-inline.mm-live .mm-scene { visibility: visible; }
   .mm-sky, .mm-dusk, .mm-night, .mm-dim, .mm-warm { inset: 0; }
   .mm-sky { background: linear-gradient(#1d6e95 0%, #4a9fc4 34%, #a8d8e6 62%, #fbe6b4 100%); }
   .mm-dusk { opacity: 0; background: linear-gradient(#2b4f86 0%, #7a6fa3 32%, #e58f6e 62%, #ffc978 100%); transition: opacity 1.1s ease; }
@@ -3001,7 +3003,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mt-inline { --mm-glow: rgb(255 214 120 / .5); }
   .mt-inline[data-step="2"] { --mm-glow: rgb(255 150 90 / .55); }
   .mt-inline[data-step="3"] { --mm-glow: rgb(150 178 255 / .5); }
-  .mt-inline .mt-card { box-shadow: 0 0 0 1px rgb(255 255 255 / .7), 0 18px 38px -20px var(--mm-glow), 0 10px 24px -18px #0b3a52; transition: box-shadow 1s ease; }
+  .mt-inline .mt-card { box-shadow: 0 0 0 1px rgb(255 255 255 / .7), 0 18px 38px -20px var(--mm-glow), 0 10px 24px -18px #0b3a52; transition: none; }
   /* The dashed track stays faint; a solid gold line fills it as you read down the steps. */
   .mt-inline .mt-steps::before { opacity: .45; }
   .mt-inline .mt-steps::after { content: ""; position: absolute; left: 16px; top: 20px; bottom: 24px; width: 3px; border-radius: 3px; background: linear-gradient(#f6c453, #ffe39a); box-shadow: 0 0 12px 1px rgb(246 196 83 / .65); transform-origin: top; transform: scaleY(var(--ms, 0)); will-change: transform; }
