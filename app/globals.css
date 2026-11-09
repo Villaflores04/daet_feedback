@@ -2999,15 +2999,14 @@ button, [role="button"] { min-width:44px; min-height:44px; }
    How it works on phones, step 3: gold progress line, lantern step numbers, glowing cards.
    ===================================================================== */
 @media (max-width: 767px), (max-aspect-ratio: 1/1) {
-  .mt-inline { --mm-glow: rgb(255 214 120 / .5); }
-  .mt-inline[data-step="2"] { --mm-glow: rgb(255 150 90 / .55); }
-  .mt-inline[data-step="3"] { --mm-glow: rgb(150 178 255 / .5); }
+  /* The card shadow is constant: changing its colour per step repainted three large blurred shadows (main thread) at every step change. */
+  .mt-inline { --mm-glow: rgb(255 200 120 / .45); }
   .mt-inline .mt-card { box-shadow: 0 0 0 1px rgb(255 255 255 / .7), 0 18px 38px -20px var(--mm-glow), 0 10px 24px -18px #0b3a52; transition: none; }
   /* The dashed track stays faint; a solid gold line fills it as you read down the steps. */
   .mt-inline .mt-steps::before { opacity: .45; }
   .mt-inline .mt-steps::after { content: ""; position: absolute; left: 16px; top: 20px; bottom: 24px; width: 3px; border-radius: 3px; background: linear-gradient(#f6c453, #ffe39a); box-shadow: 0 0 12px 1px rgb(246 196 83 / .65); transform-origin: top; transform: scaleY(var(--ms, 0)); will-change: transform; }
   /* Lanterns: dim until the reader reaches the step, then they light up and flicker softly. */
-  .mt-inline .mt-node { background: #d9cfae; color: #6b5a2c; box-shadow: none; transition: background .6s ease, color .6s ease, box-shadow .6s ease; }
+  .mt-inline .mt-node { background: #d9cfae; color: #6b5a2c; box-shadow: 0 6px 14px -6px #a16207; transition: background .6s ease, color .6s ease; }
   .mt-inline .mt-node { isolation: isolate; }
   .mt-inline .mt-node::after { z-index: -1; content: ""; position: absolute; inset: -12px; border-radius: 50%; background: radial-gradient(circle, rgb(255 214 110 / .75), transparent 68%); opacity: 0; pointer-events: none; }
   .mt-inline[data-step="1"] .mt-s1 .mt-node,
