@@ -1884,7 +1884,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-caption { bottom: calc(76px + env(safe-area-inset-bottom)); }
 }
 /* Portrait screens and phones: no panel. Heading and lede in the sky, emoji "bubbles" and the CTA in the thumb zone. */
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .mh-journey { height: 175vh; height: 175svh; }
   .mh-stage { min-height: 600px; }
   .mh-bg img { object-position: 34% 50%; transform-origin: 36% 72%; transform: translate3d(0, -4%, 0) scale(1.12); }
@@ -1974,7 +1974,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes mh-prog { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 /* Phones and portrait tablets: lighter scale, no filters or backdrop blur over the moving scene. */
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   @supports (animation-timeline: view()) {
     .mh-bg img { animation-name: mh-bg-m; }
     .mh-leaves-l { animation-name: mh-ll-m; }
@@ -2001,7 +2001,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .nav-float .header-link.is-active { background: rgb(255 255 255 / .2); color: #fff; text-decoration: none; }
 .nav-float .reward-balance-link { min-height: 40px; background: rgb(255 255 255 / .16); border-color: rgb(255 255 255 / .28); color: #fff; }
 .nav-float .reward-balance-link small { color: rgb(255 255 255 / .78); }
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .public-shell:not(:has(.sync-notice)) .nav-float .page-width { width: 100%; max-width: none; height: auto; margin-top: 0; padding: calc(10px + env(safe-area-inset-top)) 12px 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; pointer-events: none; }
   .nav-float .page-width > a, .nav-float .page-width > div { pointer-events: auto; }
   .nav-float .page-width > a { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; background: rgb(7 38 46 / .66); border: 1px solid rgb(255 255 255 / .22); }
@@ -2017,7 +2017,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .nav-float .page-width > a svg { width: 34px; height: 34px; }
 .nav-float .page-width > a .leading-none { display: block; }
 .nav-float .page-width > a .leading-none > span:first-child { font-size: 1.15rem; }
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .public-shell:not(:has(.sync-notice)) .nav-float .page-width { width: 100%; padding: calc(10px + env(safe-area-inset-top)) 14px 0; }
   .nav-float .page-width > a { width: auto; height: auto; border: 0; background: none; gap: 6px; }
   .nav-float .page-width > a svg { width: 22px; height: 22px; }
@@ -2062,7 +2062,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @media (prefers-reduced-motion: reduce) { .mh-stem { animation: none !important; } }
 
 /* Phones: shorter intro line, no reward pill; the freed space goes to taller, higher grass with a wider sway. */
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .mh-lede-more, .mh-reward { display: none; }
   /* The grass is rooted on the bottom edge of the scene (the dock covers its base), so it meets the next section directly when the scene scrolls away. */
   /* The scene ends where the dock begins (--mh-dock is measured in JS; the fallback is a typical dock). */
@@ -2518,7 +2518,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mt-inline .mt-cta .primary-link { border-radius: 999px; }
 
 /* Phones and portrait tablets: no scene parallax. Steps stack as cards that fade in. */
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .mh-journey { height: 140vh; height: 140svh; }
   .mt-inline { padding-top: 96px; }
   .mt-steps { padding-left: 0; }
@@ -2680,7 +2680,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 /* ===== Landing trail: phone layout (compact journey: skyline strip, trail rail, button at the end) ===== */
 .mt-end { display: none; }
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .mt-inline { padding: 0 0 36px; background: linear-gradient(#f7e4b0 0, #fbf3d6 240px, #f6f9fb 100%); }
   .mt-hill { position: relative; height: 210px; overflow: hidden; }
   .mt-hill::after { content: ""; position: absolute; inset: 0 0 auto; height: 74px; background: linear-gradient(#143d33, rgb(20 61 51 / 0)); pointer-events: none; }
@@ -2719,7 +2719,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 }
 
 /* Phones: no skyline strip; the grass flows straight into "How it works". */
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .mt-hill { display: none; }
   .mt-inline { padding-top: 40px; background: linear-gradient(#143d33 0, #2a6b58 22px, #a9d6df 110px, #f7efd0 300px, #f6f9fb 100%); }
   .mt-inline .mt-head .mh-eyebrow { color: #e6f3c9; }
@@ -2901,7 +2901,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 
 /* ===== Phone tilt parallax: iPhone needs one tap to allow motion ===== */
 .mh-tilt { display: none; }
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .mh-tilt { display: inline-flex; position: absolute; right: 14px; bottom: 74px; z-index: 12; align-items: center; min-height: 34px; padding: 0 14px; border: 1px solid rgb(255 255 255 / .55); border-radius: 999px; background: rgb(18 52 73 / .62); color: #fff; font-size: .72rem; font-weight: 600; letter-spacing: .02em; }
 }
 .mh-stage.mh-past .mh-tilt { visibility: hidden; }
@@ -2920,7 +2920,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mh-feelings.hero-feelings button[aria-pressed="true"] small { color: #1d4ed8; font-weight: 700; }
 .mh-feelings.hero-feelings:has(button[aria-pressed="true"]) button[aria-pressed="false"] { opacity: .72; }
 .mh-feelings.hero-feelings button:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .mh-feelings.hero-feelings button[aria-pressed="true"] { background: none; border: 0; box-shadow: none; transform: none; }
   .mh-feelings.hero-feelings button[aria-pressed="true"] span { box-shadow: 0 0 0 3px #2563eb, 0 8px 18px -6px rgb(37 99 235 / .8); transform: scale(1.12); }
 }
@@ -2936,7 +2936,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
    Only opacity and transform change, so it stays on the compositor.
    ===================================================================== */
 .mm-scene { display: none; }
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .mt-inline { isolation: isolate; background: #1f6f8b; padding-bottom: 0; }
   /* The body is pulled up over the scene (not the scene pulled down), so the sticky scene stops exactly at the end of the section. */
   .mt-inline-body { position: relative; z-index: 1; margin-top: -100vh; margin-top: -100svh; }
@@ -3001,7 +3001,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 /* =====================================================================
    How it works on phones, step 3: gold progress line, lantern step numbers, glowing cards.
    ===================================================================== */
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   /* The card shadow is constant: changing its colour per step repainted three large blurred shadows (main thread) at every step change. */
   .mt-inline { --mm-glow: rgb(255 200 120 / .45); }
   .mt-inline .mt-card { box-shadow: 0 0 0 1px rgb(255 255 255 / .7), 0 18px 38px -20px var(--mm-glow), 0 10px 24px -18px #0b3a52; transition: none; }
@@ -3033,7 +3033,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
    Phones: the landing screen fits the visible area exactly (grass whole, buttons where they belong) and has no scroll parallax.
    It scrolls away normally and "How it works" follows right under it; a settle step finishes a swipe on one of the two screens.
    ===================================================================== */
-@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 1/1), (max-width: 767px) and (min-height: 561px) {
   .mh-journey { height: auto; background: #143d33; }
   .mh-stage { position: relative; }
   .mh-bg img, .mh-light, .mh-leaves-l, .mh-leaves-r, .mh-grass-back, .mh-grass-front, .mh-content, .mh-progress span { animation: none !important; transform: none !important; }
@@ -3090,3 +3090,34 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 }
 /* Decorative layers (leaves, clouds) may poke out by a few pixels; never allow a sideways scroll because of them. */
 html, body { overflow-x: clip; }
+
+/* Short landscape screens (a laptop at 150-200% zoom, a small window, a phone on its side): the landing screen compacts to fit
+   the visible height, above the bottom bar when there is one. */
+@media (min-width: 768px) and (min-aspect-ratio: 1/1) and (max-height: 700px), (max-width: 767px) and (min-aspect-ratio: 1/1) and (max-height: 560px) {
+  .mh-stage { min-height: 0; }
+  .mh-content { padding-top: clamp(44px, 11vh, 96px); padding-bottom: clamp(14px, 4.5vh, 72px); }
+  .mh-eyebrow { font-size: 10px; }
+  .mh-copy h1 { margin-top: 4px; font-size: clamp(30px, 11.5vh, 80px); }
+  .mh-card { margin-top: clamp(8px, 2.2vh, 18px); padding: clamp(8px, 2vh, 16px) clamp(12px, 2.4vh, 20px); border-radius: 20px; }
+  .mh-lede { font-size: 13px; line-height: 1.4; }
+  .mh-feelings.hero-feelings { margin-top: clamp(6px, 1.6vh, 12px); gap: 8px; }
+  .mh-feelings.hero-feelings :is(a, button) { min-height: clamp(42px, 11vh, 72px); border-radius: 14px; }
+  .mh-feelings.hero-feelings span { font-size: clamp(1.3rem, 5.2vh, 2.1rem); }
+  .mh-feelings.hero-feelings small { font-size: 11px; }
+  .mh-reward, .mh-caption { display: none; }
+  .mh-actions { margin-top: clamp(6px, 1.6vh, 12px); }
+  .mh-actions .primary-link { min-height: 40px; }
+}
+@media (min-width: 768px) and (max-width: 1023px) and (min-aspect-ratio: 1/1) and (max-height: 700px), (max-width: 767px) and (min-aspect-ratio: 1/1) and (max-height: 560px) {
+  .mh-content { padding-bottom: calc(var(--mh-dock, 70px) + clamp(10px, 3vh, 24px)); }
+}
+@media (min-aspect-ratio: 1/1) and (min-width: 480px) and (max-height: 540px) { .mh-lede { display: none; } }
+@media (min-aspect-ratio: 1/1) and (min-width: 480px) and (max-height: 430px) { .mh-eyebrow, .mh-feelings.hero-feelings small { display: none; } }
+/* Same, for landscape screens narrower than 768px: copy on the right so it clears the monument, and low grass so it never covers the buttons. */
+@media (max-width: 767px) and (min-aspect-ratio: 1/1) and (max-height: 560px) {
+  .mh-copy { margin-left: auto; margin-right: 0; max-width: min(100%, 72%); }
+  .mh-grass-front { display: none; }
+  .mh-grass-back { height: clamp(48px, 16vh, 110px); }
+  .mh-bg img { object-position: 16% 50%; }
+  .mh-content { padding-bottom: calc(var(--mh-dock, 70px) + clamp(10px, 4vh, 24px)); }
+}
