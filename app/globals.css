@@ -1065,7 +1065,7 @@ h2 em {
 }
 
 /* Responsive editorial layouts: readable columns and uncropped visitor media. */
-.page-width { max-width: 1280px; }
+.page-width { max-width: none; }
 .spot-hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: center; gap: clamp(28px, 4vw, 64px); padding-block: 40px; }
 .spot-hero-image { width: 100%; aspect-ratio: 4/3; height: auto; max-height: 560px; object-fit: cover; object-position: center; border-radius: 16px; }
 .spot-hero-copy { padding-block: 12px; min-width: 0; }
@@ -1118,7 +1118,7 @@ h2 em {
 .coastal-frond { width: 400px; height: 570px; bottom: -190px; filter: drop-shadow(0 15px 20px #0b45531a); }
 .coastal-frond-left { left: -220px; transform: rotate(18deg) translate3d(calc(var(--journey) * -170px), calc(var(--journey) * 150px), 0) scale(calc(1 + var(--journey) * .35)); }
 .coastal-frond-right { right: -210px; transform: scaleX(-1) rotate(5deg) translate3d(calc(var(--journey) * -170px), calc(var(--journey) * 180px), 0) scale(calc(1 + var(--journey) * .4)); }
-.coastal-location { position: absolute; right: max(7vw, calc((100vw - 1280px) / 2)); top: 35%; color: #164d60; opacity: var(--journey); transform: translateY(calc(45px - var(--journey) * 45px)); pointer-events: none; text-shadow: 0 2px 24px #fff; }
+.coastal-location { position: absolute; right: max(7vw, calc((100vw - var(--wrap-w, 1280px)) / 2)); top: 35%; color: #164d60; opacity: var(--journey); transform: translateY(calc(45px - var(--journey) * 45px)); pointer-events: none; text-shadow: 0 2px 24px #fff; }
 .coastal-location > span { font-size: 10px; letter-spacing: .2em; }
 .coastal-location p { font: 500 clamp(38px, 4.8vw, 70px)/1.05 var(--font-display); letter-spacing: -.04em; margin: 14px 0; }
 .coastal-location em { color: var(--color-teal); }
@@ -1274,7 +1274,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .hero-feelings :is(a, button):hover { background:white; transform:translateY(-4px); }
 .hero-feelings span { font-size:1.8rem; line-height:1.2; }
 .hero-feelings small { font-size:.65rem; font-weight:600; margin-top:4px; }
-.hero-reward-panel { position:absolute; right:max(5vw,calc((100vw - 1280px)/2)); top:24%; z-index:5; max-width:290px; }
+.hero-reward-panel { position:absolute; right:max(5vw,calc((100vw - var(--wrap-w, 1280px))/2)); top:24%; z-index:5; max-width:290px; }
 .hero-reward-panel .reward-preview { background:#ffffffd9; backdrop-filter:blur(12px); box-shadow:0 18px 60px -40px #164d78; }
 .coastal-location { top:58%; }
 .coastal-content h1 { font-size:clamp(64px,7vw,104px); }
@@ -1864,7 +1864,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .mh-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 16px; }
 .mh-actions .primary-link { border-radius: 999px; box-shadow: 0 16px 30px -16px #1d4ed8; }
 
-.mh-tagline { position: absolute; z-index: 6; left: max(6vw, calc((100vw - 1280px) / 2)); top: 24%; max-width: 30vw; color: #fff; pointer-events: none; text-shadow: 0 2px 22px rgb(5 30 40 / .6); opacity: 0; transform: translate3d(0, 34px, 0); }
+.mh-tagline { position: absolute; z-index: 6; left: max(6vw, calc((100vw - var(--wrap-w, 1280px)) / 2)); top: 24%; max-width: 30vw; color: #fff; pointer-events: none; text-shadow: 0 2px 22px rgb(5 30 40 / .6); opacity: 0; transform: translate3d(0, 34px, 0); }
 .mh-tagline span { font-size: 10px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: #ffe08a; }
 .mh-tagline p { margin: 10px 0; font: 500 clamp(32px, 3.6vw, 54px)/1.06 var(--font-display); letter-spacing: -.04em; }
 .mh-tagline em { color: #ffd978; }
@@ -2011,7 +2011,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 }
 
 /* Landing nav, simplified: only the logo and DAET-CONNECT name over the hero. No links, points or pill. */
-.public-shell:not(:has(.sync-notice)) .nav-float .page-width { width: min(1240px, calc(100% - 40px)); height: auto; margin-top: 0; padding: 18px 0 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; justify-content: flex-start; }
+.public-shell:not(:has(.sync-notice)) .nav-float .page-width { width: var(--wrap); height: auto; margin-top: 0; padding: 18px 0 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; justify-content: flex-start; }
 .nav-float nav, .nav-float .page-width > div { display: none; }
 .nav-float .page-width > a { pointer-events: auto; width: auto; height: auto; display: inline-flex; border: 0; background: none; border-radius: 0; text-shadow: 0 1px 10px rgb(3 20 28 / .5); }
 .nav-float .page-width > a svg { width: 34px; height: 34px; }
@@ -2227,7 +2227,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   /* In the normal flow under the form (it used to float over the emoji cards and the helper text). */
   .feedback-primary { position: static; box-shadow: 0 12px 24px -14px rgb(37 99 235 / .7); }
 }
-.feedback-main { max-width: 1280px; }
+.feedback-main { max-width: none; }
 @media (max-width: 767px) { .page-hero-action { display: none; } }
 .desk-stat-grid > .desk-kpi > p.desk-kpi-sub { font-size: 12px; line-height: 1.4; margin-top: 4px; font-weight: 400; }
 .desk-attention-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
@@ -2872,7 +2872,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .spot-facts li.is-mixed { background: #fef9c3; color: #854d0e; }
   .spot-facts li.is-bad { background: #fee2e2; color: #991b1b; }
   .spot-actions { margin-top: 28px; }
-  .spot-body.feedback-spot-body { grid-template-columns: minmax(0, 1fr) 360px; max-width: 1280px; gap: clamp(32px, 4vw, 56px); }
+  .spot-body.feedback-spot-body { grid-template-columns: minmax(0, 1fr) 360px; max-width: var(--wrap-w, 1280px); gap: clamp(32px, 4vw, 56px); }
   .spot-side { display: grid; gap: 16px; position: sticky; top: 96px; max-height: calc(100vh - 116px); overflow-y: auto; padding: 2px 4px 4px 2px; scrollbar-width: thin; }
   .spot-side-comments { display: block; }
   .spot-side-summary { margin-top: 10px; font-size: .9rem; font-weight: 600; color: #0f3a50; }
@@ -3038,3 +3038,55 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-stage { position: relative; }
   .mh-bg img, .mh-light, .mh-leaves-l, .mh-leaves-r, .mh-grass-back, .mh-grass-front, .mh-content, .mh-progress span { animation: none !important; transform: none !important; }
 }
+
+/* =====================================================================
+   Laptop and desktop fit: one shared page width for header, content and footer, sizes that follow both the width and the
+   height of the screen, and larger layouts on big monitors.
+   ===================================================================== */
+:root { --wrap-w: 1280px; --wrap: min(100% - 96px, var(--wrap-w)); }
+@media (min-width: 1700px) { :root { --wrap-w: 1560px; --wrap: min(100% - 160px, var(--wrap-w)); } html { font-size: 17px; } }
+@media (min-width: 2200px) { :root { --wrap-w: 1880px; --wrap: min(100% - 240px, var(--wrap-w)); } html { font-size: 20px; } }
+@media (min-width: 3000px) { :root { --wrap-w: 2400px; --wrap: min(100% - 320px, var(--wrap-w)); } html { font-size: 24px; } }
+.page-width { width: var(--wrap); }
+@media (min-width: 1024px) {
+  .places-main, .stories-main, .feedback-main, .sentiment-page:not(.sentiment-desk) { width: var(--wrap); }
+}
+@media (max-width: 1023px) { :root { --wrap: calc(100% - 48px); } }
+@media (max-width: 639px) { :root { --wrap: calc(100% - 40px); } }
+
+/* Desk: centred content, a sidebar that grows a little, and a sidebar that scrolls on short screens. */
+.desk-shell { grid-template-columns: clamp(232px, 15vw, 320px) minmax(0, 1fr); }
+.desk-sidebar > a { white-space: nowrap; }
+.desk-sidebar > a * { white-space: nowrap; }
+.desk-sidebar { overflow-y: auto; overscroll-behavior: contain; }
+.desk-content { margin-inline: auto; padding-bottom: max(96px, calc(clamp(24px, 3vw, 48px) + 56px)); }
+@media (min-width: 1700px) { .desk-content { max-width: 1760px; } }
+@media (min-width: 2200px) { .desk-content { max-width: 2200px; } }
+@media (max-height: 640px) and (min-width: 1024px) { .desk-sidebar { padding-block: 18px; } .desk-sidebar nav { margin-top: 20px; } }
+
+/* Landing screen on laptops/desktops: --hs follows the smaller of width and height, so the card, headline and buttons keep
+   their proportions on every screen ratio and never run into the bottom bar. */
+@media (min-width: 768px) and (min-aspect-ratio: 1/1) {
+  .mh-stage { --hs: clamp(12px, min(1vw, 1.7vh), 24px); }
+  .mh-content { padding-top: clamp(64px, calc(var(--hs) * 5.8), 150px); padding-bottom: clamp(72px, calc(var(--hs) * 6.8), 170px); }
+  .mh-copy { width: min(100%, calc(var(--hs) * 37.5)); }
+  .mh-eyebrow { font-size: calc(var(--hs) * .78); }
+  .mh-copy h1 { font-size: clamp(50px, calc(var(--hs) * 6.2), 150px); }
+  .mh-card { margin-top: calc(var(--hs) * 1.5); padding: calc(var(--hs) * 1.5) calc(var(--hs) * 1.65) calc(var(--hs) * 1.4); border-radius: calc(var(--hs) * 1.95); }
+  .mh-lede { font-size: max(14px, calc(var(--hs) * 1.15)); }
+  .mh-feelings.hero-feelings { gap: calc(var(--hs) * .7); margin-top: calc(var(--hs) * 1.1); }
+  .mh-feelings.hero-feelings :is(a, button) { min-height: calc(var(--hs) * 5.8); border-radius: calc(var(--hs) * 1.25); }
+  .mh-feelings.hero-feelings span { font-size: calc(var(--hs) * 2.3); }
+  .mh-feelings.hero-feelings small { font-size: max(11px, calc(var(--hs) * .8)); }
+  .mh-reward { margin-top: calc(var(--hs) * .95); font-size: max(11px, calc(var(--hs) * .83)); }
+  .mh-actions { margin-top: calc(var(--hs) * 1.1); }
+  .mh-caption { font-size: max(11px, calc(var(--hs) * .83)); bottom: clamp(14px, calc(var(--hs) * 1.5), 40px); }
+  .mh-caption-note { min-height: calc(var(--hs) * 3); padding: 0 calc(var(--hs) * 1.1); }
+}
+/* Very short screens (small laptops with a tall browser bar): drop the extras that do not fit. */
+@media (min-width: 768px) and (min-aspect-ratio: 1/1) and (max-height: 620px) {
+  .mh-reward { display: none; }
+  .mh-copy h1 { margin-top: 8px; }
+}
+/* Decorative layers (leaves, clouds) may poke out by a few pixels; never allow a sideways scroll because of them. */
+html, body { overflow-x: clip; }
