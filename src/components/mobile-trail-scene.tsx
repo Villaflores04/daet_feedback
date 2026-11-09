@@ -23,10 +23,13 @@ export function MobileTrailScene() {
       { rootMargin: "-42% 0px -42% 0px" },
     );
     cards.forEach((c) => io.observe(c));
-    // Warm-up: the scene is not painted while the hero is on screen. It switches on about a third of a screen before it is needed,
-    // so its layers are drawn while the hero still covers the view instead of all at once when it first scrolls in.
-    const warm = new IntersectionObserver(([e]) => { section.classList.toggle("mm-live", e.isIntersecting); }, { rootMargin: "60% 0px 35% 0px" });
-    warm.observe(section);
+    // Warm-up: draw the scene while the visitor is still reading the landing screen (browser idle time), so nothing has to be
+    // drawn at the moment the first swipe brings it into view.
+    let warmTimer = 0, warmIdle = 0;
+    const goLive = () => { section.classList.add("mm-live"); };
+    const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    const start = () => { if (ric) warmIdle = ric(goLive, { timeout: 1500 }); else warmTimer = window.setTimeout(goLive, 600); };
+    if (document.readyState === "complete") start(); else window.addEventListener("load", start, { once: true });
 
     const scene = ref.current!;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -85,7 +88,7 @@ export function MobileTrailScene() {
     }
 
     return () => {
-      io.disconnect(); vio.disconnect(); warm.disconnect();
+      io.disconnect(); vio.disconnect(); window.clearTimeout(warmTimer); (window as Window & { cancelIdleCallback?: (n: number) => void }).cancelIdleCallback?.(warmIdle); window.removeEventListener("load", start);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("scroll", onScrollFlag);
       window.removeEventListener("deviceorientation", onTilt);
