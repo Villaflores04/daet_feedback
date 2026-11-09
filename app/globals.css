@@ -2066,8 +2066,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-lede-more, .mh-reward { display: none; }
   /* The grass is rooted on the bottom edge of the scene (the dock covers its base), so it meets the next section directly when the scene scrolls away. */
   /* The scene ends where the dock begins (--mh-dock is measured in JS; the fallback is a typical dock). */
-  /* lvh = the tallest viewport (browser toolbar hidden). It never changes while scrolling, so nothing re-lays out or flickers when the toolbar slides; with the toolbar showing, the bottom few px of grass simply sit behind the dock. */
-  .mh-stage { height: calc(100svh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom)))); height: calc(100lvh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom))) + 6px); min-height: 480px; }
+  .mh-stage { height: calc(100svh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom)))); min-height: 480px; }
   /* Safety net while the toolbar is still moving: anything uncovered under the scene blends with the grass instead of showing white. */
   .mh-journey { background: #143d33; }
   .mh-grass-back, .mh-grass-front { bottom: 0; background: none; }
@@ -3027,3 +3026,14 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 }
 @keyframes mm-line { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes mm-flicker { from { opacity: .45; } to { opacity: .95; } }
+
+/* =====================================================================
+   Phones: the landing screen is pinned and fits the visible area exactly (grass whole, buttons where they belong).
+   "How it works" slides up over it, so one swipe takes the visitor from one screen to the next and nothing in the hero moves.
+   ===================================================================== */
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  .mh-journey { height: calc(2 * (100svh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom))))); background: #143d33; }
+  .mh-stage { position: sticky; top: 0; }
+  .mt-inline { margin-top: calc(-1 * (100svh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom))))); z-index: 2; }
+  .mh-bg img, .mh-light, .mh-leaves-l, .mh-leaves-r, .mh-grass-back, .mh-grass-front, .mh-content, .mh-progress span { animation: none !important; transform: none !important; }
+}
