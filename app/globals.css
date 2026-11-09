@@ -3028,12 +3028,11 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 @keyframes mm-flicker { from { opacity: .45; } to { opacity: .95; } }
 
 /* =====================================================================
-   Phones: the landing screen is pinned and fits the visible area exactly (grass whole, buttons where they belong).
-   "How it works" slides up over it, so one swipe takes the visitor from one screen to the next and nothing in the hero moves.
+   Phones: the landing screen fits the visible area exactly (grass whole, buttons where they belong) and has no scroll parallax.
+   It scrolls away normally and "How it works" follows right under it; a settle step finishes a swipe on one of the two screens.
    ===================================================================== */
 @media (max-width: 767px), (max-aspect-ratio: 1/1) {
-  .mh-journey { height: calc(2 * (100svh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom))))); background: #143d33; }
-  .mh-stage { position: sticky; top: 0; }
-  .mt-inline { margin-top: calc(-1 * (100svh - var(--mh-dock, calc(70px + env(safe-area-inset-bottom))))); z-index: 2; }
+  .mh-journey { height: auto; background: #143d33; }
+  .mh-stage { position: relative; }
   .mh-bg img, .mh-light, .mh-leaves-l, .mh-leaves-r, .mh-grass-back, .mh-grass-front, .mh-content, .mh-progress span { animation: none !important; transform: none !important; }
 }
