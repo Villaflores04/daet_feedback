@@ -38,7 +38,7 @@ export function PulseCard({
   photoFirst = false,
   replyCount,
   shareable = false,
-  who,
+  isAuthor = false,
 }: {
   pulse: Pulse;
   channel?: Channel;
@@ -54,8 +54,8 @@ export function PulseCard({
   photoFirst?: boolean;
   replyCount?: number;
   shareable?: boolean;
-  /** Who this is inside the conversation (number, and whether they are the story's author). */
-  who?: { code: string; author: boolean };
+  /** This reply was written by the person who wrote the story. */
+  isAuthor?: boolean;
 }) {
   const face = faceById(pulse.face);
   const sourceLabel = pulse.source && pulse.source !== "visitor" ? SOURCES.find((x) => x.id === pulse.source)?.label : undefined;
@@ -123,8 +123,7 @@ export function PulseCard({
         <div className="min-w-0 flex-1">
           <p className="flex min-w-0 items-center gap-2 text-sm font-semibold text-ink">
             <span className="truncate">{pulse.callsign}</span>
-            {who?.author && pulse.parentId ? <span className="shrink-0 rounded-full bg-teal px-2 py-0.5 text-[11px] font-semibold text-plate" title="This reply is from the person who wrote the story">Author</span> : null}
-            {who ? <span className="shrink-0 rounded-full bg-cool px-2 py-0.5 font-mono text-[11px] font-medium text-muted" title="Numbered by who spoke first in this conversation">{who.code}</span> : null}
+            {isAuthor && pulse.parentId ? <span className="shrink-0 rounded-full bg-teal px-2 py-0.5 text-[11px] font-semibold text-plate" title="This reply is from the person who wrote the story">Author</span> : null}
             {sourceLabel ? <span className="shrink-0 rounded-full bg-cool px-2 py-0.5 text-[11px] font-medium text-muted">via {sourceLabel}</span> : null}
           </p>
           <p className="text-xs text-muted">
