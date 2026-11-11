@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, MessageCircle, Share2, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Check, MessageCircle, Pencil, Share2, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 import { Lightbox } from "@/components/lightbox";
 import { StoredPhoto } from "@/components/stored-photo";
 import { faceById } from "@/lib/pulse/faces";
 import { usePulse } from "@/lib/pulse/store";
+import { useIsOwnPulse } from "@/lib/pulse/visitor";
 import { SOURCES, type Channel, type Pulse } from "@/lib/pulse/types";
 import { cn } from "@/lib/utils";
 
@@ -69,6 +70,27 @@ export function PulseCard({
     try { await reactPulse(pulse.id, side); }
     catch (error) { setReactionError(error instanceof Error ? error.message : "Could not save reaction. Please retry."); }
     finally { setReacting(false); }
+  }
+  const own = useIsOwnPulse(pulse.authorKey) && !pulse.id.startsWith("imp-");
+  const editOwnPulse = usePulse((s) => s.editOwnPulse);
+  const removeOwnPulse = usePulse((s) => s.removeOwnPulse);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(pulse.body);
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [ownError, setOwnError] = useState("");
+  async function saveEdit() {
+    if (busy) return;
+    setBusy(true); setOwnError("");
+    try { await editOwnPulse(pulse.id, draft); setEditing(false); }
+    catch (error) { setOwnError(error instanceof Error ? error.message : "Could not save your changes."); }
+    finally { setBusy(false); }
+  }
+  async function confirmDelete() {
+    if (busy) return;
+    setBusy(true); setOwnError("");
+    try { await removeOwnPulse(pulse.id); }
+    catch (error) { setOwnError(error instanceof Error ? error.message : "Could not delete."); setBusy(false); }
   }
   const [openPhoto, setOpenPhoto] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -144,7 +166,16 @@ export function PulseCard({
         </div>
       </header>
 
-      {pulse.body ? (
+      {editing ? (
+        <div className="mt-3">
+          <label className="sr-only" htmlFor={`edit-${pulse.id}`}>Edit your note</label>
+          <textarea id={`edit-${pulse.id}`} value={draft} maxLength={1000} rows={reply ? 2 : 4} onChange={(e) => setDraft(e.target.value)} className="w-full rounded-lg border border-line bg-plate p-2 text-sm text-ink" />
+          <div className="mt-2 flex gap-2">
+            <button type="button" disabled={busy} onClick={() => void saveEdit()} className="min-h-11 rounded-lg bg-action px-4 text-sm font-semibold text-plate">{busy ? "Saving…" : "Save"}</button>
+            <button type="button" disabled={busy} onClick={() => { setEditing(false); setDraft(pulse.body); setOwnError(""); }} className="min-h-11 rounded-lg px-4 text-sm text-muted">Cancel</button>
+          </div>
+        </div>
+      ) : pulse.body ? (
         <p className={cn("whitespace-pre-wrap break-words text-ink", reply ? "mt-2 text-sm leading-5" : "mt-4 text-[0.95rem] leading-relaxed", (reply ? pulse.body.length > 180 : clamp) && !expanded && (reply ? "line-clamp-4" : "line-clamp-5"))}>
           {pulse.body}
         </p>
@@ -184,6 +215,12 @@ export function PulseCard({
           <span className="tabular-nums">{pulse.reacts.down}</span>
           <span className="sr-only">Disagree</span>
         </button>
+        {own && !editing ? (
+          <>
+            <button type="button" onClick={() => { setDraft(pulse.body); setEditing(true); setConfirming(false); }} className="inline-flex h-11 items-center gap-1 rounded-lg px-2.5 text-sm text-muted" aria-label={reply ? "Edit your reply" : "Edit your feedback"}><Pencil className="size-4" /><span>Edit</span></button>
+            <button type="button" onClick={() => setConfirming(true)} className="inline-flex h-11 items-center gap-1 rounded-lg px-2.5 text-sm text-neg" aria-label={reply ? "Delete your reply" : "Delete your feedback"}><Trash2 className="size-4" /><span>Delete</span></button>
+          </>
+        ) : null}
         <div className="story-reply-actions">
         {shareable ? <button type="button" onClick={() => void share()} className="story-share" aria-label="Share this story">{copied ? <Check className="size-4" /> : <Share2 className="size-4" />}<span>{copied ? "Link copied" : "Share"}</span></button> : null}
         {onReply ? (
@@ -202,6 +239,16 @@ export function PulseCard({
         </div>
       </footer>
 
+      {confirming ? (
+        <div role="alertdialog" aria-label="Confirm delete" className="mt-2 rounded-lg bg-cool p-3 text-sm text-ink">
+          <p>{reply ? "Delete this reply?" : "Delete this feedback? Replies to it will also be removed."}</p>
+          <div className="mt-2 flex gap-2">
+            <button type="button" disabled={busy} onClick={() => void confirmDelete()} className="min-h-11 rounded-lg bg-neg px-4 text-sm font-semibold text-plate">{busy ? "Deleting…" : "Yes, delete"}</button>
+            <button type="button" disabled={busy} onClick={() => setConfirming(false)} className="min-h-11 rounded-lg px-4 text-sm text-muted">Keep it</button>
+          </div>
+        </div>
+      ) : null}
+      {ownError ? <p role="alert" className="mt-2 text-sm text-neg">{ownError}</p> : null}
       {reactionError && <p role="alert" className="mt-2 text-sm text-neg">{reactionError}</p>}
       {openPhoto && pulse.photo ? (
         <Lightbox

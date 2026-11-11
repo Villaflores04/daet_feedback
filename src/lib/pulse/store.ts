@@ -58,6 +58,8 @@ type PulseState = {
   addPulse: (draft: DraftPulse) => Promise<Pulse>;
   sendReply: (draft: DraftPulse) => Promise<Pulse>;
   reactPulse: (id: string, side: "up" | "down") => Promise<void>;
+  editOwnPulse: (id: string, body: string) => Promise<void>;
+  removeOwnPulse: (id: string) => Promise<void>;
   addWish: (draft: DraftWish) => Promise<Wish>;
   acceptWish: (id: string) => Promise<Channel>;
   burnWish: (id: string) => Promise<void>;
@@ -157,6 +159,18 @@ export const usePulse = create<PulseState>()(
         if (!saved.ok) throw new Error(saved.error);
         set((state) => ({ pulses: [saved.data, ...state.pulses.filter((p) => p.id !== saved.data.id)] }));
         return saved.data;
+      },
+      editOwnPulse: async (id, body) => {
+        const response = await fetch("/api/pulse", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "pulse-edit", id, body, authorKey: getDeviceKey() }) });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || "Could not save your changes. Please retry.");
+        set((state) => ({ pulses: state.pulses.map((p) => (p.id === id ? { ...p, body: typeof data.body === "string" ? data.body : body.trim() } : p)) }));
+      },
+      removeOwnPulse: async (id) => {
+        const response = await fetch("/api/pulse", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "pulse-delete", id, authorKey: getDeviceKey() }) });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || "Could not delete. Please retry.");
+        set((state) => ({ pulses: state.pulses.filter((p) => p.id !== id && p.parentId !== id) }));
       },
       reactPulse: async (id, side) => {
         const save = async () => {
