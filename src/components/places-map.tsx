@@ -18,11 +18,31 @@ export default function PlacesMap({ places, stats }: { places: Channel[]; stats:
   const located = useMemo(() => places.filter(p => coordsOf(p)), [places]);
   const missing = useMemo(() => places.filter(p => !coordsOf(p)), [places]);
 
+  // The data is re-fetched every few seconds, which hands this component new arrays each time. Only redraw when
+  // something the map actually shows changes, and never rebuild the map itself, so the view and popups stay put.
+  const latest = useRef({ located, stats });
+  latest.current = { located, stats };
+  const markerSig = located.map(p => { const c = coordsOf(p)!; const s = stats.get(p.id); return `${p.id}|${c.lat}|${c.lng}|${p.name}|${colorOf(s)}|${s?.total ?? 0}|${s ? moodLabel(s) : ""}`; }).join(";");
+  const placeSig = located.map(p => p.id).join(",");
+  const mapRef = useRef<L.Map | null>(null);
+  const layerRef = useRef<L.LayerGroup | null>(null);
+  const fittedFor = useRef("");
+  const hasPlaces = located.length > 0;
+
   useEffect(() => {
     const node = el.current;
-    if (!node || !located.length) return;
+    if (!node || !hasPlaces) return;
     const map = L.map(node, { scrollWheelZoom: false, attributionControl: true }).setView([14.1142, 122.9564], 12);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+    mapRef.current = map; layerRef.current = L.layerGroup().addTo(map); fittedFor.current = "";
+    return () => { map.remove(); mapRef.current = null; layerRef.current = null; };
+  }, [hasPlaces]);
+
+  useEffect(() => {
+    const map = mapRef.current, layer = layerRef.current;
+    if (!map || !layer) return;
+    const { located, stats } = latest.current;
+    layer.clearLayers();
     const pts: L.LatLngTuple[] = [];
     // Places sharing a spot (the town centre) are fanned out slightly so every pin stays tappable.
     const seen = new Map<string, number>();
@@ -35,13 +55,15 @@ export default function PlacesMap({ places, stats }: { places: Channel[]; stats:
       const stat = stats.get(place.id);
       const icon = L.divIcon({ className: "places-pin", html: `<span style="background:${colorOf(stat)}"></span>`, iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -28] });
       L.marker(pos, { icon, title: place.name, alt: place.name, keyboard: true })
-        .addTo(map)
+        .addTo(layer)
         .bindPopup(`<strong>${esc(place.name)}</strong><br/><span>${esc(stat ? moodLabel(stat) : "")}${stat?.total ? ` · ${stat.total} ratings` : ""}</span><br/><a href="/spots/${encodeURIComponent(place.slug)}">View place</a>`);
     }
-    if (pts.length > 1) map.fitBounds(pts, { padding: [40, 40], maxZoom: 14 });
-    else if (pts.length === 1) map.setView(pts[0], 14);
-    return () => { map.remove(); };
-  }, [located, stats]);
+    if (fittedFor.current !== placeSig) {
+      fittedFor.current = placeSig;
+      if (pts.length > 1) map.fitBounds(pts, { padding: [40, 40], maxZoom: 14 });
+      else if (pts.length === 1) map.setView(pts[0], 14);
+    }
+  }, [markerSig, placeSig, hasPlaces]);
 
   return (
     <div className="places-map-wrap">
