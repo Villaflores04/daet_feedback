@@ -16,6 +16,8 @@ const COORDS: Record<string, { lat: number; lng: number }> = {
   // and adjust if a pin is a few hundred metres off.
   "friendship-park": { lat: 14.1128, lng: 122.9552 },
   "freedom-park": { lat: 14.1124, lng: 122.9553 },
+  "cathedral-of-the-most-holy-trinity": { lat: 14.1117, lng: 122.9561 },
+  "daet-elevated-plaza": { lat: 14.1136, lng: 122.9549 },
   "sm-city-daet": { lat: 14.1216, lng: 122.9484 },
 };
 
