@@ -190,6 +190,28 @@ export async function POST(request: Request) {
       if (saved.error) throw saved.error;
       return NextResponse.json(pulseFromRow(saved.data), { status: 201 });
     }
+    if (payload.action === "pulse-edit" || payload.action === "pulse-delete") {
+      // Only the browser that wrote an entry may change it: the server compares a hash of the device key.
+      const id = payload.id;
+      const key = payload.authorKey;
+      if (typeof id !== "string" || !/^[a-zA-Z0-9_-]{1,120}$/.test(id) || typeof key !== "string" || key.length < 16 || key.length > 80) {
+        return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+      }
+      const hash = createHash("sha256").update(`daet-author:${key}`).digest("hex").slice(0, 16);
+      const found = await db.from("pulses").select("id,author_key").eq("id", id).single();
+      if (found.error || !found.data?.author_key || found.data.author_key !== hash) {
+        return NextResponse.json({ error: "You can only change feedback you wrote from this browser." }, { status: 403 });
+      }
+      if (payload.action === "pulse-delete") {
+        const removed = await db.from("pulses").delete().eq("id", id);
+        if (removed.error) throw removed.error;
+        return NextResponse.json({ ok: true });
+      }
+      const body = String(payload.body ?? "").trim().slice(0, 1000);
+      const updated = await db.from("pulses").update({ body }).eq("id", id).select("*").single();
+      if (updated.error) throw updated.error;
+      return NextResponse.json(pulseFromRow(updated.data));
+    }
     if (payload.action === "wish") {
       const wish = payload.wish || {};
       if (

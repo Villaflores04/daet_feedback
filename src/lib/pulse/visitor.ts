@@ -41,3 +41,28 @@ export function getDeviceKey() {
     return key;
   } catch { return ""; }
 }
+
+let authorHashPromise: Promise<string> | null = null;
+/** Same one-way hash the server stores, so a card can tell whether it was written from this browser. */
+function myAuthorHash(): Promise<string> {
+  if (authorHashPromise) return authorHashPromise;
+  const key = getDeviceKey();
+  if (!key || typeof crypto === "undefined" || !crypto.subtle) return Promise.resolve("");
+  authorHashPromise = crypto.subtle
+    .digest("SHA-256", new TextEncoder().encode(`daet-author:${key}`))
+    .then((buf) => Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16))
+    .catch(() => "");
+  return authorHashPromise;
+}
+
+/** True when this story or reply was written from the current browser. */
+export function useIsOwnPulse(authorKey?: string) {
+  const [own, setOwn] = useState(false);
+  useEffect(() => {
+    let live = true;
+    if (!authorKey) { setOwn(false); return; }
+    void myAuthorHash().then((hash) => { if (live) setOwn(Boolean(hash) && hash === authorKey); });
+    return () => { live = false; };
+  }, [authorKey]);
+  return own;
+}
