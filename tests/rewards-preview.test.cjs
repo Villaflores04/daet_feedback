@@ -9,7 +9,7 @@ assert.equal(once[0].points,15);
 assert.equal(once[0].mode,'preview');
 assert.equal(nextPreviewRewards(once,{id:'feedback-1',parentId:null}).length,1);
 assert.equal(nextPreviewRewards(once,{id:'reply',parentId:'feedback-1'}).length,1);
-assert.equal(nextPreviewRewards(once,{id:'feedback-2',parentId:null}).length,2);
+assert.equal(nextPreviewRewards(once,{id:'feedback-2',parentId:null}).length,1,'a device can hold only one award');
 assert.equal(FEEDBACK_PREVIEW_POINTS,15);
 assert.doesNotThrow(()=>recordPreviewReward({id:'server',parentId:null}));
 assert.equal(previewPoints(),0);
