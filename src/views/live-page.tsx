@@ -15,11 +15,12 @@ import { usePulse } from "@/lib/pulse/store";
 import { cn } from "@/lib/utils";
 
 const PAGE = 12;
-type Sort = "new" | "replies" | "photos";
+type Sort = "new" | "replies" | "photos" | "comments";
 const SORTS: { id: Sort; label: string }[] = [
   { id: "new", label: "Newest" },
   { id: "replies", label: "Most replies" },
   { id: "photos", label: "Photos first" },
+  { id: "comments", label: "With comments" },
 ];
 
 export function LivePage() {
@@ -86,6 +87,8 @@ export function LivePage() {
     const byNew = (a: Pulse, b: Pulse) => b.createdAt - a.createdAt;
     if (sort === "replies") return list.sort((a, b) => (replyCounts.get(b.id) ?? 0) - (replyCounts.get(a.id) ?? 0) || byNew(a, b));
     if (sort === "photos") return list.sort((a, b) => Number(Boolean(b.photo)) - Number(Boolean(a.photo)) || byNew(a, b));
+    // A written note counts as a comment; stories with one come first, newest within each group.
+    if (sort === "comments") return list.sort((a, b) => Number(Boolean(b.body.trim())) - Number(Boolean(a.body.trim())) || byNew(a, b));
     return list.sort(byNew);
   }, [base, feeling, sort, replyCounts]);
 
