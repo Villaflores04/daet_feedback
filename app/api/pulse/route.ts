@@ -1,3 +1,4 @@
+import { claimFeedbackReward } from "@/lib/reward-claim";
 import { hasDeskSession } from "@/lib/desk-session";
 import { LINK_SOURCES } from "@/lib/pulse/source-tag";
 import { createHash } from "node:crypto";
@@ -188,7 +189,9 @@ export async function POST(request: Request) {
       // A retry after a lost response returns the original row without duplicating it.
       const saved = await db.from("pulses").select("*").eq("id", pulse.id).single();
       if (saved.error) throw saved.error;
-      return NextResponse.json(pulseFromRow(saved.data), { status: 201 });
+      // Only an original feedback can earn points, and a device earns them once (see reward-claim.ts).
+      const reward = pulse.parentId ? undefined : await claimFeedbackReward(db, request, pulse.authorKey, pulse.id);
+      return NextResponse.json({ ...pulseFromRow(saved.data), ...(reward ? { reward } : {}) }, { status: 201 });
     }
     if (payload.action === "pulse-edit" || payload.action === "pulse-delete") {
       // Only the browser that wrote an entry may change it: the server compares a hash of the device key.

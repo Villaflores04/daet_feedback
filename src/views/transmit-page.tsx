@@ -80,7 +80,7 @@ export function TransmitPage() {
             <CheckCircle2 size={44} />
             <p className="eyebrow">Thank you for sharing</p>
             <h2>Your feedback is saved.</h2>
-            <p>Reward preview: +{FEEDBACK_PREVIEW_POINTS} demo points per saved feedback. This is not a real wallet credit.</p>
+            <p>Reward preview: +{FEEDBACK_PREVIEW_POINTS} demo points once per device, for your first saved feedback. This is not a real wallet credit.</p>
             <RewardPreview compact />
             <p>Your experience is now available in visitor stories and sentiment summaries.</p>
             <Link className="feedback-primary" href={`/live?pulse=${sentId}`}>View my feedback <ArrowUpRight size={18} /></Link>

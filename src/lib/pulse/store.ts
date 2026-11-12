@@ -55,7 +55,7 @@ type PulseState = {
   hydrated: boolean;
   syncStatus: "idle" | "connected" | "partial" | "error";
   syncError: string;
-  addPulse: (draft: DraftPulse) => Promise<Pulse>;
+  addPulse: (draft: DraftPulse) => Promise<Pulse & { reward?: { awarded: boolean; points: number; reason?: string } }>;
   sendReply: (draft: DraftPulse) => Promise<Pulse>;
   reactPulse: (id: string, side: "up" | "down") => Promise<void>;
   editOwnPulse: (id: string, body: string) => Promise<void>;
@@ -130,13 +130,15 @@ export const usePulse = create<PulseState>()(
         };
         const saved = await saveSharedPulse(pulse);
         if (!saved.ok) throw new Error(saved.error);
+        const { reward, ...stored } = saved.data;
         set((state) => ({
-          pulses: [saved.data, ...state.pulses.filter(p => p.id !== saved.data.id)],
-          channels: saved.data.channelId === OVERALL_ID && !state.channels.some(c => c.id === OVERALL_ID)
+          pulses: [stored, ...state.pulses.filter(p => p.id !== stored.id)],
+          channels: stored.channelId === OVERALL_ID && !state.channels.some(c => c.id === OVERALL_ID)
             ? [...state.channels, OVERALL_CHANNEL] : state.channels,
         }));
-        recordPreviewReward(saved.data);
-        return saved.data;
+        // Points are shown only when the server confirms this device's one-time award.
+        if (reward?.awarded) recordPreviewReward(stored);
+        return { ...stored, reward };
       },
       sendReply: async (draft) => {
         if (!draft.parentId) throw new Error("Choose a story to reply to.");
