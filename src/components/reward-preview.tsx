@@ -11,7 +11,7 @@ export function RewardPreview({ compact = false }: { compact?: boolean }) {
     <div className="reward-preview-copy">
       <p className="reward-preview-label">Rewards preview</p>
       <p className="reward-preview-value" aria-live="polite">{total}<span> demo points</span></p>
-      <p>+{FEEDBACK_PREVIEW_POINTS} for each saved feedback.</p>
+      <p>+{FEEDBACK_PREVIEW_POINTS} once per device, for your first saved feedback.</p>
       {!compact && <small>Placeholder balance on this browser. Not redeemable or connected to the main wallet yet.</small>}
       {compact && <small>Demo only · Main wallet integration coming soon</small>}
     </div>

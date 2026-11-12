@@ -56,8 +56,9 @@ export function deleteSharedPulse(id: string) {
   return request<{ id: string }>("/api/desk/pulses", { method: "DELETE", body: JSON.stringify({ id }) });
 }
 
+export type RewardResult = { awarded: boolean; points: number; reason?: string };
 export function saveSharedPulse(pulse: Pulse) {
-  return request<Pulse>("/api/pulse", {
+  return request<Pulse & { reward?: RewardResult }>("/api/pulse", {
     method: "POST",
     body: JSON.stringify({ action: "pulse", pulse }),
   });

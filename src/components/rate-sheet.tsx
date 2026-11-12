@@ -65,7 +65,7 @@ export function RateSheet({
       setPhoto(undefined);
       onClose();
       onSent?.(pulse.id);
-      toast(parentId ? "Reply sent" : `Feedback saved · +${FEEDBACK_PREVIEW_POINTS} demo points (preview only).`);
+      toast(parentId ? "Reply sent" : pulse.reward?.awarded ? `Feedback saved · +${FEEDBACK_PREVIEW_POINTS} demo points, one time per device (preview only).` : "Feedback saved. Demo points are given once per device.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not save. Your draft is still here.");
     } finally { setSending(false); }
