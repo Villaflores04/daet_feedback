@@ -1893,10 +1893,10 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .mh-copy { width: 100%; max-width: 520px; margin-inline: auto; display: flex; flex-direction: column; min-height: 100%; }
   .mh-eyebrow { gap: 8px; font-size: 10px; letter-spacing: .14em; white-space: nowrap; }
   .mh-eyebrow span { width: 24px; flex: none; }
-  .mh-copy h1 { margin-top: 8px; font-size: clamp(28px, 8.6vw, 42px); line-height: 1.05; letter-spacing: -.035em; }
+  .mh-copy h1 { margin-top: 8px; font-size: clamp(34px, 11vw, 54px); line-height: 1.05; letter-spacing: -.04em; }
   .mh-card { display: contents; }
   /* No panel: bolder, larger text with a dark halo so it stays readable over the bright sky. */
-  .mh-lede { max-width: 340px; margin: 12px 0 auto; font-size: 17px; font-weight: 600; line-height: 1.4; letter-spacing: .005em; color: #fff; text-shadow: 0 1px 2px rgb(3 22 32 / .95), 0 0 8px rgb(3 22 32 / .85), 0 2px 22px rgb(3 22 32 / .8); }
+  .mh-lede { max-width: 340px; margin: 10px 0 auto; font-size: 13.5px; font-weight: 600; line-height: 1.4; letter-spacing: .005em; color: #fff; text-shadow: 0 1px 2px rgb(3 22 32 / .95), 0 0 8px rgb(3 22 32 / .85), 0 2px 22px rgb(3 22 32 / .8); }
   .mh-lede br { display: block; }
 
   /* Emoji bubbles: no container, each face floats on its own with a mood-colored glow. */
@@ -1926,9 +1926,9 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 }
 @keyframes mh-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @media (max-width: 374px) {
-  .mh-copy h1 { font-size: 27px; }
+  .mh-copy h1 { font-size: 33px; }
   .mh-eyebrow { font-size: 9px; letter-spacing: .1em; }
-  .mh-lede { font-size: 15.5px; }
+  .mh-lede { font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .mh-journey { height: auto; }
