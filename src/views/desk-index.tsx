@@ -162,6 +162,24 @@ function DeskHome() {
           );
         })}
       </ul>
+      <ResetRewards />
     </div>
+  );
+}
+
+function ResetRewards() {
+  const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
+  async function reset() {
+    if (!window.confirm("Reset the reward points of ALL visitors to 0? Every device can then earn the one-time 15 points again. This cannot be undone.")) return;
+    setState("busy");
+    try { const r = await fetch("/api/desk/rewards", { method: "DELETE" }); setState(r.ok ? "done" : "error"); } catch { setState("error"); }
+  }
+  return (
+    <section className="mt-8 rounded-2xl bg-plate p-5 shadow-plate">
+      <h2 className="font-semibold">Reward points</h2>
+      <p className="mt-1 text-sm text-muted">Sets every visitor&rsquo;s demo points back to 0. Each browser updates the next time it opens the site.</p>
+      <button type="button" onClick={reset} disabled={state === "busy"} className="mt-3 min-h-10 rounded-full border border-red-300 px-4 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-60">{state === "busy" ? "Resetting…" : "Reset all points to 0"}</button>
+      <p className="mt-2 text-sm" role="status">{state === "done" ? "Done. All points were reset to 0." : state === "error" ? "Could not reset. Please try again." : ""}</p>
+    </section>
   );
 }
