@@ -91,5 +91,8 @@ async function buildDeskContext() {
   });
 }
 
-/** The built context is reused for 45 seconds, so follow-up questions do not re-read the 500 latest entries or rebuild the statistics. */
-export const loadDeskContext = ttlCache(45_000, buildDeskContext);
+/**
+ * Every question reads the latest data. (It used to be reused for 45 seconds, so a feedback added just after
+ * a first question was missing from the next answer.) Questions that arrive at the same moment still share one read.
+ */
+export const loadDeskContext = ttlCache(0, buildDeskContext);
