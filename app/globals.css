@@ -2083,7 +2083,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
    Public pages v2: Places, Stories, Sentiment, Feedback
    Shared hero banner, calmer cards, sticky mobile filters, clearer empty states.
    ===================================================================== */
-.page-hero { position: relative; isolation: isolate; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; overflow: hidden; margin: clamp(14px, 2.4vw, 28px) 0 clamp(18px, 2.4vw, 28px); padding: clamp(26px, 4.2vw, 54px) clamp(20px, 4vw, 52px); border-radius: 28px; color: #fff; background: linear-gradient(100deg, rgb(7 36 48 / .95) 0%, rgb(7 36 48 / .8) 46%, rgb(7 36 48 / .3) 100%), url(/daet-monument-desktop.webp) 72% 38% / cover, #0f3a4a; box-shadow: 0 24px 50px -34px rgb(7 36 48 / .8); }
+.page-hero { position: relative; isolation: isolate; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; overflow: hidden; margin: clamp(14px, 2.4vw, 28px) 0 clamp(18px, 2.4vw, 28px); padding: clamp(26px, 4.2vw, 54px) clamp(20px, 4vw, 52px); border-radius: 28px; color: #fff; background: linear-gradient(100deg, rgb(7 36 48 / .95) 0%, rgb(7 36 48 / .8) 46%, rgb(7 36 48 / .3) 100%), url(/daet-monument-desktop-v2.webp) 72% 38% / cover, #0f3a4a; box-shadow: 0 24px 50px -34px rgb(7 36 48 / .8); }
 .page-hero-copy { min-width: 0; max-width: 640px; }
 .page-hero-eyebrow { display: flex; align-items: center; gap: 12px; font: 600 11px/1.5 var(--font-sans); letter-spacing: .22em; text-transform: uppercase; color: #fff4d2; }
 .page-hero-eyebrow span { width: 30px; height: 1px; background: #f6c453; }
@@ -2097,7 +2097,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .page-hero-cta { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 22px; border-radius: 999px; background: #fff; color: #123449; font-size: 14px; font-weight: 600; white-space: nowrap; transition: transform .2s, box-shadow .2s; }
 .page-hero-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -10px rgb(0 0 0 / .5); }
 @media (max-width: 767px) {
-  .page-hero { flex-direction: column; align-items: stretch; gap: 16px; padding: 24px 18px 20px; border-radius: 22px; background: linear-gradient(180deg, rgb(7 36 48 / .88) 0%, rgb(7 36 48 / .62) 55%, rgb(7 36 48 / .82) 100%), url(/daet-monument-mobile.webp) 50% 30% / cover, #0f3a4a; }
+  .page-hero { flex-direction: column; align-items: stretch; gap: 16px; padding: 24px 18px 20px; border-radius: 22px; background: linear-gradient(180deg, rgb(7 36 48 / .88) 0%, rgb(7 36 48 / .62) 55%, rgb(7 36 48 / .82) 100%), url(/daet-monument-mobile-v2.webp) 50% 30% / cover, #0f3a4a; }
   .page-hero h1 { font-size: 34px; }
   .page-hero-stats { margin-top: 16px; gap: 8px; }
   .page-hero-stats li { padding: 6px 12px; }
