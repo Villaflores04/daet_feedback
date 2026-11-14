@@ -188,8 +188,8 @@ export function MonumentHero({ trail }: { trail: TrailData }) {
       <div className="mh-stage">
         <div className="mh-bg" aria-hidden="true">
           <picture>
-            <source media="(max-width: 767px), (max-aspect-ratio: 1/1)" srcSet="/daet-monument-mobile.webp" />
-            <img src="/daet-monument-desktop.webp" alt="" decoding="async" fetchPriority="high" />
+            <source media="(max-width: 767px), (max-aspect-ratio: 1/1)" srcSet="/daet-monument-mobile-v2.webp" />
+            <img src="/daet-monument-desktop-v2.webp" alt="" decoding="async" fetchPriority="high" />
           </picture>
         </div>
         <div className="mh-light" aria-hidden="true" />
