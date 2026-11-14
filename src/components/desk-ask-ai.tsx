@@ -67,7 +67,9 @@ export function DeskAskAi() {
     const text = raw.replace(/\s+/g, " ").trim();
     if (!text || busy) return;
     if (readUsed() >= DAILY_LIMIT) { setMessages(m => [...m, { role: "user", content: text }, { role: "assistant", error: true, content: `You've used today's ${DAILY_LIMIT} questions. The limit protects the AI quota and resets tomorrow.` }]); return; }
-    const next: Message[] = [...history.current.filter(m => !m.error), { role: "user", content: text }];
+    // A question that failed is left out together with its error, so the next request never sends two user turns in a row.
+    const kept = history.current.filter((m, i, all) => !m.error && !(m.role === "user" && all[i + 1]?.error));
+    const next: Message[] = [...kept, { role: "user", content: text }];
     setMessages(m => [...m, { role: "user", content: text }]);
     setInput(""); setBusy(true);
     try {
