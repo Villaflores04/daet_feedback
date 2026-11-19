@@ -18,6 +18,8 @@ export const SOURCES: { id: Source; label: string }[] = [
 /** Details kept for feedback collected outside the site (for example scraped from Facebook). */
 export type OutsideExt = {
   kind?: "post" | "comment";
+  /** Which import this entry came from (file name and time), so a whole import can be removed at once. */
+  batch?: string;
   url?: string;
   /** Facebook-style reaction counts on the original post or comment. */
   reactions?: { like: number; love: number; care: number; haha: number; wow: number; sad: number; angry: number };
