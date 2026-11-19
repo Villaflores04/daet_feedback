@@ -2,6 +2,7 @@ import { claimFeedbackReward } from "@/lib/reward-claim";
 import { hasDeskSession } from "@/lib/desk-session";
 import { LINK_SOURCES } from "@/lib/pulse/source-tag";
 import { createHash } from "node:crypto";
+import { spamVerdict, type PastEntry } from "@/lib/pulse/spam";
 import { NextResponse } from "next/server";
 import { OVERALL_CHANNEL, OVERALL_ID } from "@/lib/pulse/scope";
 import { supabaseServer } from "@/lib/supabase-server";
@@ -190,6 +191,20 @@ export async function POST(request: Request) {
       // Only a one-way hash of the visitor's device token is stored.
       if (typeof pulse.authorKey === "string" && pulse.authorKey.length >= 16 && pulse.authorKey.length <= 80) {
         row.author_key = createHash("sha256").update(`daet-author:${pulse.authorKey}`).digest("hex").slice(0, 16);
+      }
+      // Without a device code, fall back to a one-way hash of the network address so the limits still apply.
+      if (!row.author_key) {
+        const ip = (request.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        if (ip) row.author_key = createHash("sha256").update(`daet-ip:${ip}`).digest("hex").slice(0, 16);
+      }
+      // Spam guard: cooldown per place, burst limit, repeated text. Skipped if the database has no author column yet.
+      if (row.author_key) {
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const past = await db.from("pulses").select("id,channel_id,parent_id,body,created_at").eq("author_key", row.author_key).gte("created_at", since).limit(100);
+        if (!past.error) {
+          const verdict = spamVerdict((past.data ?? []) as PastEntry[], { id: pulse.id, channelId: pulse.channelId, parentId: pulse.parentId, body: String(row.body) });
+          if (verdict) return NextResponse.json({ error: verdict }, { status: 429 });
+        }
       }
       const save = (r: Record<string, unknown>) => db.from("pulses").upsert(r, { onConflict: "id", ignoreDuplicates: true });
       let { error } = await save(row);
