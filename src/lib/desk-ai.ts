@@ -3,6 +3,9 @@ import { supabaseServer } from "@/lib/supabase-server";
 import { buildInsights } from "@/lib/pulse/insights";
 import { buildAttention } from "@/lib/pulse/attention";
 import { buildComments } from "@/lib/pulse/briefing";
+import { reactionsByPlace, tallyReactions } from "@/lib/pulse/fb-reactions";
+import { scanPulses, tallyScans } from "@/lib/pulse/words";
+import { isOutside } from "@/lib/pulse/types";
 import type { Channel, Pulse } from "@/lib/pulse/types";
 import { ttlCache } from "@/lib/desk-fast";
 
@@ -68,18 +71,44 @@ export async function ask(opts: { key: string; models: string[]; system: string;
   throw new Error(lastError || "The AI took too long to answer. Please retry.");
 }
 
+/**
+ * Feedback collected from Facebook. Its emoji side is Facebook's own reactions (not the site's four faces):
+ * Like, Love, Care = positive; Haha, Wow = mixed; Sad, Angry = negative. Its text side uses the same word rules as site feedback.
+ */
+function buildOutside(outside: Pulse[], channels: Channel[]) {
+  const names = new Map(channels.map(c => [c.id, c.name]));
+  const reactions = tallyReactions(outside);
+  const text = tallyScans(scanPulses(outside));
+  return {
+    note: "Collected from Facebook and analysed separately from feedback given on this site. Reaction counts mostly sit on posts; most comments have none.",
+    entries: outside.length,
+    postsAndCommentsWithReactions: reactions.items,
+    reactionTotals: { ...reactions.counts, total: reactions.total },
+    reactionSentiment: { positive: reactions.pos, mixed: reactions.mix, negative: reactions.neg },
+    textSentiment: { classifiedComments: text.total, positive: text.pos, mixed: text.mix, negative: text.neg, unclassified: outside.filter(x => x.body.trim()).length - text.total },
+    placesByReactions: reactionsByPlace(outside, channels).slice(0, 12).map(({ channel, counts, total, pos, mix, neg }) => ({ place: channel.name, total, positive: pos, mixed: mix, negative: neg, counts })),
+    comments: buildComments(outside, channels, 40).map(({ place, text: t }) => ({ place: names.get(place) ?? place, text: t })),
+  };
+}
+
 /** Reads the latest shared data and returns what the AI may see: aggregate counts, rule-based attention items and redacted comment text. */
 async function buildDeskContext() {
   const db = supabaseServer();
-  const [p, c] = await Promise.all([
-    db.from("pulses").select("id,channel_id,parent_id,face,body,created_at,reacts_up,reacts_down").order("created_at", { ascending: false }).limit(500),
-    db.from("channels").select("id,name,slug"),
-  ]);
+  const read = (cols: string) => db.from("pulses").select(cols).order("created_at", { ascending: false }).limit(800);
+  const [first, c] = await Promise.all([read("id,channel_id,parent_id,face,body,created_at,reacts_up,reacts_down,source,ext"), db.from("channels").select("id,name,slug")]);
+  // Databases that have not run the outside-feedback migration still work: read without the new columns.
+  const p = first.error?.code === "42703" ? await read("id,channel_id,parent_id,face,body,created_at,reacts_up,reacts_down") : first;
   if (p.error || c.error) throw new Error("Could not load current data.");
-  const pulses: Pulse[] = (p.data || []).map(row => ({ id: row.id, channelId: row.channel_id, parentId: row.parent_id, face: row.face, body: row.body || "", callsign: "", createdAt: Date.parse(row.created_at), reacts: { up: row.reacts_up, down: row.reacts_down } }));
+  type Row = { id: string; channel_id: string; parent_id: string | null; face: Pulse["face"]; body: string | null; created_at: string; reacts_up: number; reacts_down: number; source?: Pulse["source"] | null; ext?: Pulse["ext"] | null };
+  const rows = (p.data || []) as unknown as Row[];
+  const pulses: Pulse[] = rows.map(row => ({ id: row.id, channelId: row.channel_id, parentId: row.parent_id, face: row.face, body: row.body || "", callsign: "", createdAt: Date.parse(row.created_at), reacts: { up: row.reacts_up, down: row.reacts_down }, source: row.source ?? undefined, ext: row.ext ?? undefined }));
   if (!pulses.length) return null;
   const channels = (c.data || []) as Channel[];
-  const insights = buildInsights(pulses, channels);
+  // Feedback given on this site and feedback collected from Facebook are analysed separately, as on the Sentiment pages.
+  const allPulses = pulses;
+  const outsidePulses = allPulses.filter(isOutside);
+  const insidePulses = allPulses.filter(x => !isOutside(x));
+  const insights = buildInsights(insidePulses, channels);
   // Never sent: names/callsigns, photos, ids, contact details.
   const { lines, cutoff, ...aggregates } = insights;
   void lines; void cutoff;
@@ -87,7 +116,8 @@ async function buildDeskContext() {
     ...aggregates,
     places: aggregates.places.map(({ id, slug, ...place }) => { void id; void slug; return place; }),
     attention: buildAttention(insights).items.map(({ level, title, place }) => ({ level, title, place })),
-    comments: buildComments(pulses, channels, 50),
+    comments: buildComments(insidePulses, channels, 50),
+    ...(outsidePulses.length ? { outsideFacebook: buildOutside(outsidePulses, channels) } : {}),
   });
 }
 

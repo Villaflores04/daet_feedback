@@ -9,7 +9,8 @@ import { buildAttention } from "@/lib/pulse/attention";
 import { cn } from "@/lib/utils";
 
 export const ASK_AI_EVENT = "desk-ask-ai";
-const DAILY_LIMIT = 20;
+// Per browser per day. Raised from 20 so the Facebook and recommendation questions are not cut off; Google's own quota still applies.
+const DAILY_LIMIT = 100;
 const DAY_KEY = "desk-ask-ai-day";
 
 type Message = { role: "user" | "assistant"; content: string; error?: boolean };
@@ -36,7 +37,8 @@ export function usePromptGroups() {
     if (pathname.startsWith("/desk/board")) understand.unshift("Summarise the written comments in plain words");
     return [
       { label: "Understand", prompts: understand },
-      { label: "Act", prompts: ["Suggest 3 fixes I can do this week", "Draft a polite reply to the negative comments"] },
+      { label: "Act", prompts: ["Suggest 3 fixes I can do this week", "Draft a polite reply to the negative comments", "Ano ang mga dapat naming gawin ngayong linggo?"] },
+      { label: "Facebook", prompts: ["Analyze the sentiment of Facebook reactions and comments", "Compare Facebook sentiment with feedback on this site", "Suriin ang sentimyento ng mga reaksyon at komento sa Facebook"] },
       { label: "Report", prompts: ["Give me a full briefing: findings, priorities, next steps", "Write a short memo for the mayor", "Isulat ang buod sa Filipino"] },
     ];
   }, [pulses, channels, pathname]);
