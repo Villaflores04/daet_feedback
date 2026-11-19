@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { ChevronDown, Download, Smile, MessageSquareText } from "lucide-react";
 import { PageHero } from "@/components/page-hero";
 import { MismatchList, MoodDonut, MoodHeatmap, MoodTrend, PlaceCompare, RangeSwitch, ReactionsCard, SourceChart, TopReacted, TopicPlaceMatrix, TopicTone, WeekdayChart } from "@/components/sentiment-charts";
+import { OutsideReactions } from "@/components/outside-reactions";
+import { tallyReactions } from "@/lib/pulse/fb-reactions";
 import { isOutside } from "@/lib/pulse/types";
 import { buildSentiment, csvOf, DAY, type Range } from "@/lib/pulse/sentiment";
 import { MoodBar } from "@/components/mood-bar";
@@ -70,7 +72,9 @@ export function BoardView({
   }, [openSlug]);
 
   const [mode, setMode] = useState<"faces" | "words">(search.get("analysis") === "words" ? "words" : search.get("analysis") === "faces" ? "faces" : initialMode);
-  const [scope, setScope] = useState<"places" | "trip">(search.get("scope") === "trip" ? "trip" : "places");
+  const [scopeChoice, setScope] = useState<"places" | "trip">(search.get("scope") === "trip" ? "trip" : "places");
+  // Imported feedback is always about individual places.
+  const scope = origin === "outside" ? "places" : scopeChoice;
   function selectAnalysis(next: "faces" | "words") {
     setMode(next);
     const url = new URL(window.location.href);
@@ -96,6 +100,8 @@ export function BoardView({
   const scopedChannels = channels.filter(c => scope === "trip" ? c.id === OVERALL_ID : c.id !== OVERALL_ID);
   const townFaces = tallyFaces(scopedPulses);
   const townWords = tallyScans(scanPulses(scopedPulses));
+  const fb = useMemo(() => tallyReactions(scopedPulses), [scopedPulses]);
+  const out = origin === "outside";
   const textCount = scopedPulses.filter(p => p.body.trim()).length;
 
   return (
@@ -110,7 +116,7 @@ export function BoardView({
           eyebrow={origin === "outside" ? "Beyond this site" : "How Daet feels"}
           title={origin === "outside" ? "Sentiment from other platforms" : "Visitor sentiment"}
           lede={origin === "outside" ? "Comments and reactions collected from Facebook, analysed separately from feedback given on this site." : "See how visitors feel about Daet."}
-          stats={[{ value: townFaces.total, label: townFaces.total === 1 ? "rating" : "ratings" }, ...(townFaces.total ? [{ value: `${Math.round((townFaces.pos / townFaces.total) * 100)}%`, label: "positive" }] : []), { value: textCount, label: textCount === 1 ? "written note" : "written notes" }]}
+          stats={[{ value: out ? fb.total : townFaces.total, label: out ? (fb.total === 1 ? "reaction" : "reactions") : (townFaces.total === 1 ? "rating" : "ratings") }, ...((out ? fb.total : townFaces.total) ? [{ value: `${Math.round(((out ? fb.pos / fb.total : townFaces.pos / townFaces.total)) * 100)}%`, label: "positive" }] : []), { value: textCount, label: textCount === 1 ? "written note" : "written notes" }]}
           action={origin === "outside" ? <Link href="/live?from=other" className="page-hero-cta">Read the comments</Link> : <Link href="/feedback" className="page-hero-cta">Add your rating</Link>}
         />
       )}
@@ -119,7 +125,7 @@ export function BoardView({
         <div className="analysis-primary" role="group" aria-label="Analysis type">
           <button type="button" aria-pressed={mode === "faces"} onClick={() => selectAnalysis("faces")}>
             <Smile aria-hidden="true" />
-            <span><strong>Emoji ratings</strong><small>How visitors rated their visit</small></span>
+            <span><strong>{out ? "Facebook reactions" : "Emoji ratings"}</strong><small>{out ? "How people reacted on Facebook" : "How visitors rated their visit"}</small></span>
           </button>
           <button type="button" aria-pressed={mode === "words"} onClick={() => selectAnalysis("words")}>
             <MessageSquareText aria-hidden="true" />
@@ -133,13 +139,13 @@ export function BoardView({
             <label><input type="radio" name="feedback-origin" value="outside" checked={origin === "outside"} onChange={() => selectOrigin("outside")} /><span>Outside ({outsideCount})</span></label>
           </div>
         </fieldset> : null}
-        <fieldset className="analysis-scope">
+        {!out ? <fieldset className="analysis-scope">
           <legend>Show feedback for</legend>
           <div>
             <label><input type="radio" name="feedback-scope" value="places" checked={scope === "places"} onChange={() => selectScope("places")} /><span>Individual places</span></label>
             <label><input type="radio" name="feedback-scope" value="trip" checked={scope === "trip"} onChange={() => selectScope("trip")} /><span>Overall Daet visit</span></label>
           </div>
-        </fieldset>
+        </fieldset> : null}
         <div className="sentiment-tools">
           <RangeSwitch value={range} onChange={setRange} />
           {desk ? <button type="button" onClick={exportCsv} className="sentiment-export"><Download size={15} aria-hidden />Export CSV</button> : null}
@@ -148,11 +154,13 @@ export function BoardView({
       <div className="sentiment-results-heading" aria-live="polite" aria-atomic="true">
         <div><h2>{mode === "faces" ? "Emoji rating overview" : "Comment sentiment overview"}</h2>
         <p>{origin === "outside" ? "Outside the system (other platforms)" : "Inside the system"} · {scope === "places" ? "Individual places" : "Overall Daet visit"} · {mode === "faces" ? (origin === "outside" ? "Faces from Facebook reactions, or from the comment text when it had none" : "Original visitor ratings") : "Written comments and replies"}</p></div>
-        <span>{mode === "faces" ? `${townFaces.total} ratings` : `${townWords.total} classified · ${textCount - townWords.total} unclassified`}</span>
+        <span>{mode === "faces" ? (out ? `${fb.total} reactions` : `${townFaces.total} ratings`) : `${townWords.total} classified · ${textCount - townWords.total} unclassified`}</span>
       </div>
 
       {hydrated ? (
-        mode === "faces" ? (
+        mode === "faces" && out ? (
+          <OutsideReactions pulses={scopedPulses} channels={scopedChannels} />
+        ) : mode === "faces" ? (
           <div className="sentiment-charts">
             <MoodDonut d={sd} />
             {scope === "places" ? <PlaceCompare d={sd} onSelect={showPlace} /> : null}
@@ -169,7 +177,7 @@ export function BoardView({
           </div>
         )
       ) : <div className="sentiment-charts-loading" aria-hidden />}
-      {!desk && (mode === "faces" ? townFaces.total : townWords.total) === 0 ? (
+      {!desk && !out && (mode === "faces" ? townFaces.total : townWords.total) === 0 ? (
         <div className="sentiment-empty">
           <p><strong>Nothing to chart yet.</strong> Ratings appear here as visitors share them.</p>
           <Link href="/feedback" className="primary-link">Be the first to rate</Link>
@@ -180,6 +188,7 @@ export function BoardView({
         <p>Summaries cover the latest 500 shared entries within the chosen time range. Overall visits and individual place ratings are calculated separately. Emoji ratings exclude replies. Topic and comment charts are keyword estimates and can misread local expressions and sarcasm.</p>
         {mode === "words" ? <p>{textCount} notes and replies checked · {townWords.total} classified · {textCount - townWords.total} without a clear sentiment match. Empty notes are excluded.</p> : null}
       </details>
+      {out && mode === "faces" ? null : <>
       <h2 id="place-details" className="sentiment-details-title">{scope === "places" ? "Details by place" : "Overall visit details"}</h2>
       <div className="sentiment-layout sentiment-layout-single">
         <ul className="space-y-2" aria-label={scope === "places" ? "Results by place" : "Overall visit results"}>
@@ -291,6 +300,7 @@ export function BoardView({
           })}
         </ul>
       </div>
+      </>}
     </div>
   );
 }
