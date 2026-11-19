@@ -67,6 +67,8 @@ type PulseState = {
   updateChannel: (id: string, patch: Partial<Channel>) => Promise<void>;
   deleteChannel: (id: string) => Promise<void>;
   burnPulse: (id: string) => Promise<void>;
+  /** Desk: delete many entries (and their replies) at once, or a whole import by its batch label. Returns how many were removed. */
+  burnMany: (target: { ids: string[] } | { batch: string }) => Promise<number>;
   setHydrated: () => void;
   syncShared: () => Promise<boolean>;
 };
@@ -246,6 +248,21 @@ export const usePulse = create<PulseState>()(
           pulses: state.pulses.filter(p => p.channelId !== id),
           wishes: state.wishes.map(w => w.channelId === id ? { ...w, channelId: undefined } : w),
         }));
+      },
+      burnMany: async (target) => {
+        let removed = 0;
+        const ids = "ids" in target ? target.ids : [];
+        const chunks = "ids" in target ? Array.from({ length: Math.ceil(ids.length / 500) }, (_, i) => ({ ids: ids.slice(i * 500, i * 500 + 500) })) : [target];
+        for (const chunk of chunks) {
+          const response = await fetch("/api/desk/pulses", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify(chunk) });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(data.error || "Could not delete the entries.");
+          removed += Number(data.deleted) || 0;
+        }
+        set(state => "ids" in target
+          ? { pulses: state.pulses.filter(p => !ids.includes(p.id) && !(p.parentId && ids.includes(p.parentId))) }
+          : { pulses: state.pulses.filter(p => p.ext?.batch !== target.batch) });
+        return removed;
       },
       burnPulse: async (id) => {
         const result = await deleteSharedPulse(id);

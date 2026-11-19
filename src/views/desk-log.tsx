@@ -14,6 +14,10 @@ export function DeskLog() {
   const channels = usePulse((s) => s.channels);
   const pulses = usePulse((s) => s.pulses);
   const burnPulse = usePulse((s) => s.burnPulse);
+  const burnMany = usePulse((s) => s.burnMany);
+  const [batch, setBatch] = useState("all");
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [spot, setSpot] = useState<string>("all");
   const [mood, setMood] = useState<Mood | "all">("all");
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -26,10 +30,32 @@ export function DeskLog() {
     return pulses
       .filter((p) => (spot === "all" ? true : p.channelId === spot))
       .filter((p) => (mood === "all" ? true : moodOf(p.face) === mood))
+      .filter((p) => (batch === "all" ? true : p.ext?.batch === batch))
       .filter((p) => (source === "all" ? true : (p.source ?? "visitor") === source))
       .filter((p) => !query.trim() || p.body.toLowerCase().includes(query.trim().toLowerCase()) || p.callsign.toLowerCase().includes(query.trim().toLowerCase()))
       .sort((a, b) => b.createdAt - a.createdAt);
-  }, [pulses, spot, mood, source, query]);
+  }, [pulses, spot, mood, source, batch, query]);
+  const batches = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const p of pulses) if (p.ext?.batch) map.set(p.ext.batch, (map.get(p.ext.batch) ?? 0) + 1);
+    return [...map.entries()];
+  }, [pulses]);
+  const pickedShown = tickets.filter((p) => picked.has(p.id)).length;
+
+  async function removeMany(target: { ids: string[] } | { batch: string }, label: string) {
+    if (!confirm(`${label}\n\nThis cannot be undone.`)) return;
+    setBulkBusy(true);
+    try {
+      const n = await burnMany(target);
+      toast(`${n} deleted`);
+      setPicked(new Set());
+      if ("batch" in target) setBatch("all");
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "Could not delete.");
+    } finally {
+      setBulkBusy(false);
+    }
+  }
   const withPhotos = tickets.filter((p) => p.photo).length;
 
   return (
@@ -105,6 +131,30 @@ export function DeskLog() {
         </div>
       </div>
 
+      {batches.length ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+          <select aria-label="Filter by import" value={batch} onChange={(e) => { setBatch(e.target.value); setPicked(new Set()); }} className="h-11 max-w-full rounded-xl border border-line bg-plate px-3 text-sm">
+            <option value="all">All imports</option>
+            {batches.map(([b, n]) => <option key={b} value={b}>{b} ({n})</option>)}
+          </select>
+          {batch !== "all" ? (
+            <button type="button" disabled={bulkBusy} className="h-11 rounded-xl bg-neg px-4 text-sm font-medium text-white" onClick={() => void removeMany({ batch }, `Delete the whole import "${batch}" (${batches.find(([b]) => b === batch)?.[1] ?? 0} entries)?`)}>
+              {bulkBusy ? "Deleting…" : "Delete this whole import"}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+        <label className="flex min-h-11 items-center gap-2">
+          <input type="checkbox" className="size-5" checked={tickets.length > 0 && pickedShown === tickets.length} onChange={(e) => setPicked(e.target.checked ? new Set(tickets.map((p) => p.id)) : new Set())} />
+          Select all {tickets.length} in this list
+        </label>
+        {pickedShown ? (
+          <button type="button" disabled={bulkBusy} className="h-11 rounded-xl bg-neg px-4 font-medium text-white" onClick={() => void removeMany({ ids: tickets.filter((p) => picked.has(p.id)).map((p) => p.id) }, `Delete ${pickedShown} selected ${pickedShown === 1 ? "entry" : "entries"} and their replies?`)}>
+            {bulkBusy ? "Deleting…" : `Delete selected (${pickedShown})`}
+          </button>
+        ) : null}
+      </div>
       <p className="activity-count" aria-live="polite">{tickets.length} {tickets.length === 1 ? "entry" : "entries"}{withPhotos ? ` · ${withPhotos} with photos` : ""} · Newest first</p>
       <ul className="activity-list">
         {tickets.slice(0, shown).map((pulse) => {
@@ -115,9 +165,10 @@ export function DeskLog() {
               key={pulse.id}
               className="activity-card rounded-2xl bg-plate shadow-plate"
             >
+              <span className="flex flex-col items-center gap-2"><input type="checkbox" aria-label={`Select feedback from ${pulse.callsign}`} className="size-5" checked={picked.has(pulse.id)} onChange={(e) => setPicked((prev) => { const next = new Set(prev); if (e.target.checked) next.add(pulse.id); else next.delete(pulse.id); return next; })} />
               <span className="activity-face text-xl" aria-hidden>
                 {face.glyph}
-              </span>
+              </span></span>
               <div className="activity-meta min-w-0">
                 <p className="font-medium">
                   {pulse.callsign}

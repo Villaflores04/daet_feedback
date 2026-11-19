@@ -41,6 +41,7 @@ export function cleanExt(raw: unknown): OutsideExt | undefined {
   const e = raw as Record<string, unknown>;
   const out: OutsideExt = {};
   if (e.kind === "post" || e.kind === "comment") out.kind = e.kind;
+  if (typeof e.batch === "string" && e.batch.trim()) out.batch = e.batch.trim().slice(0, 120);
   if (typeof e.url === "string" && /^https?:\/\//.test(e.url)) out.url = e.url.slice(0, 500);
   if (e.reactions && typeof e.reactions === "object") {
     const r = e.reactions as Record<string, unknown>;

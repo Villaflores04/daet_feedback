@@ -63,13 +63,14 @@ export function DeskImport() {
     if (!entries.length) return toast.error("Choose a collector CSV file first.");
     setBusy(true);
     try {
+      const batch = `${name} · ${new Date().toLocaleString("en", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}`;
       let added = 0;
       let skipped = 0;
       for (let i = 0; i < entries.length; i += 200) {
         const res = await fetch("/api/desk/import", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ items: entries.slice(i, i + 200).map((e) => ({ channelId: place, source: "facebook", body: e.body, callsign: e.callsign || "Facebook user", createdAt: e.createdAt, face: e.face, ext: e.ext })) }),
+          body: JSON.stringify({ items: entries.slice(i, i + 200).map((e) => ({ channelId: place, source: "facebook", body: e.body, callsign: e.callsign || "Facebook user", createdAt: e.createdAt, face: e.face, ext: { ...e.ext, batch } })) }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || "Could not add the feedback.");
