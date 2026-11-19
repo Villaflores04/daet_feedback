@@ -1,5 +1,6 @@
 "use client";
 import { usePulse } from "@/lib/pulse/store";
+import { useInsidePulses } from "@/lib/pulse/use-inside";
 import { FACES, tallyFaces } from "@/lib/pulse/faces";
 import { ago, buildPlaceStats, type PlaceStat } from "@/lib/pulse/places";
 import { useMemo } from "react";
@@ -17,7 +18,7 @@ export function PlaceCard({
   /** Kept so existing callers still compile; cards no longer show list numbers. */
   index?: number;
 }) {
-  const pulses = usePulse(s => s.pulses);
+  const pulses = useInsidePulses();
   const own = useMemo(() => stat ?? buildPlaceStats([channel], pulses.filter(p => p.channelId === channel.id)).get(channel.id)!, [stat, channel, pulses]);
   const hydrated = usePulse(s => s.hydrated);
   const ratings = pulses.filter(p => p.channelId === channel.id && !p.parentId);

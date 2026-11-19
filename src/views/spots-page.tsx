@@ -11,6 +11,7 @@ import { WishSheet } from "@/components/wish-sheet";
 import { CATEGORIES, type Category, type Channel } from "@/lib/pulse/types";
 import { buildPlaceStats, MIN_PLACE_RATINGS } from "@/lib/pulse/places";
 import { usePulse } from "@/lib/pulse/store";
+import { useInsidePulses } from "@/lib/pulse/use-inside";
 const PlacesMap = dynamic(() => import("@/components/places-map"), { ssr: false, loading: () => <div className="places-map places-map-loading" aria-hidden="true" /> });
 
 type Sort = "top" | "most" | "latest" | "az";
@@ -24,7 +25,7 @@ const SORTS: { id: Sort; label: string }[] = [
 export function SpotsPage() {
   const channels = usePulse((s) => s.channels);
   const hydrated = usePulse((s) => s.hydrated);
-  const pulses = usePulse((s) => s.pulses);
+  const pulses = useInsidePulses();
   const [filter, setFilter] = useState<Category | "All">("All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("top");

@@ -15,6 +15,7 @@ import { PublicChrome } from "@/components/public-chrome";
 import { StoredPhoto } from "@/components/stored-photo";
 import { Button } from "@/components/ui/button";
 import { usePulse } from "@/lib/pulse/store";
+import { useInsidePulses } from "@/lib/pulse/use-inside";
 import { OVERALL_CHANNEL, OVERALL_ID } from "@/lib/pulse/scope";
 import { tallyFaces } from "@/lib/pulse/faces";
 import type { FaceId } from "@/lib/pulse/types";
@@ -22,7 +23,7 @@ import { useCallsign } from "@/lib/pulse/visitor";
 
 export function TransmitPage() {
   const channels = usePulse(s => s.channels);
-  const pulses = usePulse(s => s.pulses);
+  const pulses = useInsidePulses();
   const hydrated = usePulse(s => s.hydrated);
   const addPulse = usePulse(s => s.addPulse);
   const { callsign, setCallsign } = useCallsign();
