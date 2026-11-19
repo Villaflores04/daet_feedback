@@ -7,12 +7,12 @@ import { CollectorCard } from "@/components/collector-card";
 import { ShareLinkCard } from "@/components/share-link-card";
 import { Button } from "@/components/ui/button";
 import { parseCsv } from "@/lib/csv";
-import { faceFromReactions, isCollectorCsv, reactionsOf } from "@/lib/pulse/collector";
+import { isCollectorCsv, reactionsOf } from "@/lib/pulse/collector";
 import { usePulse } from "@/lib/pulse/store";
-import type { FaceId, OutsideExt } from "@/lib/pulse/types";
+import type { OutsideExt } from "@/lib/pulse/types";
 import { OVERALL_ID } from "@/lib/pulse/scope";
 
-type Entry = { body: string; callsign?: string; createdAt?: number; face?: FaceId; ext: OutsideExt };
+type Entry = { body: string; callsign?: string; createdAt?: number; ext: OutsideExt };
 
 /** Desk "Add feedback" page: the Facebook collector guide, the CSV import for its output, and the tagged link / QR code card. */
 export function DeskImport() {
@@ -37,7 +37,6 @@ export function DeskImport() {
         body: at(r, "comment"),
         callsign: at(r, "author") || undefined,
         createdAt: Number.isFinite(when) ? when : undefined,
-        face: faceFromReactions(reactions) ?? undefined,
         ext: {
           kind: at(r, "type").toLowerCase() === "post" ? "post" : "comment",
           url: at(r, "post_url") || undefined,
@@ -70,7 +69,7 @@ export function DeskImport() {
         const res = await fetch("/api/desk/import", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ items: entries.slice(i, i + 200).map((e) => ({ channelId: place, source: "facebook", body: e.body, callsign: e.callsign || "Facebook user", createdAt: e.createdAt, face: e.face, ext: { ...e.ext, batch } })) }),
+          body: JSON.stringify({ items: entries.slice(i, i + 200).map((e) => ({ channelId: place, source: "facebook", body: e.body, callsign: e.callsign || "Facebook user", createdAt: e.createdAt, ext: { ...e.ext, batch } })) }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || "Could not add the feedback.");
@@ -89,7 +88,7 @@ export function DeskImport() {
   }
 
   const places = channels.filter((c) => c.id !== OVERALL_ID);
-  const withReactions = entries.filter((e) => e.face).length;
+  const withReactions = entries.filter((e) => Object.values(e.ext.reactions ?? {}).some(Boolean)).length;
 
   return (
     <div className="desk-activity min-w-0">
@@ -120,7 +119,7 @@ export function DeskImport() {
         <input ref={input} type="file" accept=".csv,text/csv" className="sr-only" tabIndex={-1} onChange={(e) => { void pick(e.target.files?.[0]); e.target.value = ""; }} />
         {entries.length ? (
           <div className="rounded-xl bg-cool p-3">
-            <p className="font-medium">{entries.length} comments and posts ready. {withReactions} have Facebook reactions, so their emoji face comes from the reactions. The rest get it from the comment text.</p>
+            <p className="font-medium">{entries.length} comments and posts ready. {withReactions} have Facebook reactions. Reactions are kept as Facebook's own (Like, Love, Care, Haha, Wow, Sad, Angry) and are not turned into the site's four faces. Comment text is scored with the text sentiment rules.</p>
             <ul className="mt-2 grid gap-1 text-muted">
               {entries.slice(0, 3).map((e, i) => <li key={i} className="break-words">{e.ext.kind === "post" ? "Post" : "Comment"}: {e.body.slice(0, 120)}</li>)}
             </ul>

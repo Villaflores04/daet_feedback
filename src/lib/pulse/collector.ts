@@ -1,4 +1,4 @@
-import type { FaceId, OutsideExt } from "./types";
+import type { OutsideExt } from "./types";
 
 /** Column names written by the FB Feedback Collector. */
 export const COLLECTOR_COLUMNS = ["type", "post_id", "post_url", "time_text", "author", "comment", "reactions", "like", "love", "care", "haha", "wow", "sad", "angry", "sentiment", "score", "scraped_at"];
@@ -21,18 +21,6 @@ export function reactionsOf(row: string[], header: string[]): Reactions {
   const h = header.map((x) => x.trim().toLowerCase());
   const get = (name: string) => num(row[h.indexOf(name)]);
   return { like: get("like"), love: get("love"), care: get("care"), haha: get("haha"), wow: get("wow"), sad: get("sad"), angry: get("angry") };
-}
-
-/**
- * The emoji side of outside feedback. Facebook reactions fold onto the four faces:
- * Love and Wow count as Wow, Like and Care as Happy, Haha as Okay, Sad and Angry as Sad.
- * The face with the most reactions wins. No reactions (or a tie) returns null so the text decides.
- */
-export function faceFromReactions(r: Reactions): FaceId | null {
-  const score: Record<FaceId, number> = { wow: r.love + r.wow, happy: r.like + r.care, medium: r.haha, sad: r.sad + r.angry };
-  const ranked = (Object.entries(score) as [FaceId, number][]).sort((a, b) => b[1] - a[1]);
-  if (!ranked[0][1] || ranked[0][1] === ranked[1][1]) return null;
-  return ranked[0][0];
 }
 
 /** Keeps only safe, numeric / short string values from an untrusted ext object. */
