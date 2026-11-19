@@ -10,6 +10,7 @@ export const LINKS = [
   { to: "/spots", label: "Places" },
   { to: "/live", label: "Visitor stories" },
   { to: "/board", label: "Sentiment" },
+  { to: "/outside", label: "Other platforms" },
   { to: "/feedback", label: "Feedback" },
   { to: "/help", label: "Help" },
 ];

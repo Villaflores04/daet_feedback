@@ -57,6 +57,16 @@ export async function POST(request: Request) {
 
   if (!rows.length) return NextResponse.json({ error: "Nothing could be added.", skipped }, { status: 400 });
   try {
+    // Importing the same file twice must not duplicate comments: skip rows already saved for the same place and source.
+    const existing = await supabaseStorageServer().from("pulses").select("channel_id,source,callsign,body").in("channel_id", [...new Set(rows.map((r) => String(r.channel_id)))]).in("source", [...new Set(rows.map((r) => String(r.source)))]).limit(5000);
+    if (!existing.error) {
+      const seen = new Set((existing.data ?? []).map((r) => `${r.channel_id}|${r.source}|${r.callsign}|${r.body}`));
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const r = rows[i];
+        if (seen.has(`${r.channel_id}|${r.source}|${r.callsign}|${r.body}`)) { rows.splice(i, 1); skipped.push({ index: i, reason: "Already imported." }); }
+      }
+      if (!rows.length) return NextResponse.json({ added: 0, skipped }, { status: 200 });
+    }
     const { error } = await supabaseStorageServer().from("pulses").insert(rows);
     if (error) {
       if (error.code === "42703" || error.code === "23514") return NextResponse.json({ error: "Run the feedback-sources SQL migration in Supabase first, then try again." }, { status: 503 });

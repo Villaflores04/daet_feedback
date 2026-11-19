@@ -28,12 +28,13 @@ export function CollectorCard() {
   return (
     <section className="grid min-w-0 gap-3 rounded-2xl border border-line bg-plate p-4 text-sm sm:p-5" aria-labelledby="collector-title">
       <h2 id="collector-title" className="text-lg font-semibold">Collect feedback from Facebook</h2>
-      <p className="text-muted">The collector is a small script that runs in your own browser. It reads public posts and comments about a place, saves them as a CSV file, and the file can then be used for outside-the-system analysis.</p>
+      <p className="text-muted">The collector is a small script that runs in your own browser. It reads public posts and comments about a place, saves them as a CSV file that you import below.</p>
       <ol className="grid list-decimal gap-1.5 pl-5">
         <li>Select Copy script (or Download) below.</li>
         <li>Open Facebook in Chrome, set the language to English, and go to a hashtag or search page for the place, for example <span className="break-all">facebook.com/hashtag/bagasbas</span>.</li>
         <li>Press F12, open the Console tab, paste the script and press Enter. If Chrome blocks pasting, type <code>allow pasting</code> first.</li>
         <li>Let it scroll and read the posts and comments. Use the buttons it shows to stop and save the CSV file.</li>
+        <li>Below, choose the place, pick the CSV file and select Import.</li>
       </ol>
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={copy} disabled={busy}><ClipboardCopy size={16} aria-hidden /> {busy ? "Copying…" : "Copy script"}</Button>
