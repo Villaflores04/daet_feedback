@@ -10,10 +10,11 @@ import { PlaceCard } from "@/components/place-card";
 import { PulseCard } from "@/components/pulse-card";
 import { tallyFaces } from "@/lib/pulse/faces";
 import { usePulse } from "@/lib/pulse/store";
+import { useInsidePulses } from "@/lib/pulse/use-inside";
 
 export function HomePage() {
   const channels = usePulse((s) => s.channels);
-  const pulses = usePulse((s) => s.pulses);
+  const pulses = useInsidePulses();
   const placePulses = pulses.filter(p => p.channelId !== OVERALL_ID);
   const tally = tallyFaces(placePulses);
   const latest = pulses

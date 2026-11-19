@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { ChevronDown, Download, Smile, MessageSquareText } from "lucide-react";
 import { PageHero } from "@/components/page-hero";
 import { MismatchList, MoodDonut, MoodHeatmap, MoodTrend, PlaceCompare, RangeSwitch, ReactionsCard, SourceChart, TopReacted, TopicPlaceMatrix, TopicTone, WeekdayChart } from "@/components/sentiment-charts";
+import { isOutside } from "@/lib/pulse/types";
 import { buildSentiment, csvOf, DAY, type Range } from "@/lib/pulse/sentiment";
 import { MoodBar } from "@/components/mood-bar";
 import { WordMeter } from "@/components/word-meter";
@@ -43,7 +44,19 @@ export function BoardView({
   desk?: boolean;
 }) {
   const channels = usePulse((s) => s.channels);
-  const pulses = usePulse((s) => s.pulses);
+  const allPulses = usePulse((s) => s.pulses);
+  const search = useSearchParams();
+  // Feedback given on this site (inside) and feedback staff imported from other platforms (outside) are analysed separately.
+  const [origin, setOrigin] = useState<"inside" | "outside">(search.get("origin") === "outside" ? "outside" : "inside");
+  const pulses = useMemo(() => allPulses.filter(p => (origin === "outside") === isOutside(p)), [allPulses, origin]);
+  const outsideCount = useMemo(() => allPulses.filter(p => isOutside(p) && !p.parentId).length, [allPulses]);
+  function selectOrigin(next: "inside" | "outside") {
+    setOrigin(next);
+    setOpen(null);
+    const url = new URL(window.location.href);
+    url.searchParams.set("origin", next);
+    window.history.replaceState(null, "", url);
+  }
   const hydrated = usePulse((s) => s.hydrated);
   const [range, setRange] = useState<Range>(30);
   const [open, setOpen] = useState<string | null>(openSlug ?? null);
@@ -52,7 +65,6 @@ export function BoardView({
     if (openSlug) setOpen(openSlug);
   }, [openSlug]);
 
-  const search = useSearchParams();
   const [mode, setMode] = useState<"faces" | "words">(search.get("analysis") === "words" ? "words" : search.get("analysis") === "faces" ? "faces" : initialMode);
   const [scope, setScope] = useState<"places" | "trip">(search.get("scope") === "trip" ? "trip" : "places");
   function selectAnalysis(next: "faces" | "words") {
@@ -110,6 +122,13 @@ export function BoardView({
           </button>
         </div>
         <fieldset className="analysis-scope">
+          <legend>Feedback from</legend>
+          <div>
+            <label><input type="radio" name="feedback-origin" value="inside" checked={origin === "inside"} onChange={() => selectOrigin("inside")} /><span>Inside the system</span></label>
+            <label><input type="radio" name="feedback-origin" value="outside" checked={origin === "outside"} onChange={() => selectOrigin("outside")} /><span>Outside ({outsideCount})</span></label>
+          </div>
+        </fieldset>
+        <fieldset className="analysis-scope">
           <legend>Show feedback for</legend>
           <div>
             <label><input type="radio" name="feedback-scope" value="places" checked={scope === "places"} onChange={() => selectScope("places")} /><span>Individual places</span></label>
@@ -123,7 +142,7 @@ export function BoardView({
       </div>
       <div className="sentiment-results-heading" aria-live="polite" aria-atomic="true">
         <div><h2>{mode === "faces" ? "Emoji rating overview" : "Comment sentiment overview"}</h2>
-        <p>{scope === "places" ? "Individual places" : "Overall Daet visit"} · {mode === "faces" ? "Original visitor ratings" : "Written comments and replies"}</p></div>
+        <p>{origin === "outside" ? "Outside the system (other platforms)" : "Inside the system"} · {scope === "places" ? "Individual places" : "Overall Daet visit"} · {mode === "faces" ? (origin === "outside" ? "Faces from Facebook reactions, or from the comment text when it had none" : "Original visitor ratings") : "Written comments and replies"}</p></div>
         <span>{mode === "faces" ? `${townFaces.total} ratings` : `${townWords.total} classified · ${textCount - townWords.total} unclassified`}</span>
       </div>
 

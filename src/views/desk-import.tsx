@@ -3,9 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FileSpreadsheet, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
+import { CollectorCard } from "@/components/collector-card";
 import { ShareLinkCard } from "@/components/share-link-card";
 import { Button } from "@/components/ui/button";
 import { detectColumns, parseCsv } from "@/lib/csv";
+import { faceFromReactions, isCollectorCsv, reactionsOf } from "@/lib/pulse/collector";
+import type { FaceId, OutsideExt } from "@/lib/pulse/types";
 import { getPhotoBlob, ingestFile, recordPhotoConsent } from "@/lib/pulse/photos";
 import { uploadSharedPhoto } from "@/lib/pulse/remote";
 import { StoredPhoto } from "@/components/stored-photo";
@@ -46,7 +49,7 @@ function DropZone({ accept, check, onFile, disabled, icon, title, hint }: { acce
   );
 }
 
-type Entry = { body: string; stars?: number; callsign?: string; createdAt?: number };
+type Entry = { body: string; stars?: number; callsign?: string; createdAt?: number; face?: FaceId; ext?: OutsideExt };
 
 function starsOf(value: string) {
   const n = parseFloat(value);
@@ -82,7 +85,29 @@ export function DeskImport() {
   const [map, setMap] = useState({ body: NONE, title: NONE, stars: NONE, date: NONE, author: NONE });
   const pasted = useMemo(() => parseLines(text), [text]);
   const header = csv[0] ?? [];
+  const collector = useMemo(() => isCollectorCsv(header), [header]);
   const csvEntries = useMemo<Entry[]>(() => {
+    if (collector) {
+      const h = header.map((x) => x.trim().toLowerCase());
+      const at = (r: string[], name: string) => (r[h.indexOf(name)] ?? "").trim();
+      return csv.slice(1).map((r) => {
+        const reactions = reactionsOf(r, header);
+        const when = Date.parse(at(r, "scraped_at"));
+        const label = at(r, "sentiment");
+        return {
+          body: at(r, "comment"),
+          callsign: at(r, "author") || undefined,
+          createdAt: Number.isFinite(when) ? when : undefined,
+          face: faceFromReactions(reactions) ?? undefined,
+          ext: {
+            kind: at(r, "type").toLowerCase() === "post" ? "post" : "comment",
+            url: at(r, "post_url") || undefined,
+            reactions,
+            text: label ? { label, score: Number(at(r, "score")) || 0 } : undefined,
+          },
+        } as Entry;
+      }).filter((e) => e.body);
+    }
     if (map.body === NONE) return [];
     return csv.slice(1).map((r) => {
       const when = map.date === NONE ? NaN : Date.parse(r[map.date] ?? "");
@@ -93,7 +118,7 @@ export function DeskImport() {
         createdAt: Number.isFinite(when) ? when : undefined,
       };
     }).filter((e) => e.body || e.stars);
-  }, [csv, map]);
+  }, [csv, map, collector, header]);
   const entries = mode === "csv" ? csvEntries : pasted;
 
   async function pickProof(file?: File) {
@@ -155,7 +180,7 @@ export function DeskImport() {
           body: JSON.stringify({
             items: entries.slice(i, i + 200).map((e) => ({
               channelId: place, source, body: e.body, stars: e.stars, createdAt: e.createdAt ?? chosen,
-              callsign: e.callsign || "Imported", photo: proofUrl || undefined,
+              callsign: e.callsign || "Imported", photo: proofUrl || undefined, face: e.face, ext: e.ext,
             })),
           }),
         });
@@ -184,9 +209,11 @@ export function DeskImport() {
         <p className="text-xs uppercase tracking-[0.18em] text-muted">Sources</p>
         <h1 className="mt-1 font-display text-3xl tracking-tight">Add outside feedback</h1>
         <p className="mt-2 text-sm text-muted">
-          Bring in comments from Facebook, Google reviews, TripAdvisor, surveys or walk-ins. Each one is scored with the same sentiment rules as site feedback and counted in the charts.
+          Bring in comments from Facebook, Google reviews, TripAdvisor, surveys or walk-ins. Each one is scored with the same sentiment rules as site feedback, but it is analysed separately as outside the system, so it never mixes with ratings given on this site.
         </p>
       </header>
+
+      <div className="mt-6"><CollectorCard /></div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 rounded-2xl bg-plate p-4 shadow-plate sm:p-6">
         <div className="activity-rating-filters" role="group" aria-label="Where did this feedback come from?">
@@ -247,7 +274,10 @@ export function DeskImport() {
               title={csvName ? csvName : "Drop a CSV file here, or click to choose"}
               hint="CSV files only, up to 2 MB."
             />
-            {csv.length ? (
+            {csv.length && collector ? (
+              <p className="rounded-xl bg-cool p-3">Collector file recognised: {csvEntries.length} comments and posts. Reactions are kept, and the emoji face comes from them (Love and Wow = Wow, Like and Care = Happy, Haha = Okay, Sad and Angry = Sad). Pick Facebook as the source and the place above.</p>
+            ) : null}
+            {csv.length && !collector ? (
               <>
                 <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
                   {([["body", "Comment column (required)"], ["title", "Title column (optional)"], ["stars", "Rating column (1–5, optional)"], ["date", "Date column (optional)"], ["author", "Name column (optional)"]] as const).map(([key, label]) => (

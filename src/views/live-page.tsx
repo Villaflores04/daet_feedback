@@ -1,5 +1,6 @@
 "use client";
 
+import { isOutside } from "@/lib/pulse/types";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
@@ -31,6 +32,8 @@ export function LivePage() {
   const channels = usePulse((s) => s.channels);
   const pulses = usePulse((s) => s.pulses);
   const photosOnly = search.get("photos") === "1";
+  // "site" = shared on this site, "other" = collected from other platforms such as Facebook.
+  const from = search.get("from") === "site" ? "site" : search.get("from") === "other" ? "other" : undefined;
   const feelingParam = search.get("feeling");
   const feeling = FACES.find((f) => f.id === feelingParam)?.id;
   const sortParam = search.get("sort");
@@ -42,7 +45,7 @@ export function LivePage() {
   function setParams(next: Record<string, string | undefined>) {
     const params = new URLSearchParams();
     const merged: Record<string, string | undefined> = {
-      place, photos: photosOnly ? "1" : undefined, feeling, sort: sort === "new" ? undefined : sort, ...next,
+      place, photos: photosOnly ? "1" : undefined, from, feeling, sort: sort === "new" ? undefined : sort, ...next,
     };
     for (const [key, value] of Object.entries(merged)) if (value) params.set(key, value);
     setShown(PAGE);
@@ -51,7 +54,7 @@ export function LivePage() {
   function clearAll() { setQ(""); setShown(PAGE); router.replace("/live", { scroll: false }); }
 
   const activePlace = place ? channels.find((c) => c.slug === place) : undefined;
-  const filtersOn = Boolean(place || photosOnly || feeling || query);
+  const filtersOn = Boolean(place || photosOnly || from || feeling || query);
 
   const rootsAll = useMemo(() => pulses.filter((p) => !p.parentId && p.channelId !== OVERALL_ID), [pulses]);
   const totalStories = rootsAll.length;
@@ -75,8 +78,9 @@ export function LivePage() {
     .filter((p) => !p.parentId)
     .filter((p) => (activePlace ? p.channelId === activePlace.id : true))
     .filter((p) => (photosOnly ? Boolean(p.photo) : true))
+    .filter((p) => (from ? (from === "other") === isOutside(p) : true))
     .filter((p) => !query || p.body.toLowerCase().includes(query) || (channelById.get(p.channelId)?.name ?? "").toLowerCase().includes(query)),
-  [pulses, activePlace, photosOnly, query, channelById]);
+  [pulses, activePlace, photosOnly, from, query, channelById]);
   const feelingCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const p of base) counts[p.face] = (counts[p.face] ?? 0) + 1;
@@ -134,6 +138,8 @@ export function LivePage() {
             </select>
           </label>
           <div className="stories-chips" role="group" aria-label="Filter by feeling">
+            <FilterChip active={from === "site"} onClick={() => setParams({ from: from === "site" ? undefined : "site" })}>On this site</FilterChip>
+            <FilterChip active={from === "other"} onClick={() => setParams({ from: from === "other" ? undefined : "other" })}>From other platforms</FilterChip>
             <FilterChip active={photosOnly} onClick={() => setParams({ photos: photosOnly ? undefined : "1" })}>📷 Photos</FilterChip>
             {FACES.map((face) => (
               <FilterChip key={face.id} active={feeling === face.id} onClick={() => setParams({ feeling: feeling === face.id ? undefined : face.id })}>

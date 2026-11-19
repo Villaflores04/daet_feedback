@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AlertTriangle, Check, Copy, Send, Sparkles, X } from "lucide-react";
 import { usePulse } from "@/lib/pulse/store";
+import { useInsidePulses } from "@/lib/pulse/use-inside";
 import { buildInsights } from "@/lib/pulse/insights";
 import { buildAttention } from "@/lib/pulse/attention";
 import { cn } from "@/lib/utils";
@@ -21,7 +22,7 @@ function writeUsed(n: number) { try { localStorage.setItem(DAY_KEY, JSON.stringi
 
 /** Prompt chips shown in the panel and on the Overview. The first "Understand" chip follows what the rules flagged. */
 export function usePromptGroups() {
-  const pulses = usePulse(s => s.pulses);
+  const pulses = useInsidePulses();
   const channels = usePulse(s => s.channels);
   const pathname = usePathname();
   return useMemo(() => {

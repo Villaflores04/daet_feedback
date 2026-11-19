@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2, Eye, Info, RefreshCw, Sparkles, Star, MessageCircle, Lightbulb, ThumbsUp } from "lucide-react";
 import { usePulse } from "@/lib/pulse/store";
+import { useInsidePulses } from "@/lib/pulse/use-inside";
 import { buildInsights } from "@/lib/pulse/insights";
 import { buildAttention } from "@/lib/pulse/attention";
 import { MoodBar } from "./mood-bar";
@@ -12,7 +13,7 @@ import { ChartCard, DonutChart, EmptyChart, FaceBars, HBarChart, MOOD_COLORS, Pl
 const FACE_COLOR = { POS: MOOD_COLORS.pos, MIX: MOOD_COLORS.mix, NEG: MOOD_COLORS.neg } as const;
 
 export function DeskOverview() {
-  const pulses = usePulse(s => s.pulses);
+  const pulses = useInsidePulses();
   const channels = usePulse(s => s.channels);
   const status = usePulse(s => s.syncStatus);
   const sync = usePulse(s => s.syncShared);

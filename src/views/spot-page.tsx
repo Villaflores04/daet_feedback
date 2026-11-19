@@ -22,6 +22,7 @@ import { buildSentiment, type Range } from "@/lib/pulse/sentiment";
 import { shareLink } from "@/lib/share";
 import { OVERALL_ID } from "@/lib/pulse/scope";
 import { usePulse } from "@/lib/pulse/store";
+import { useInsidePulses } from "@/lib/pulse/use-inside";
 
 const TAB_LABEL = { POS: "Positive", MIX: "Mixed", NEG: "Negative" } as const;
 
@@ -51,7 +52,7 @@ export function SpotPage() {
   const slug = String(params.slug ?? "");
   const reply = search.get("reply") ?? undefined;
   const channel = usePulse((s) => s.channels.find((c) => c.slug === slug));
-  const pulses = usePulse((s) => s.pulses);
+  const pulses = useInsidePulses();
   const [rate, setRate] = useState(false);
   const [range, setRange] = useState<Range>(30);
   const [photo, setPhoto] = useState<string | null>(null);
