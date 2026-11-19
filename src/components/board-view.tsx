@@ -120,7 +120,6 @@ export function BoardView({
           action={origin === "outside" ? <Link href="/live?from=other" className="page-hero-cta">Read the comments</Link> : <Link href="/feedback" className="page-hero-cta">Add your rating</Link>}
         />
       )}
-      {!desk ? <p className="mt-3 text-sm"><Link href={origin === "outside" ? "/board" : "/outside"} className="underline underline-offset-2">{origin === "outside" ? "See feedback given on this site" : "See feedback collected from other platforms"} →</Link></p> : null}
       <div className="sentiment-navigation">
         <div className="analysis-primary" role="group" aria-label="Analysis type">
           <button type="button" aria-pressed={mode === "faces"} onClick={() => selectAnalysis("faces")}>
