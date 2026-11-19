@@ -209,7 +209,7 @@ export function DeskImport() {
         <p className="text-xs uppercase tracking-[0.18em] text-muted">Sources</p>
         <h1 className="mt-1 font-display text-3xl tracking-tight">Add outside feedback</h1>
         <p className="mt-2 text-sm text-muted">
-          Bring in comments from Facebook, Google reviews, TripAdvisor, surveys or walk-ins. Each one is scored with the same sentiment rules as site feedback and counted in the charts.
+          Bring in comments from Facebook, Google reviews, TripAdvisor, surveys or walk-ins. Each one is scored with the same sentiment rules as site feedback, but it is analysed separately as outside the system, so it never mixes with ratings given on this site.
         </p>
       </header>
 

@@ -82,8 +82,19 @@ const PULSE_COLUMNS = "id,channel_id,parent_id,callsign,face,body,photo,reacts_u
 /** Reads feedback with its source; falls back to the older columns if the source migration has not been run yet. */
 async function readPulses(db: ReturnType<typeof supabaseServer>) {
   const run = (cols: string) => db.from("pulses").select(cols).order("created_at", { ascending: false }).limit(500);
-  const top = await run(`${PULSE_COLUMNS},source,author_key,ext`);
-  if (top.error?.code !== "42703") return top;
+  // Site feedback and imported outside feedback are read separately, so a big import cannot push either out of the 500 newest.
+  const cols = `${PULSE_COLUMNS},source,author_key,ext`;
+  const [inside, outside] = await Promise.all([
+    run(cols).in("source", ["visitor", "qr"]),
+    run(cols).not("source", "in", "(visitor,qr)"),
+  ]);
+  if (inside.error?.code !== "42703" && outside.error?.code !== "42703") {
+    if (inside.error) return inside;
+    if (outside.error) return outside;
+    const data = [...(inside.data ?? []), ...(outside.data ?? [])] as unknown as Record<string, unknown>[];
+    data.sort((a, b) => Date.parse(String(b.created_at)) - Date.parse(String(a.created_at)));
+    return { data, error: null };
+  }
   const first = await run(`${PULSE_COLUMNS},source,author_key`);
   if (first.error?.code !== "42703") return first;
   const second = await run(`${PULSE_COLUMNS},source`);

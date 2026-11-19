@@ -2,7 +2,7 @@ import { FACES, moodOf, tallyFaces } from "./faces";
 import { TOPICS } from "./insights";
 import { OVERALL_ID } from "./scope";
 import { scanPulses } from "./words";
-import { SOURCES, type Channel, type Mood, type Pulse } from "./types";
+import { SOURCES, isOutside, type Channel, type Mood, type Pulse } from "./types";
 
 export type Range = 7 | 30 | 90 | 0;
 export const DAY = 86400000;
@@ -90,7 +90,7 @@ export type SentimentData = ReturnType<typeof buildSentiment>;
 export function csvOf(rows: Pulse[], channels: Channel[]) {
   const names = new Map(channels.map(c => [c.id, c.name]));
   const esc = (v: string | number) => `"${String(v).replace(/"/g, '""').replace(/^[=+\-@]/, "'$&")}"`;
-  const lines = [["date", "place", "type", "emoji", "mood", "source", "comment", "agree", "disagree"].join(",")];
-  for (const p of rows) lines.push([new Date(p.createdAt).toISOString(), names.get(p.channelId) ?? "", p.parentId ? "reply" : "rating", p.face, moodOf(p.face), p.source ?? "visitor", p.body, p.reacts.up, p.reacts.down].map(esc).join(","));
+  const lines = [["date", "place", "type", "origin", "emoji", "mood", "source", "comment", "agree", "disagree", "fb_reactions"].join(",")];
+  for (const p of rows) lines.push([new Date(p.createdAt).toISOString(), names.get(p.channelId) ?? "", p.parentId ? "reply" : "rating", isOutside(p) ? "outside" : "inside", p.face, moodOf(p.face), p.source ?? "visitor", p.body, p.reacts.up, p.reacts.down, p.ext?.reactions ? Object.entries(p.ext.reactions).filter(([, n]) => n).map(([k, n]) => `${k}:${n}`).join(" ") : ""].map(esc).join(","));
   return lines.join("\n");
 }
