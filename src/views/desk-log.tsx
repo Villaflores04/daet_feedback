@@ -7,6 +7,7 @@ import { StoredPhoto } from "@/components/stored-photo";
 import { toast } from "sonner";
 import { faceById, moodOf } from "@/lib/pulse/faces";
 import { usePulse } from "@/lib/pulse/store";
+import { flagPulses } from "@/lib/pulse/spam";
 import { SOURCES, type Mood, type Source } from "@/lib/pulse/types";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,8 @@ export function DeskLog() {
   const [batch, setBatch] = useState("all");
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [flaggedOnly, setFlaggedOnly] = useState(false);
+  const flags = useMemo(() => flagPulses(pulses), [pulses]);
   const [spot, setSpot] = useState<string>("all");
   const [mood, setMood] = useState<Mood | "all">("all");
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -31,10 +34,11 @@ export function DeskLog() {
       .filter((p) => (spot === "all" ? true : p.channelId === spot))
       .filter((p) => (mood === "all" ? true : moodOf(p.face) === mood))
       .filter((p) => (batch === "all" ? true : p.ext?.batch === batch))
+      .filter((p) => (flaggedOnly ? flags.has(p.id) : true))
       .filter((p) => (source === "all" ? true : (p.source ?? "visitor") === source))
       .filter((p) => !query.trim() || p.body.toLowerCase().includes(query.trim().toLowerCase()) || p.callsign.toLowerCase().includes(query.trim().toLowerCase()))
       .sort((a, b) => b.createdAt - a.createdAt);
-  }, [pulses, spot, mood, source, batch, query]);
+  }, [pulses, spot, mood, source, batch, flaggedOnly, flags, query]);
   const batches = useMemo(() => {
     const map = new Map<string, number>();
     for (const p of pulses) if (p.ext?.batch) map.set(p.ext.batch, (map.get(p.ext.batch) ?? 0) + 1);
@@ -145,6 +149,9 @@ export function DeskLog() {
         </div>
       ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+        <button type="button" aria-pressed={flaggedOnly} onClick={() => { setFlaggedOnly((v) => !v); setPicked(new Set()); }} className={`h-11 rounded-xl px-4 font-medium ${flaggedOnly ? "bg-neg text-white" : "bg-cool"}`}>
+          Possible spam ({flags.size})
+        </button>
         <label className="flex min-h-11 items-center gap-2">
           <input type="checkbox" className="size-5" checked={tickets.length > 0 && pickedShown === tickets.length} onChange={(e) => setPicked(e.target.checked ? new Set(tickets.map((p) => p.id)) : new Set())} />
           Select all {tickets.length} in this list
@@ -173,6 +180,7 @@ export function DeskLog() {
                 <p className="font-medium">
                   {pulse.callsign}
                   <span className="ml-2 text-xs text-teal">{pulse.parentId ? "Reply" : "Comment"}</span>
+                  {flags.has(pulse.id) ? <span className="ml-2 rounded-full bg-neg/15 px-2 py-0.5 text-xs text-neg" title={flags.get(pulse.id)!.reason}>Possible spam</span> : null}
                   {pulse.source && pulse.source !== "visitor" ? <span className="ml-2 rounded-full bg-cool px-2 py-0.5 text-xs text-muted">{SOURCES.find((x) => x.id === pulse.source)?.label}</span> : null}
                 </p>
                   <p className="activity-place text-xs font-normal text-muted">
@@ -182,6 +190,14 @@ export function DeskLog() {
                 <p className="activity-body text-sm text-muted">
                   {pulse.body || `${face.label} — face only`}
                 </p>
+              {flags.has(pulse.id) ? (
+                <p className="activity-body text-xs text-neg">
+                  {flags.get(pulse.id)!.reason}.{" "}
+                  <button type="button" className="underline underline-offset-2" disabled={bulkBusy} onClick={() => { const key = flags.get(pulse.id)!.authorKey; const ids = pulses.filter((x) => x.authorKey === key).map((x) => x.id); void removeMany({ ids }, `Delete all ${ids.length} entries from this device and their replies?`); }}>
+                    Delete all from this device
+                  </button>
+                </p>
+              ) : null}
               {pulse.photo ? (
                 <button type="button" className="activity-photo" onClick={() => setOpenPhoto(pulse.photo!)} aria-label={`Enlarge photo from ${pulse.callsign}`}>
                   <StoredPhoto id={pulse.photo} alt="Visitor photo" className="h-full w-full object-cover" />
