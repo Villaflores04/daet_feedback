@@ -116,3 +116,6 @@ do $$ begin
   end if;
 end $$;
 grant select on public.support_contacts to anon, authenticated;
+
+-- Outside feedback details (reaction counts, collector sentiment). See migrations/20261120_outside_feedback.sql.
+alter table public.pulses add column if not exists ext jsonb;

@@ -27,6 +27,7 @@ function pulseFromRow(row: Record<string, unknown>) {
     body: String(row.body || ""),
     photo: row.photo ? String(row.photo) : undefined,
     source: typeof row.source === "string" ? row.source : "visitor",
+    ext: row.ext && typeof row.ext === "object" ? row.ext : undefined,
     authorKey: typeof row.author_key === "string" && row.author_key ? row.author_key : undefined,
     createdAt: toMillis(row.created_at as string),
     reacts: {
@@ -81,6 +82,8 @@ const PULSE_COLUMNS = "id,channel_id,parent_id,callsign,face,body,photo,reacts_u
 /** Reads feedback with its source; falls back to the older columns if the source migration has not been run yet. */
 async function readPulses(db: ReturnType<typeof supabaseServer>) {
   const run = (cols: string) => db.from("pulses").select(cols).order("created_at", { ascending: false }).limit(500);
+  const top = await run(`${PULSE_COLUMNS},source,author_key,ext`);
+  if (top.error?.code !== "42703") return top;
   const first = await run(`${PULSE_COLUMNS},source,author_key`);
   if (first.error?.code !== "42703") return first;
   const second = await run(`${PULSE_COLUMNS},source`);
