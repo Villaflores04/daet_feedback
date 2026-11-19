@@ -38,16 +38,20 @@ export function BoardView({
   mode: initialMode,
   openSlug,
   desk = false,
+  origin: fixedOrigin,
 }: {
   mode: "faces" | "words";
   openSlug?: string;
   desk?: boolean;
+  /** Public pages show one origin only: "inside" (default) or "outside". The Desk can switch between them. */
+  origin?: "inside" | "outside";
 }) {
   const channels = usePulse((s) => s.channels);
   const allPulses = usePulse((s) => s.pulses);
   const search = useSearchParams();
   // Feedback given on this site (inside) and feedback staff imported from other platforms (outside) are analysed separately.
-  const [origin, setOrigin] = useState<"inside" | "outside">(search.get("origin") === "outside" ? "outside" : "inside");
+  const [chosen, setOrigin] = useState<"inside" | "outside">(search.get("origin") === "outside" ? "outside" : "inside");
+  const origin = desk ? chosen : (fixedOrigin ?? "inside");
   const pulses = useMemo(() => allPulses.filter(p => (origin === "outside") === isOutside(p)), [allPulses, origin]);
   const outsideCount = useMemo(() => allPulses.filter(p => isOutside(p) && !p.parentId).length, [allPulses]);
   function selectOrigin(next: "inside" | "outside") {
@@ -103,13 +107,14 @@ export function BoardView({
         </header>
       ) : (
         <PageHero
-          eyebrow="How Daet feels"
-          title="Visitor sentiment"
-          lede="See how visitors feel about Daet."
+          eyebrow={origin === "outside" ? "Beyond this site" : "How Daet feels"}
+          title={origin === "outside" ? "Sentiment from other platforms" : "Visitor sentiment"}
+          lede={origin === "outside" ? "Comments and reactions collected from Facebook, analysed separately from feedback given on this site." : "See how visitors feel about Daet."}
           stats={[{ value: townFaces.total, label: townFaces.total === 1 ? "rating" : "ratings" }, ...(townFaces.total ? [{ value: `${Math.round((townFaces.pos / townFaces.total) * 100)}%`, label: "positive" }] : []), { value: textCount, label: textCount === 1 ? "written note" : "written notes" }]}
-          action={<Link href="/feedback" className="page-hero-cta">Add your rating</Link>}
+          action={origin === "outside" ? <Link href="/live?from=other" className="page-hero-cta">Read the comments</Link> : <Link href="/feedback" className="page-hero-cta">Add your rating</Link>}
         />
       )}
+      {!desk ? <p className="mt-3 text-sm"><Link href={origin === "outside" ? "/board" : "/outside"} className="underline underline-offset-2">{origin === "outside" ? "See feedback given on this site" : "See feedback collected from other platforms"} →</Link></p> : null}
       <div className="sentiment-navigation">
         <div className="analysis-primary" role="group" aria-label="Analysis type">
           <button type="button" aria-pressed={mode === "faces"} onClick={() => selectAnalysis("faces")}>
@@ -121,13 +126,13 @@ export function BoardView({
             <span><strong>Text sentiment</strong><small>What visitors say in comments</small></span>
           </button>
         </div>
-        <fieldset className="analysis-scope">
+        {desk ? <fieldset className="analysis-scope">
           <legend>Feedback from</legend>
           <div>
             <label><input type="radio" name="feedback-origin" value="inside" checked={origin === "inside"} onChange={() => selectOrigin("inside")} /><span>Inside the system</span></label>
             <label><input type="radio" name="feedback-origin" value="outside" checked={origin === "outside"} onChange={() => selectOrigin("outside")} /><span>Outside ({outsideCount})</span></label>
           </div>
-        </fieldset>
+        </fieldset> : null}
         <fieldset className="analysis-scope">
           <legend>Show feedback for</legend>
           <div>

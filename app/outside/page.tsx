@@ -1,0 +1,26 @@
+"use client";
+
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { PublicChrome } from "@/components/public-chrome";
+import { BoardView } from "@/components/board-view";
+
+function OutsideInner() {
+  const search = useSearchParams();
+  const open = search.get("open") ?? undefined;
+  return (
+    <PublicChrome>
+      <main id="main-content">
+        <BoardView mode="faces" openSlug={open} origin="outside" />
+      </main>
+    </PublicChrome>
+  );
+}
+
+export default function OutsidePage() {
+  return (
+    <Suspense fallback={<div className="min-h-svh bg-page" />}>
+      <OutsideInner />
+    </Suspense>
+  );
+}
