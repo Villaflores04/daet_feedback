@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FileSpreadsheet, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
+import { CollectorCard } from "@/components/collector-card";
 import { ShareLinkCard } from "@/components/share-link-card";
 import { Button } from "@/components/ui/button";
 import { detectColumns, parseCsv } from "@/lib/csv";
@@ -211,6 +212,8 @@ export function DeskImport() {
           Bring in comments from Facebook, Google reviews, TripAdvisor, surveys or walk-ins. Each one is scored with the same sentiment rules as site feedback and counted in the charts.
         </p>
       </header>
+
+      <div className="mt-6"><CollectorCard /></div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 rounded-2xl bg-plate p-4 shadow-plate sm:p-6">
         <div className="activity-rating-filters" role="group" aria-label="Where did this feedback come from?">
