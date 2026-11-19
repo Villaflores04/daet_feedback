@@ -4,6 +4,7 @@ import { hasDeskSession, sameOrigin } from "@/lib/desk-session";
 import { supabaseStorageServer } from "@/lib/supabase-server";
 import { scanBody } from "@/lib/pulse/words";
 import type { FaceId } from "@/lib/pulse/types";
+import { cleanExt } from "@/lib/pulse/collector";
 
 const SOURCES = new Set(["facebook", "google", "tripadvisor", "survey", "walkin", "other"]);
 const FACES = new Set<FaceId>(["wow", "happy", "medium", "sad"]);
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
       // Optional proof image (a screenshot of the original post). Hidden from the public feed.
       photo: typeof item.photo === "string" && /^https?:\/\//.test(item.photo) ? item.photo : null,
       source,
+      ...(cleanExt(item.ext) ? { ext: cleanExt(item.ext) } : {}),
       created_at: new Date(Number.isFinite(when) && when > 0 && when <= Date.now() ? when : Date.now()).toISOString(),
     });
   });
