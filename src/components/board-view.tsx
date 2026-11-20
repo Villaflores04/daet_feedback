@@ -118,6 +118,7 @@ export function BoardView({
           lede={origin === "outside" ? "Comments and reactions collected from Facebook, analysed separately from feedback given on this site." : "See how visitors feel about Daet."}
           stats={[{ value: out ? fb.total : townFaces.total, label: out ? (fb.total === 1 ? "reaction" : "reactions") : (townFaces.total === 1 ? "rating" : "ratings") }, ...((out ? fb.total : townFaces.total) ? [{ value: `${Math.round(((out ? fb.pos / fb.total : townFaces.pos / townFaces.total)) * 100)}%`, label: "positive" }] : []), { value: textCount, label: textCount === 1 ? "written note" : "written notes" }]}
           action={origin === "outside" ? <Link href="/live?from=other" className="page-hero-cta">Read the comments</Link> : <Link href="/feedback" className="page-hero-cta">Add your rating</Link>}
+          corner={<Link href={out ? "/board" : "/outside"}>{out ? "Site feedback →" : "Other platforms →"}</Link>}
         />
       )}
       <div className="sentiment-navigation">

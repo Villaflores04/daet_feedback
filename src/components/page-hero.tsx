@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 export type HeroStat = { value: string | number; label: string };
 
 /** Shared banner for the public pages: the landing painting behind a short title, a one-line intro and live numbers. */
-export function PageHero({ eyebrow, title, lede, stats, action }: { eyebrow: string; title: string; lede: string; stats?: HeroStat[]; action?: ReactNode }) {
+export function PageHero({ eyebrow, title, lede, stats, action, corner }: { eyebrow: string; title: string; lede: string; stats?: HeroStat[]; action?: ReactNode; corner?: ReactNode }) {
   return (
     <header className="page-hero">
       <div className="page-hero-copy">
@@ -17,6 +17,7 @@ export function PageHero({ eyebrow, title, lede, stats, action }: { eyebrow: str
         ) : null}
       </div>
       {action ? <div className="page-hero-action">{action}</div> : null}
+      {corner ? <div className="page-hero-corner">{corner}</div> : null}
     </header>
   );
 }
