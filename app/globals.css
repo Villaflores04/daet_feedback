@@ -2094,6 +2094,10 @@ button, [role="button"] { min-width:44px; min-height:44px; }
 .page-hero-stats strong { font: 600 20px/1 var(--font-display); font-variant-numeric: tabular-nums; }
 .page-hero-stats span { font-size: 12px; letter-spacing: .02em; color: rgb(255 255 255 / .85); }
 .page-hero-action { flex-shrink: 0; }
+/* Small link button tucked into the bottom-right corner of the banner. */
+.page-hero-corner { position: absolute; right: 14px; bottom: 14px; z-index: 1; }
+.page-hero-corner a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 14px; border: 1px solid rgb(255 255 255 / .35); border-radius: 999px; background: rgb(255 255 255 / .16); color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; backdrop-filter: blur(6px); }
+.page-hero-corner a:hover { background: rgb(255 255 255 / .28); }
 .page-hero-cta { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 22px; border-radius: 999px; background: #fff; color: #123449; font-size: 14px; font-weight: 600; white-space: nowrap; transition: transform .2s, box-shadow .2s; }
 .page-hero-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -10px rgb(0 0 0 / .5); }
 @media (max-width: 767px) {
@@ -2103,6 +2107,7 @@ button, [role="button"] { min-width:44px; min-height:44px; }
   .page-hero-stats li { padding: 6px 12px; }
   .page-hero-stats strong { font-size: 17px; }
   .page-hero-cta { width: 100%; }
+  .page-hero-corner { position: static; align-self: flex-end; margin-top: -4px; }
 }
 
 /* Places */
