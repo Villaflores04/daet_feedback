@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { AlertTriangle, Check, Copy, Send, Sparkles, X } from "lucide-react";
+import { AlertTriangle, Check, Copy, History, MessageSquarePlus, Send, Sparkles, Trash2, X } from "lucide-react";
 import { usePulse } from "@/lib/pulse/store";
 import { useInsidePulses } from "@/lib/pulse/use-inside";
 import { buildInsights } from "@/lib/pulse/insights";
@@ -14,6 +14,18 @@ const DAILY_LIMIT = 100;
 const DAY_KEY = "desk-ask-ai-day";
 
 type Message = { role: "user" | "assistant"; content: string; error?: boolean };
+type Chat = { id: string; title: string; updated: number; messages: Message[] };
+
+// Chat history is kept in this browser only (localStorage). The most recent 30 chats are kept.
+const CHATS_KEY = "desk-ask-ai-chats";
+const MAX_CHATS = 30;
+function readChats(): Chat[] {
+  try { const v = JSON.parse(localStorage.getItem(CHATS_KEY) || "[]"); return Array.isArray(v) ? v.filter(c => c && typeof c.id === "string" && Array.isArray(c.messages)) : []; } catch { return []; }
+}
+function writeChats(chats: Chat[]) { try { localStorage.setItem(CHATS_KEY, JSON.stringify(chats.slice(0, MAX_CHATS))); } catch { /* storage may be blocked */ } }
+const newId = () => `c${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+const chatTitle = (m: Message[]) => { const t = (m.find(x => x.role === "user")?.content || "New chat").replace(/\s+/g, " ").trim(); return t.length > 60 ? `${t.slice(0, 57)}…` : t; };
+const stamp = (t: number) => new Date(t).toLocaleString("en-PH", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
 function readUsed() {
@@ -59,15 +71,35 @@ export function DeskAskAi() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [used, setUsed] = useState(0);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const scroller = useRef<HTMLDivElement>(null);
   const field = useRef<HTMLTextAreaElement>(null);
   const history = useRef<Message[]>([]);
   history.current = messages;
-  useEffect(() => { setUsed(readUsed()); }, []);
+  useEffect(() => { setUsed(readUsed()); setChats(readChats()); }, []);
+  // Save the open conversation whenever it changes.
+  useEffect(() => {
+    if (!messages.length || busy) return;
+    const id = chatId ?? newId();
+    if (!chatId) setChatId(id);
+    setChats(prev => {
+      const next = [{ id, title: chatTitle(messages), updated: Date.now(), messages: messages.slice(-60) }, ...prev.filter(c => c.id !== id)].slice(0, MAX_CHATS);
+      writeChats(next);
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, busy]);
+  const startNew = () => { setMessages([]); setChatId(null); setShowHistory(false); setInput(""); };
+  const openChat = (c: Chat) => { setMessages(c.messages); setChatId(c.id); setShowHistory(false); };
+  const removeChat = (id: string) => { setChats(prev => { const next = prev.filter(c => c.id !== id); writeChats(next); return next; }); if (id === chatId) { setMessages([]); setChatId(null); } };
+  const clearChats = () => { setChats([]); writeChats([]); setMessages([]); setChatId(null); };
   const left = Math.max(0, DAILY_LIMIT - used);
 
   const send = useCallback(async (raw: string) => {
     const text = raw.replace(/\s+/g, " ").trim();
+    setShowHistory(false);
     if (!text || busy) return;
     if (readUsed() >= DAILY_LIMIT) { setMessages(m => [...m, { role: "user", content: text }, { role: "assistant", error: true, content: `You've used today's ${DAILY_LIMIT} questions. The limit protects the AI quota and resets tomorrow.` }]); return; }
     // A question that failed is left out together with its error, so the next request never sends two user turns in a row.
@@ -164,12 +196,34 @@ export function DeskAskAi() {
               <p id="ask-ai-note" className="text-xs text-muted">Draft answers from your latest data · officer review required</p>
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              <button type="button" onClick={startNew} className="grid size-11 place-items-center rounded-full hover:bg-cool" aria-label="Start a new chat" title="New chat"><MessageSquarePlus size={18} aria-hidden /></button>
+              <button type="button" onClick={() => setShowHistory(v => !v)} aria-pressed={showHistory} className={cn("grid size-11 place-items-center rounded-full hover:bg-cool", showHistory && "bg-cool")} aria-label="Chat history" title="History"><History size={18} aria-hidden /></button>
               <span className={cn("rounded-full px-2.5 py-1 text-xs font-medium", left <= 3 ? "bg-amber-100 text-amber-900" : "bg-cool text-muted")} aria-live="polite">{left} left today</span>
               <button type="button" onClick={() => setOpen(false)} className="grid size-11 place-items-center rounded-full hover:bg-cool" aria-label="Close Ask AI"><X size={18} aria-hidden /></button>
             </div>
           </header>
           <div ref={scroller} className="desk-ask-body">
-            {messages.length === 0 ? (
+            {showHistory ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted">History · this browser</p>
+                  {chats.length ? <button type="button" onClick={() => { if (window.confirm("Delete all saved chats in this browser?")) clearChats(); }} className="text-xs font-medium text-neg">Clear all</button> : null}
+                </div>
+                {chats.length === 0 ? <p className="text-sm text-muted">No saved chats yet. Your questions and answers are saved here automatically.</p> : (
+                  <ul className="space-y-2">
+                    {chats.map(c => (
+                      <li key={c.id} className={cn("flex items-center gap-1 rounded-xl border bg-white", c.id === chatId ? "border-blue-300" : "border-line")}>
+                        <button type="button" onClick={() => openChat(c)} className="min-w-0 flex-1 px-3 py-2 text-left">
+                          <span className="block truncate text-sm font-medium">{c.title}</span>
+                          <span className="block text-xs text-muted">{stamp(c.updated)} · {c.messages.filter(m => m.role === "user").length} question(s)</span>
+                        </button>
+                        <button type="button" onClick={() => removeChat(c.id)} className="grid size-11 shrink-0 place-items-center text-muted hover:text-neg" aria-label={`Delete chat: ${c.title}`}><Trash2 size={16} aria-hidden /></button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : messages.length === 0 ? (
               <div className="space-y-4">
                 <p className="text-sm leading-6 text-muted">Pick a question or type your own. Answers use counts and redacted comments only: no names, photos or contact details.</p>
                 {blocked ? <p className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">Data may be incomplete or cached. Refresh the Overview before relying on answers.</p> : null}
@@ -195,7 +249,7 @@ export function DeskAskAi() {
               </ul>
             )}
           </div>
-          {messages.length ? (
+          {messages.length && !showHistory ? (
             <div className="desk-ask-chips" aria-label="Suggested questions">
               {groups.flatMap(g => g.prompts).map(p => <button key={p} type="button" onClick={() => void send(p)} disabled={busy} className="desk-ask-chip desk-ask-chip-small">{p}</button>)}
             </div>
