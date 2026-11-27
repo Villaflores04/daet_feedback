@@ -101,7 +101,6 @@ export function WishDetail() {
         </Button>
       </div>
       {error ? <p role="alert" className="mt-3 text-sm text-neg">{error} <Link href="/desk" className="underline">Open admin desk</Link></p> : null}
-      {channel ? <Link href={`/spots/${channel.slug}`} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-teal">View place</Link> : null}
     </article>
   );
 }
