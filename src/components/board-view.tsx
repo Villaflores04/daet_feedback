@@ -287,12 +287,14 @@ export function BoardView({
                         {unmatched.map(note => <li key={note.id} className="break-words rounded-xl bg-cool px-3 py-2 text-sm"><span className="mr-2 text-xs font-semibold text-muted">UNCLASSIFIED</span>{note.body}</li>)}
                       </ul>
                     )}
-                    <Link
-                      href={`/spots/${channel.slug}`}
-                      className="mt-3 inline-flex h-11 items-center text-sm font-medium text-action"
-                    >
-                      Open place
-                    </Link>
+                    {!desk && (
+                      <Link
+                        href={`/spots/${channel.slug}`}
+                        className="mt-3 inline-flex h-11 items-center text-sm font-medium text-action"
+                      >
+                        Open place
+                      </Link>
+                    )}
                   </div>
                 ) : null}
               </li>
